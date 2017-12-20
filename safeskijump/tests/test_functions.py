@@ -70,3 +70,43 @@ def test_compute_design_speed(plot=False):
         plot_jump(start_pos, approach_len, slope_angle, takeoff_angle, curve_x,
                   curve_y)
         plt.show()
+
+
+def test_all(plot=False):
+
+    slope_angle = 10.0  # degrees
+    start_pos = 10.0  # meters
+    approach_len = 50.0  # meters
+    takeoff_angle = 20.0  # degrees
+    tolerable_acc = 1.5  # G
+
+    launch_entry_speed = compute_approach_exit_speed(slope_angle, start_pos,
+                                                     approach_len)
+
+    curve_x, curve_y, _, _ = generate_takeoff_curve(slope_angle,
+                                                    launch_entry_speed,
+                                                    takeoff_angle,
+                                                    tolerable_acc)
+
+    ramp_entry_speed = compute_design_speed(launch_entry_speed, slope_angle,
+                                            curve_x, curve_y)
+
+    curve_x, curve_y = add_takeoff_ramp(takeoff_angle, ramp_entry_speed,
+                                        curve_x, curve_y)
+
+    design_speed = compute_design_speed(launch_entry_speed, slope_angle,
+                                        curve_x, curve_y)
+
+    init_x = (start_pos + approach_len) * np.cos(np.deg2rad(slope_angle)) + curve_x[-1]
+    init_y = -(start_pos + approach_len) * np.sin(np.deg2rad(slope_angle)) + curve_y[-1]
+
+    traj_x, traj_y, vel_x, vel_y = compute_flight_trajectory(slope_angle,
+                                                             (init_x, init_y),
+                                                             takeoff_angle,
+                                                             design_speed)
+    stateJ = np.hstack((traj_x, traj_y, vel_x, vel_y))
+
+    if plot:
+        plot_jump(start_pos, approach_len, slope_angle, takeoff_angle, curve_x,
+                  curve_y, traj_x, traj_y)
+        plt.show()

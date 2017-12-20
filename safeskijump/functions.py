@@ -337,7 +337,7 @@ def add_takeoff_ramp(takeoff_angle, ramp_entry_speed, takeoff_curve_x,
 
 
 def compute_flight_trajectory(slope_angle, takeoff_point, takeoff_angle,
-                              takeoff_speed):
+                              takeoff_speed, num_points=1000000):
     """Returns the X and Y coordinates of the skier's flight trajectory
     beginning at the launch point and ending when the trajectory intersects the
     parent slope.
@@ -379,8 +379,8 @@ def compute_flight_trajectory(slope_angle, takeoff_point, takeoff_angle,
         xdot = vx
         ydot = vy
 
-        vxdot = -eta*vx**2
-        vydot = -g + eta*vy**2
+        vxdot = -eta*np.sign(vx)*vx**2
+        vydot = -g - eta*np.sign(vy)*vy**2
 
         return xdot, ydot, vxdot, vydot
 
@@ -390,19 +390,27 @@ def compute_flight_trajectory(slope_angle, takeoff_point, takeoff_angle,
         x = state[0]
         y = state[1]
 
-        m = np.tan(slope_angle)
-        d = (y - m * x) * np.cos(slope_angle)
+        m = np.tan(-np.deg2rad(slope_angle))
+        d = (y - m * x) * np.cos(np.deg2rad(slope_angle))
+
+        print(d)
 
         return d
 
     touch_slope.terminal = True
 
+    init_conds = (takeoff_point[0],
+                  takeoff_point[1],
+                  takeoff_speed * np.cos(np.deg2rad(takeoff_angle)),
+                  takeoff_speed * np.sin(np.deg2rad(takeoff_angle)))
+
     sol = solve_ivp(rhs,
                     (0.0, 1E4),
-                    (initial_x, initial_y, initial_vx, initial_vy),
+                    init_conds,
+                    t_eval=np.linspace(0.0, 1E4, num=num_points),
                     events=(touch_slope, ))
 
-    return sol.y[0], sol.y[1]
+    return sol.y[0], sol.y[1], sol.y[2], sol.y[3]
 
 
 def find_trajectory_point_where_path_is_parallel_to_parent_slope():
@@ -427,32 +435,37 @@ def calculate_landing_transition_curve():
 
 
 def plot_jump(start_pos, approach_len, slope_angle, takeoff_angle,
-              launch_curve_x, launch_curve_y):
+              takeoff_curve_x, takeoff_curve_y, flight_traj_x,
+              flight_traj_y):
 
     fig, ax = plt.subplots(1, 1)
 
     # plot approach
-    x = np.linspace(start_pos, start_pos + approach_len)
-    y = x * np.tan(-np.deg2rad(slope_angle))
+    l = np.linspace(start_pos, start_pos + approach_len)
+    x = l * np.cos(np.deg2rad(slope_angle))
+    y = -l * np.sin(np.deg2rad(slope_angle))
     ax.plot(x[0], y[0], marker='x', markersize=14)
 
     # plot starting location of skier
     ax.plot(x, y)
 
     # plot launch curve
-    shifted_launch_curve_x = launch_curve_x + x[-1]
-    shifted_launch_curve_y = launch_curve_y + y[-1]
-    ax.plot(shifted_launch_curve_x, shifted_launch_curve_y)
+    shifted_takeoff_curve_x = takeoff_curve_x + x[-1]
+    shifted_takeoff_curve_y = takeoff_curve_y + y[-1]
+    ax.plot(shifted_takeoff_curve_x, shifted_takeoff_curve_y)
 
     # plot takeoff angle line
     takeoff_line_slope = np.tan(np.deg2rad(takeoff_angle))
-    takeoff_line_intercept = (shifted_launch_curve_y[-1] - takeoff_line_slope *
-                              shifted_launch_curve_x[-1])
+    takeoff_line_intercept = (shifted_takeoff_curve_y[-1] - takeoff_line_slope *
+                              shifted_takeoff_curve_x[-1])
 
-    x_takeoff = np.linspace(shifted_launch_curve_x[0],
-                            shifted_launch_curve_x[-1] + 5.0)
+    x_takeoff = np.linspace(shifted_takeoff_curve_x[0],
+                            shifted_takeoff_curve_x[-1] + 5.0)
     y_takeoff = takeoff_line_slope * x_takeoff + takeoff_line_intercept
     ax.plot(x_takeoff, y_takeoff, '--')
+
+    # plot flight trajectory
+    ax.plot(flight_traj_x, flight_traj_y)
 
     ax.set_aspect('equal')
 
