@@ -9,7 +9,7 @@ import numpy as np
 from numpy import sin, cos
 
 
-def buildClothoidAndCircle(lam,beta,vti,gamma,tolerableGs,g):
+def buildClothoidAndCircle(lam, beta, vti, gamma, tolerableGs, g):
     """function [X,Y, dYdX, angle] = buildClothoidAndCircle(lam,beta,vti,gamma,tolerableGs,g)
     % This program will find the shape of a clothoid and circular transition
     % for the in-run of a ski jump with a circular section of radius, radius_min
@@ -105,10 +105,10 @@ def buildClothoidAndCircle(lam,beta,vti,gamma,tolerableGs,g):
     #figure()
     #plot(X5,Y5,'m',X4,Y4,'b') axis equal hold on
     ## stitching together clothoid and circular data
-    xLCir = xCir[xCir< = 0]
+    xLCir = xCir[xCir<=0]
     yLCir = radius_min-np.sqrt(radius_min**2-xLCir**2)
 
-    xRCir = xCir[xCir> = 0]
+    xRCir = xCir[xCir>=0]
     yRCir = radius_min-np.sqrt(radius_min**2-xRCir**2)
 
     X4 = np.hstack((X4, xLCir[1:-1]))
