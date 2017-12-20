@@ -1,11 +1,11 @@
 import numpy as np
 from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
-
+import matplotlib.pyplot as plt
 
 PARAMETERS = {
               'friction_coeff': 0.03,
-              'grav_accel': 9.81,  # m/s**2
+              'grav_acc': 9.81,  # m/s**2
               'skier_mass': 75,  # kg
               'drag_coeff_times_area': 0.279,
               'air_density': 0.85,
@@ -37,7 +37,7 @@ def compute_approach_exit_speed(parent_slope_angle, start_pos, approach_len):
 
     """
     m = PARAMETERS['skier_mass']
-    g = PARAMETERS['grav_accel']
+    g = PARAMETERS['grav_acc']
     mu = PARAMETERS['friction_coeff']
     CdA = PARAMETERS['drag_coeff_times_area']
     rho = PARAMETERS['air_density']
@@ -72,10 +72,149 @@ def compute_approach_exit_speed(parent_slope_angle, start_pos, approach_len):
     return sol.y[1, -1]
 
 
-def generate_approach_curve(entry_speed, parent_slope_angle, start_pos,
-                            approach_len, max_acc):
+def generate_launch_curve(slope_angle, entry_speed, takeoff_angle,
+                          tolerable_acc, numpoints=500):
+    """Returns the X and Y coordinates of the clothoid-circle-clothoid launch
+    curve (approach-takeoff transition).
 
-    return approach_x, approach_y
+    Parameters
+    ==========
+    slope_angle : float
+        The angle of the parent slope in radians.
+    entry_speed : float
+        The magnitude of the skier's velocity in meters per second as they
+        enter the launch curve.
+    takeoff_angle : float
+        The desired takeoff angle at the endof the launch in radians.
+    tolerable_acc : float
+        The tolerable acceleration of the skier in G's.
+    numpoints : integer, optional
+        The n number of points in the produced curve.
+
+    Returns
+    =======
+    X : ndarray, shape(n,)
+        The n X coordinates of the curve.
+    Y : ndarray, shape(n,)
+        The n Y coordinates of the curve.
+    dYdX : ndarray, shape(n-1,)
+        The slope of the curve.
+    angle : ndarray, shape(n-1,)
+        The angle of the slope of the curve.
+
+    Notes
+    =====
+
+    lam = parent slope angle, radian
+    beta = takeoff angle, radians
+    gamma = percent of circular segment desired in transition
+
+    s1 = left side clothoid length at any point (downhill part)
+    s2 = right side clothoid at any point length (uphill part)
+    L1 = left side (longest) clothoid length (downhill part)
+    L2 = right side (longest) clothoid length (uphill part)
+
+    """
+
+    g = PARAMETERS['grav_acc']
+    gamma = PARAMETERS['gamma']
+
+    lam = np.deg2rad(slope_angle)
+    beta = np.deg2rad(takeoff_angle)
+
+    rotation_clothoid = (lam - beta) / 2
+    # used to rotate symmetric clothoid so that left side is at lam and right
+    # sid is at beta
+
+    # radius_min is the radius of the circular part of the transition. Every
+    # other radius length (in the clothoid) will be longer than that, as this
+    # will ensure the g - force felt by the skier is always less than a desired
+    # value. This code ASSUMES that the velocity at the minimum radius is equal
+    # to the velocity at the end of the approach.
+    radius_min = entry_speed**2 / (tolerable_acc * g)
+
+    #  x,y data for circle
+    thetaCir = 0.5 * gamma * (lam + beta)
+    xCirBound = radius_min * np.sin(thetaCir)
+    xCirSt = -radius_min * np.sin(thetaCir)
+    xCir = np.linspace(xCirSt, xCirBound, num=numpoints)
+    yCir = radius_min - np.sqrt(radius_min**2 - xCir**2)
+
+    # x,y data for one clothoid
+    A_squared = radius_min**2 * (1 - gamma) * (lam + beta)
+    A = np.sqrt(A_squared)
+    clothoid_length = A * np.sqrt((1 - gamma) * (lam + beta))
+
+    # generates arc length points for one clothoid
+    s = np.linspace(clothoid_length, 0, numpoints)
+
+    X1 = s - (s**5) / (40*A**4) + (s**9) / (3456*A**8)
+    Y1 = (s**3) / (6*A**2) - (s**7) / (336*A**6) + (s**11) / (42240*A**10)
+
+    X2 = X1 - X1[0]
+    Y2 = Y1 - Y1[0]
+
+    theta = (lam + beta) / 2
+    X3 = np.cos(theta)*X2 + np.sin(theta)*Y2
+    Y3 = -np.sin(theta)*X2 + np.cos(theta)*Y2
+
+    X4 = X3
+    Y4 = Y3
+
+    X5 = -X4 + 2*X4[0]
+    Y5 = Y4
+
+    X4 = X4 - radius_min*np.sin(thetaCir)
+    Y4 = Y4 + radius_min*(1 - np.cos(thetaCir))
+    X4 = X4[::-1]
+    Y4 = Y4[::-1]
+
+    X5 = X5 + radius_min*np.sin(thetaCir)
+    Y5 = Y5 + radius_min*(1 - np.cos(thetaCir))
+
+    # stitching together clothoid and circular data
+    xLCir = xCir[xCir <= 0]
+    yLCir = radius_min - np.sqrt(radius_min**2 - xLCir**2)
+
+    xRCir = xCir[xCir >= 0]
+    yRCir = radius_min - np.sqrt(radius_min**2 - xRCir**2)
+
+    X4 = np.hstack((X4, xLCir[1:-1]))
+    Y4 = np.hstack((Y4, yLCir[1:-1]))
+
+    X5 = np.hstack((xRCir[0:-2], X5))
+    Y5 = np.hstack((yRCir[0:-2], Y5))
+
+    X6 = np.cos(rotation_clothoid)*X4 + np.sin(rotation_clothoid)*Y4
+    Y6 = -np.sin(rotation_clothoid)*X4 + np.cos(rotation_clothoid)*Y4
+    X7 = np.cos(rotation_clothoid)*X5 + np.sin(rotation_clothoid)*Y5
+    Y7 = -np.sin(rotation_clothoid)*X5 + np.cos(rotation_clothoid)*Y5
+
+    X = np.hstack((X6, X7))
+    Y = np.hstack((Y6, Y7))
+
+    # Shift the entry point of the curve to be at X=0, Y=0
+    X = X - np.min(X)
+    Y = Y - Y[np.argmin(X)]
+
+    dYdX = np.diff(Y) / np.diff(X)
+    angle = np.arctan(dYdX)
+
+    return X, Y, dYdX, angle
+
+
+def plot_jump(start_pos, approach_len, slope_angle, launch_curve_x,
+              launch_curve_y):
+
+    fig, ax = plt.subplots(1, 1)
+
+    x = np.linspace(start_pos, start_pos + approach_len)
+    y = x * np.tan(-np.deg2rad(slope_angle))
+    ax.plot(x[0], y[0], marker='x', markersize=14)
+    ax.plot(x, y)
+    ax.plot(launch_curve_x + x[-1], launch_curve_y + y[-1])
+
+    return ax
 
 
 def compute_design_speed(entry_speed, parent_slope_angle, launch_curve_x,
@@ -150,6 +289,7 @@ def compute_design_speed(entry_speed, parent_slope_angle, launch_curve_x,
 
 
 def compute_flight_trajectory(launch_angle, launch_speed, initial_x, initial_y):
+
 
     return traj_x, traj_y
 
