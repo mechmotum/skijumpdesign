@@ -12,19 +12,22 @@ PARAMETERS = {
               'gamma': 0.99, # fraction of circular section in inrun transition
               'tolerableGs_tranIn': 1.5, # max g force we are willing to let jumper feel
               'tolerableGs_tranOut': 3, # use this to find transition point
+              'time_on_takeoff_ramp': 0.2,  # seconds
               }
 
 
-def compute_approach_exit_speed(parent_slope_angle, start_pos, approach_len):
+def compute_approach_exit_speed(slope_angle, start_pos, approach_len):
     """Returns the speed of the skier in meters per second  at the end of the
     approach (entry to approach-takeoff transition).
 
     Parameters
     ==========
-    parent_slope_angle : float
-        The angle of the existing parent slope in degrees.
+    slope_angle : float
+        The angle of the parent slope in degrees. This is the angle about the
+        negative Z axis.
     start_pos : float
-        The position in meters along the slope from the beginning of the slope.
+        The position in meters along the slope from the top (beginning) of the
+        slope.
     approach_len : float
         The distance in meters along the slope from the skier starting position
         to the beginning of the approach transition.
@@ -33,7 +36,7 @@ def compute_approach_exit_speed(parent_slope_angle, start_pos, approach_len):
     =======
     exit_speed : float
         The speed the skier is traveling in meters per second at the entrance
-        to the approach transition.
+        to the takeoff curve.
 
     """
     m = PARAMETERS['skier_mass']
@@ -44,48 +47,53 @@ def compute_approach_exit_speed(parent_slope_angle, start_pos, approach_len):
 
     eta = (CdA * rho) / (2 * m)
 
-    cos_ang = np.cos(np.deg2rad(parent_slope_angle))
-    sin_ang = np.sin(np.deg2rad(parent_slope_angle))
+    cos_ang = np.cos(np.deg2rad(slope_angle))
+    sin_ang = np.sin(np.deg2rad(slope_angle))
 
-    def rhs(t, x):
-        """Right hand side of particle with drag and friction."""
+    def rhs(t, state):
+        """Right hand side of particle with drag and friction. The position
+        measurement is along the slope and the velocity is parallel to the
+        slope."""
 
-        vel = x[1]
+        vel = state[1]
 
         pos_dot = vel
-        vel_dot = (g * sin_ang - eta * vel**2 -
-                   mu * g * cos_ang * np.sign(vel))
+        vel_dot = g * sin_ang - eta * vel**2 - mu * g * cos_ang * np.sign(vel)
 
         return pos_dot, vel_dot
 
-    def reach_approach_transition(t, x):
+    def reach_takeoff_entry(t, state):
         """Returns zero when the skier gets to the end of the approach
         length."""
-        pos = x[0]
+        pos = state[0]
         return pos - start_pos - approach_len
 
-    reach_approach_transition.terminal = True
+    reach_takeoff_entry.terminal = True
 
-    sol = solve_ivp(rhs, (0.0, 1E4), (start_pos, 0),
-                    events=(reach_approach_transition, ))
+    sol = solve_ivp(rhs,
+                    (0.0, 1E4),  # time span, tf is arbitrarily large
+                    (start_pos, 0),  # initial conditions, x0, v0
+                    events=(reach_takeoff_entry, ))
 
-    return sol.y[1, -1]
+    exit_speed = sol.y[1, -1]
+
+    return exit_speed
 
 
-def generate_launch_curve(slope_angle, entry_speed, takeoff_angle,
-                          tolerable_acc, numpoints=500):
-    """Returns the X and Y coordinates of the clothoid-circle-clothoid launch
-    curve (approach-takeoff transition).
+def generate_takeoff_curve(slope_angle, entry_speed, takeoff_angle,
+                           tolerable_acc, numpoints=500):
+    """Returns the X and Y coordinates of the clothoid-circle-clothoid takeoff
+    curve (without the flat takeoff ramp).
 
     Parameters
     ==========
     slope_angle : float
-        The angle of the parent slope in radians.
+        The angle of the parent slope in degrees.
     entry_speed : float
         The magnitude of the skier's velocity in meters per second as they
-        enter the launch curve.
+        enter the takeoff curve (i.e. approach exit speed).
     takeoff_angle : float
-        The desired takeoff angle at the endof the launch in radians.
+        The desired takeoff angle at the takeoff point in degrees.
     tolerable_acc : float
         The tolerable acceleration of the skier in G's.
     numpoints : integer, optional
@@ -203,65 +211,50 @@ def generate_launch_curve(slope_angle, entry_speed, takeoff_angle,
     return X, Y, dYdX, angle
 
 
-def plot_jump(start_pos, approach_len, slope_angle, launch_curve_x,
-              launch_curve_y):
-
-    fig, ax = plt.subplots(1, 1)
-
-    x = np.linspace(start_pos, start_pos + approach_len)
-    y = x * np.tan(-np.deg2rad(slope_angle))
-    ax.plot(x[0], y[0], marker='x', markersize=14)
-    ax.plot(x, y)
-    ax.plot(launch_curve_x + x[-1], launch_curve_y + y[-1])
-
-    return ax
-
-
-def compute_design_speed(entry_speed, parent_slope_angle, launch_curve_x,
-                         launch_curve_y):
-    """Returns the magnitude of the takeoff velocity out of the approach
-    curve.
+def compute_design_speed(slope_angle, entry_speed, takeoff_curve_x,
+                         takeoff_curve_y):
+    """Returns the magnitude of the takeoff velocity at the takeoff point.
 
     Parameters
     ==========
+    slope_angle : float
+        The angle of the parent slope in degrees.
     entry_speed : float
-        The magnitude of the skier's speed at the entry of the approach-takeoff
-        transition.
-    parent_slope_angle : float
-        The angle of the existing parent slope in degrees.
-    launch_curve_x : ndarray, shape(n,)
-        The X coordinates in meters of points on the approach-takeoff
-        transition.
-    launch_curve_y : ndarray, shape(n,)
-        The Y coordinates in meters of points on the approach-takeoff
-        transition.
+        The magnitude of the skier's speed at the entry of the takeoff curve
+        (same as approach exit speed).
+    takeoff_curve_x : ndarray, shape(n,)
+        The X coordinates in meters of points on the takeoff curve.
+    takeoff_curve_y : ndarray, shape(n,)
+        The Y coordinates in meters of points on the takeoff curve.
 
     Returns
     =======
     design_speed : float
-        The magnitude of the skier's velocity at takeoff, this is called the
-        "design speed."
+        The magnitude of the skier's velocity at the takeoff point, this is
+        called the "design speed".
 
     """
     m = PARAMETERS['skier_mass']
-    g = PARAMETERS['grav_accel']
+    g = PARAMETERS['grav_acc']
     mu = PARAMETERS['friction_coeff']
     CdA = PARAMETERS['drag_coeff_times_area']
     rho = PARAMETERS['air_density']
 
     eta = (CdA * rho) / (2 * m)
 
-    dydx = np.hstack((0, np.diff(launch_curve_y) / np.diff(launch_curve_x)))
-    ddydx = np.hstack((0, np.diff(dydx) / np.diff(launch_curve_x)))
+    dydx = np.hstack((0, np.diff(takeoff_curve_y) / np.diff(takeoff_curve_x)))
+    ddydx = np.hstack((0, np.diff(dydx) / np.diff(takeoff_curve_x)))
     kurvature = ddydx / (1 + dydx**2)**1.5
 
-    slope_interpolator = interp1d(launch_curve_x, dydx)
-    kurva_interpolator = interp1d(launch_curve_x, kurvature)
+    slope_interpolator = interp1d(takeoff_curve_x, dydx,
+                                  fill_value='extrapolate')
+    kurva_interpolator = interp1d(takeoff_curve_x, kurvature,
+                                  fill_value='extrapolate')
 
-    def rhs(t, y):
+    def rhs(t, state):
 
-        x = y[0]  # horizontal position
-        v = y[1]  # velocity tangent to slope
+        x = state[0]  # horizontal position
+        v = state[1]  # velocity tangent to slope
 
         slope = slope_interpolator(x)
         kurva = kurva_interpolator(x)
@@ -275,23 +268,141 @@ def compute_design_speed(entry_speed, parent_slope_angle, launch_curve_x,
 
         return xdot, vdot
 
-    def reach_launch(t, y):
+    def reach_launch(t, state):
         """Returns zero when the skier gets to the end of the approach
         length."""
-        return y[0] - launch_curve_x[-1]
+        return state[0] - takeoff_curve_x[-1]
 
     reach_launch.terminal = True
 
-    sol = solve_ivp(rhs, (0.0, 1E4), (launch_curve_x[0], entry_speed),
+    sol = solve_ivp(rhs,
+                    (0.0, 1E4),  # time span
+                    (takeoff_curve_x[0], entry_speed),  # initial conditions
                     events=(reach_launch, ))
 
-    return sol.y[1, -1]
+    design_speed = sol.y[1, -1]
+
+    print('X coordinate of end of launch curve: {}'.format(takeoff_curve_x[-1]))
+    print('Takeoff x coordinate (integration termination): {}'.format(sol.y[0, -1]))
+    print('Takeoff velocity: {}'.format(design_speed))
+
+    return design_speed
 
 
-def compute_flight_trajectory(launch_angle, launch_speed, initial_x, initial_y):
+def add_takeoff_ramp(takeoff_angle, ramp_entry_speed, takeoff_curve_x,
+                     takeoff_curve_y):
+    """Returns the X and Y coordinates of the takeoff curve with the flat
+    takeoff ramp added to the terminus.
+
+    Parameters
+    ==========
+    takeoff_angle : float
+        The desired takeoff angle at the takeoff point in degrees, measured as
+        a positive Z rotation from the horizontal X axis.
+    ramp_entry_speed : float
+        The magnitude of the skier's speed at the exit of the second clothoid.
+    takeoff_curve_x : ndarray, shape(n,)
+        The X coordinates in meters of points on the takeoff curve without the
+        takeoff ramp.
+    takeoff_curve_y : ndarray, shape(n,)
+        The Y coordinates in meters of points on the takeoff curve without the
+        takeoff ramp.
+
+    Returns
+    =======
+    ext_takeoff_curve_x : ndarray, shape(n,)
+        The X coordinates in meters of points on the takeoff curve with the
+        takeoff ramp added as an extension.
+    ext_takeoff_curve_y : ndarray, shape(n,)
+        The Y coordinates in meters of points on the takeoff curve with the
+        takeoff ramp added as an extension.
+
+    """
+
+    ramp_time = PARAMETERS['time_on_takeoff_ramp']
+    ramp_len = ramp_time * ramp_entry_speed  # meters
+    start_x = takeoff_curve_x[-1]
+    start_y = takeoff_curve_y[-1]
+    points_per_meter = len(takeoff_curve_x) / (start_x - takeoff_curve_x[0])
+    stop_x = start_x + ramp_len * np.cos(np.deg2rad(takeoff_angle))
+    ramp_x = np.linspace(start_x, stop_x, num=int(points_per_meter * stop_x -
+                                                  start_x))
+    stop_y = start_y + ramp_len * np.sin(np.deg2rad(takeoff_angle))
+    ramp_y = np.linspace(start_y, stop_y, num=len(ramp_x))
+
+    ext_takeoff_curve_x = np.hstack((takeoff_curve_x, ramp_x))
+    ext_takeoff_curve_y = np.hstack((takeoff_curve_y, ramp_y))
+
+    return ext_takeoff_curve_x, ext_takeoff_curve_y
 
 
-    return traj_x, traj_y
+def compute_flight_trajectory(slope_angle, takeoff_point, takeoff_angle,
+                              takeoff_speed):
+    """Returns the X and Y coordinates of the skier's flight trajectory
+    beginning at the launch point and ending when the trajectory intersects the
+    parent slope.
+
+    Parameters
+    ==========
+    slope_angle : float
+        The angle of the parent slope in degrees.
+    takeoff_point : tuple of floats
+        The X and Y coordinates of the takeoff point, i.e. where the skier
+        leaves the jump and exits into the air.
+    takeoff_angle : float
+        The angle of the takeoff surface (positive Z rotation) in degrees.
+    takeoff_speed : float
+        The magnitude of the skier's speed at the takeoff point in meters per
+        second.
+
+    Returns
+    =======
+    trajectory_x : ndarray, shape(n, )
+        The X coordinates of the flight trajectory.
+    trajectory_y : ndarray, shape(n, )
+        The Y coordinates of the flight trajectory.
+
+    """
+
+    m = PARAMETERS['skier_mass']
+    g = PARAMETERS['grav_acc']
+    CdA = PARAMETERS['drag_coeff_times_area']
+    rho = PARAMETERS['air_density']
+
+    eta = (CdA * rho) / (2 * m)
+
+    def rhs(t, state):
+
+        vx = state[2]
+        vy = state[3]
+
+        xdot = vx
+        ydot = vy
+
+        vxdot = -eta*vx**2
+        vydot = -g + eta*vy**2
+
+        return xdot, ydot, vxdot, vydot
+
+    def touch_slope(t, state):
+        """Returns zero when the skier gets to the end of the approach
+        length."""
+        x = state[0]
+        y = state[1]
+
+        m = np.tan(slope_angle)
+        d = (y - m * x) * np.cos(slope_angle)
+
+        return d
+
+    touch_slope.terminal = True
+
+    sol = solve_ivp(rhs,
+                    (0.0, 1E4),
+                    (initial_x, initial_y, initial_vx, initial_vy),
+                    events=(touch_slope, ))
+
+    return sol.y[0], sol.y[1]
 
 
 def find_trajectory_point_where_path_is_parallel_to_parent_slope():
@@ -313,3 +424,36 @@ def compute_landing_surface():
 def calculate_landing_transition_curve():
 
     return x, y
+
+
+def plot_jump(start_pos, approach_len, slope_angle, takeoff_angle,
+              launch_curve_x, launch_curve_y):
+
+    fig, ax = plt.subplots(1, 1)
+
+    # plot approach
+    x = np.linspace(start_pos, start_pos + approach_len)
+    y = x * np.tan(-np.deg2rad(slope_angle))
+    ax.plot(x[0], y[0], marker='x', markersize=14)
+
+    # plot starting location of skier
+    ax.plot(x, y)
+
+    # plot launch curve
+    shifted_launch_curve_x = launch_curve_x + x[-1]
+    shifted_launch_curve_y = launch_curve_y + y[-1]
+    ax.plot(shifted_launch_curve_x, shifted_launch_curve_y)
+
+    # plot takeoff angle line
+    takeoff_line_slope = np.tan(np.deg2rad(takeoff_angle))
+    takeoff_line_intercept = (shifted_launch_curve_y[-1] - takeoff_line_slope *
+                              shifted_launch_curve_x[-1])
+
+    x_takeoff = np.linspace(shifted_launch_curve_x[0],
+                            shifted_launch_curve_x[-1] + 5.0)
+    y_takeoff = takeoff_line_slope * x_takeoff + takeoff_line_intercept
+    ax.plot(x_takeoff, y_takeoff, '--')
+
+    ax.set_aspect('equal')
+
+    return ax
