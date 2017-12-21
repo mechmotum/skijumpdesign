@@ -7,40 +7,51 @@ import dash_html_components as html
 
 from safeskijump.functions import *
 
-app = dash.Dash()
+layout = go.Layout(autosize=False, width=800, height=800, yaxis={'scaleanchor': 'x'})
+fig = go.Figure(layout=layout)
 
-app.layout = html.Div([
-    html.H1('Safe Ski Jump'),
-    html.H2('Slope Angle [deg]'),
-    dcc.Input(
-        id='slope_angle',
-        placeholder='Slope Angle [degrees]',
-        type='number',
-        value='10'
-    ),
-    html.H2('Start Position [m]'),
-    dcc.Input(
-        id='start_pos',
-        placeholder='Start Position [meters]',
-        type='number',
-        value='10'
-    ),
-    html.H2('Approach Length [m]'),
-    dcc.Input(
-        id='approach_len',
-        placeholder='Approach Length [meters]',
-        type='number',
-        value='50'
-    ),
-    html.H2('Takeoff Angle [deg]'),
-    dcc.Input(
-        id='takeoff_angle',
-        placeholder='Takeoff Angle [degrees]',
-        type='number',
-        value='20'
-    ),
-    dcc.Graph(id='my-graph')
-])
+app = dash.Dash()
+app.css.append_css({'external_url': 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'})
+
+app.layout = \
+    html.Div([
+        html.Div([
+            html.Div([
+                html.H1('Safe Ski Jump'),
+                html.P('Slope Angle [deg]'),
+                dcc.Input(
+                    id='slope_angle',
+                    placeholder='Slope Angle [degrees]',
+                    type='number',
+                    value='10'
+                ),
+                html.P('Start Position [m]'),
+                dcc.Input(
+                    id='start_pos',
+                    placeholder='Start Position [meters]',
+                    type='number',
+                    value='10'
+                ),
+                html.P('Approach Length [m]'),
+                dcc.Input(
+                    id='approach_len',
+                    placeholder='Approach Length [meters]',
+                    type='number',
+                    value='50'
+                ),
+                html.P('Takeoff Angle [deg]'),
+                dcc.Input(
+                    id='takeoff_angle',
+                    placeholder='Takeoff Angle [degrees]',
+                    type='number',
+                    value='20'
+                )],
+                className='col-md-4'),
+            html.Div([
+                dcc.Graph(id='my-graph', figure=fig)],
+                className='col-md-4'),
+        ], className='row'),
+    ], className='container')
 
 
 def make_jump(slope_angle, start_pos, approach_len, takeoff_angle):
@@ -119,9 +130,10 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle):
                                              approach_len, takeoff_angle,
                                              jump_x, jump_y, traj_x, traj_y)
 
-    return {'data': [{'x': ap_xy[0], 'y': ap_xy[1]},
-                     {'x': to_xy[0], 'y': to_xy[1]},
-                     {'x': fl_xy[0], 'y': fl_xy[1]}]}
+    return {'data': [{'x': ap_xy[0], 'y': ap_xy[1], 'name': 'Approach'},
+                     {'x': to_xy[0], 'y': to_xy[1], 'name': 'Takeoff'},
+                     {'x': fl_xy[0], 'y': fl_xy[1], 'name': 'Flight'}],
+            'layout': layout}
 
 if __name__ == '__main__':
     app.run_server()
