@@ -17,14 +17,7 @@ app.layout = \
     html.Div([
         html.Div([
             html.Div([
-                html.H1('Safe Ski Jump'),
-                html.P('Slope Angle [deg]'),
-                dcc.Input(
-                    id='slope_angle',
-                    placeholder='Slope Angle [degrees]',
-                    type='number',
-                    value='10'
-                ),
+                html.H1('Ski Jump Design'),
                 html.P('Start Position [m]'),
                 dcc.Input(
                     id='start_pos',
@@ -39,13 +32,27 @@ app.layout = \
                     type='number',
                     value='50'
                 ),
-                html.P('Takeoff Angle [deg]'),
-                dcc.Input(
+                html.P('Slope Angle: 10 degrees', id='slope-text'),
+                dcc.Slider(
+                    id='slope_angle',
+                    min=0,
+                    max=45,
+                    step=1,
+                    value=10,
+                    marks={0: '0 [deg]', 45: '45 [deg]'},
+                    updatemode='drag'
+                ),
+                html.P('Takeoff Angle: 10 degrees', id='takeoff-text'),
+                dcc.Slider(
                     id='takeoff_angle',
-                    placeholder='Takeoff Angle [degrees]',
-                    type='number',
-                    value='20'
-                )],
+                    min=0,
+                    max=45,
+                    step=1,
+                    value=20,
+                    marks={0: '0 [deg]', 45: '45 [deg]'},
+                    updatemode='drag'
+                ),
+                ],
                 className='col-md-4'),
             html.Div([
                 dcc.Graph(id='my-graph', figure=fig)],
@@ -116,6 +123,18 @@ inputs = [Input('slope_angle', 'value'), Input('start_pos', 'value'),
           Input('approach_len', 'value'), Input('takeoff_angle', 'value')]
 
 
+@app.callback(Output('slope-text', 'children'), [Input('slope_angle', 'value')])
+def update_slope_text(slope_angle):
+    slope_angle = float(slope_angle)
+    return 'Slope Angle: {:0.0f} degrees'.format(slope_angle)
+
+
+@app.callback(Output('takeoff-text', 'children'), [Input('takeoff_angle', 'value')])
+def update_takeoff_text(takeoff_angle):
+    takeoff_angle = float(takeoff_angle)
+    return 'Takeoff Angle: {:0.0f} degrees'.format(takeoff_angle)
+
+
 @app.callback(Output('my-graph', 'figure'), inputs)
 def update_graph(slope_angle, start_pos, approach_len, takeoff_angle):
 
@@ -130,7 +149,8 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle):
                                              approach_len, takeoff_angle,
                                              jump_x, jump_y, traj_x, traj_y)
 
-    return {'data': [{'x': ap_xy[0], 'y': ap_xy[1], 'name': 'Approach'},
+    return {'data': [{'x': [0], 'y': [0], 'name': 'Slope Top'},
+                     {'x': ap_xy[0], 'y': ap_xy[1], 'name': 'Approach'},
                      {'x': to_xy[0], 'y': to_xy[1], 'name': 'Takeoff'},
                      {'x': fl_xy[0], 'y': fl_xy[1], 'name': 'Flight'}],
             'layout': layout}
