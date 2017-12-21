@@ -4,12 +4,15 @@ channels:
   - defaults
 dependencies:
   - python >=3.5
-  - setuptools >=20.7
-  - pip >=8.1
+  - setuptools
+  - pip
   - ipython
+  - spyder
   - numpy
   - scipy >=1.0
   - matplotlib
+  - nbformat  # plotly dep, oddly not included in conda dep
+  - jupyter_core  # plotly dep, oddly not included in conda dep
   - plotly
   - flask
   - flask-compress
@@ -18,56 +21,3 @@ dependencies:
     - dash-renderer
     - dash-html-components
     - dash-core-components
-
-# this stuff is installed with the pip command
-#Collecting dash
-  #Downloading dash-0.19.0.tar.gz
-#Collecting dash-renderer
-  #Downloading dash_renderer-0.11.1.tar.gz (126kB)
-    #100% |████████████████████████████████| 133kB 1.1MB/s 
-#Collecting dash-html-components
-  #Downloading dash_html_components-0.8.0.tar.gz (44kB)
-    #100% |████████████████████████████████| 51kB 1.8MB/s 
-#Collecting dash-core-components
-  #Downloading dash_core_components-0.15.3.tar.gz (1.9MB)
-    #100% |████████████████████████████████| 1.9MB 298kB/s 
-#Requirement already satisfied: Flask>=0.12 in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from dash)
-#Requirement already satisfied: flask-compress in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from dash)
-#Requirement already satisfied: plotly in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from dash)
-#Requirement already satisfied: Werkzeug>=0.7 in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from Flask>=0.12->dash)
-#Requirement already satisfied: Jinja2>=2.4 in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from Flask>=0.12->dash)
-#Requirement already satisfied: itsdangerous>=0.21 in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from Flask>=0.12->dash)
-#Requirement already satisfied: click>=2.0 in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from Flask>=0.12->dash)
-#Requirement already satisfied: decorator>=4.0.6 in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from plotly->dash)
-#Collecting nbformat>=4.2 (from plotly->dash)
-  #Downloading nbformat-4.4.0-py2.py3-none-any.whl (155kB)
-    #100% |████████████████████████████████| 163kB 1.3MB/s 
-#Requirement already satisfied: pytz in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from plotly->dash)
-#Requirement already satisfied: requests in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from plotly->dash)
-#Requirement already satisfied: six in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from plotly->dash)
-#Requirement already satisfied: MarkupSafe>=0.23 in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from Jinja2>=2.4->Flask>=0.12->dash)
-#Collecting jupyter-core (from nbformat>=4.2->plotly->dash)
-  #Downloading jupyter_core-4.4.0-py2.py3-none-any.whl (126kB)
-    #100% |████████████████████████████████| 133kB 1.7MB/s 
-#Collecting jsonschema!=2.5.0,>=2.4 (from nbformat>=4.2->plotly->dash)
-  #Using cached jsonschema-2.6.0-py2.py3-none-any.whl
-#Collecting ipython-genutils (from nbformat>=4.2->plotly->dash)
-  #Using cached ipython_genutils-0.2.0-py2.py3-none-any.whl
-#Collecting traitlets>=4.1 (from nbformat>=4.2->plotly->dash)
-  #Using cached traitlets-4.3.2-py2.py3-none-any.whl
-#Requirement already satisfied: chardet<3.1.0,>=3.0.2 in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from requests->plotly->dash)
-#Requirement already satisfied: idna<2.7,>=2.5 in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from requests->plotly->dash)
-#Requirement already satisfied: urllib3<1.23,>=1.21.1 in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from requests->plotly->dash)
-#Requirement already satisfied: certifi>=2017.4.17 in /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages (from requests->plotly->dash)
-#Building wheels for collected packages: dash, dash-renderer, dash-html-components, dash-core-components
-  #Running setup.py bdist_wheel for dash ... done
-  #Stored in directory: /home/moorepants/.cache/pip/wheels/33/07/27/2667c224440f042b27246d52699bb9107d065a490125e518e4
-  #Running setup.py bdist_wheel for dash-renderer ... done
-  #Stored in directory: /home/moorepants/.cache/pip/wheels/d5/68/f2/297513abad6a9c54b7426c7d268d9d54a636161df19312da6d
-  #Running setup.py bdist_wheel for dash-html-components ... done
-  #Stored in directory: /home/moorepants/.cache/pip/wheels/18/da/ad/2d02bc8c9d9c1ede323f6fa08dc6d03f7d9aa2914721fc4e98
-  #Running setup.py bdist_wheel for dash-core-components ... done
-  #Stored in directory: /home/moorepants/.cache/pip/wheels/f0/79/7b/aa4fe4e0ea7c81cdb818e04e61557b45451d4af0e0147af23c
-#Successfully built dash dash-renderer dash-html-components dash-core-components
-#Installing collected packages: dash, dash-renderer, dash-html-components, dash-core-components, ipython-genutils, traitlets, jupyter-core, jsonschema, nbformat
-#Successfully installed dash-0.19.0 dash-core-components-0.15.3 dash-html-components-0.8.0 dash-renderer-0.11.1 ipython-genutils-0.2.0 jsonschema-2.6.0 jupyter-core-4.4.0 nbformat-4.4.0 traitlets-4.3.2
