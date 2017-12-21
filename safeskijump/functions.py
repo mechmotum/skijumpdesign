@@ -17,7 +17,7 @@ PARAMETERS = {
 
 
 def compute_approach_exit_speed(slope_angle, start_pos, approach_len):
-    """Returns the speed of the skier in meters per second  at the end of the
+    """Returns the speed of the skier in meters per second at the end of the
     approach (entry to approach-takeoff transition).
 
     Parameters
@@ -62,18 +62,18 @@ def compute_approach_exit_speed(slope_angle, start_pos, approach_len):
 
         return pos_dot, vel_dot
 
-    def reach_takeoff_entry(t, state):
+    def reach_approach_end(t, state):
         """Returns zero when the skier gets to the end of the approach
         length."""
         pos = state[0]
         return pos - start_pos - approach_len
 
-    reach_takeoff_entry.terminal = True
+    reach_approach_end.terminal = True
 
     sol = solve_ivp(rhs,
                     (0.0, 1E4),  # time span, tf is arbitrarily large
                     (start_pos, 0),  # initial conditions, x0, v0
-                    events=(reach_takeoff_entry, ))
+                    events=(reach_approach_end, ))
 
     exit_speed = sol.y[1, -1]
 
