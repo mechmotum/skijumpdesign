@@ -282,10 +282,6 @@ def compute_design_speed(slope_angle, entry_speed, takeoff_curve_x,
 
     design_speed = sol.y[1, -1]
 
-    print('X coordinate of end of launch curve: {}'.format(takeoff_curve_x[-1]))
-    print('Takeoff x coordinate (integration termination): {}'.format(sol.y[0, -1]))
-    print('Takeoff velocity: {}'.format(design_speed))
-
     return design_speed
 
 
@@ -363,6 +359,8 @@ def compute_flight_trajectory(slope_angle, takeoff_point, takeoff_angle,
         The Y coordinates of the flight trajectory.
 
     """
+    slope_angle = np.deg2rad(slope_angle)
+    takeoff_angle = np.deg2rad(takeoff_angle)
 
     m = PARAMETERS['skier_mass']
     g = PARAMETERS['grav_acc']
@@ -390,10 +388,8 @@ def compute_flight_trajectory(slope_angle, takeoff_point, takeoff_angle,
         x = state[0]
         y = state[1]
 
-        m = np.tan(-np.deg2rad(slope_angle))
-        d = (y - m * x) * np.cos(np.deg2rad(slope_angle))
-
-        print(d)
+        m = np.tan(-slope_angle)
+        d = (y - m * x) * np.cos(slope_angle)
 
         return d
 
@@ -401,8 +397,8 @@ def compute_flight_trajectory(slope_angle, takeoff_point, takeoff_angle,
 
     init_conds = (takeoff_point[0],
                   takeoff_point[1],
-                  takeoff_speed * np.cos(np.deg2rad(takeoff_angle)),
-                  takeoff_speed * np.sin(np.deg2rad(takeoff_angle)))
+                  takeoff_speed * np.cos(takeoff_angle),
+                  takeoff_speed * np.sin(takeoff_angle))
 
     sol = solve_ivp(rhs,
                     (0.0, 1E4),
