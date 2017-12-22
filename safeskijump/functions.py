@@ -10,8 +10,8 @@ PARAMETERS = {
               'drag_coeff_times_area': 0.279,
               'air_density': 0.85,
               'gamma': 0.99, # fraction of circular section in inrun transition
-              'tolerableGs_tranIn': 1.5, # max g force we are willing to let jumper feel
-              'tolerableGs_tranOut': 3, # use this to find transition point
+              'takeoff_tolerable_acc': 1.5,  # G
+              'landing_tolerable_acc': 3, # use this to find transition point
               'time_on_takeoff_ramp': 0.2,  # seconds
               }
 
@@ -400,6 +400,10 @@ def compute_flight_trajectory(slope_angle, takeoff_point, takeoff_angle,
                   takeoff_speed * np.cos(takeoff_angle),
                   takeoff_speed * np.sin(takeoff_angle))
 
+    # TODO : The linspace call here takes some time. We could call solve_ivp
+    # twice, the first to find the ending time and the second with the smaller
+    # number of points. This would likely only be a little savings though.
+
     sol = solve_ivp(rhs,
                     (0.0, 1E4),
                     init_conds,
@@ -428,6 +432,66 @@ def compute_landing_surface():
 def calculate_landing_transition_curve():
 
     return x, y
+
+
+def make_jump(slope_angle, start_pos, approach_len, takeoff_angle):
+    """Returns the takeoff curve and the flight trajectory curve."""
+
+    takeoff_entry_speed = compute_approach_exit_speed(
+        slope_angle, start_pos, approach_len)
+
+    tolerable_acc = PARAMETERS['takeoff_tolerable_acc']
+
+    curve_x, curve_y, _, _ = generate_takeoff_curve(
+        slope_angle, takeoff_entry_speed, takeoff_angle, tolerable_acc)
+
+    ramp_entry_speed = compute_design_speed(
+        takeoff_entry_speed, slope_angle, curve_x, curve_y)
+
+    curve_x, curve_y = add_takeoff_ramp(
+        takeoff_angle, ramp_entry_speed, curve_x, curve_y)
+
+    design_speed = compute_design_speed(
+        takeoff_entry_speed, slope_angle, curve_x, curve_y)
+
+    takeoff_dist = start_pos + approach_len
+    init_x = takeoff_dist * np.cos(np.deg2rad(slope_angle)) + curve_x[-1]
+    init_y = -takeoff_dist * np.sin(np.deg2rad(slope_angle)) + curve_y[-1]
+
+    traj_x, traj_y, vel_x, vel_y = compute_flight_trajectory(
+        slope_angle, (init_x, init_y), takeoff_angle, design_speed)
+
+    return curve_x, curve_y, traj_x, traj_y
+
+
+def create_plot_arrays(slope_angle, start_pos, approach_len, takeoff_angle,
+                       takeoff_curve_x, takeoff_curve_y, flight_traj_x,
+                       flight_traj_y):
+
+    # plot approach
+    l = np.linspace(start_pos, start_pos + approach_len)
+    x = l * np.cos(np.deg2rad(slope_angle))
+    y = -l * np.sin(np.deg2rad(slope_angle))
+    approach_xy = (x, y)
+
+    # plot takeoff curve
+    shifted_takeoff_curve_x = takeoff_curve_x + x[-1]
+    shifted_takeoff_curve_y = takeoff_curve_y + y[-1]
+    takeoff_xy = (shifted_takeoff_curve_x, shifted_takeoff_curve_y)
+
+    # plot takeoff angle line
+    takeoff_line_slope = np.tan(np.deg2rad(takeoff_angle))
+    takeoff_line_intercept = (shifted_takeoff_curve_y[-1] - takeoff_line_slope *
+                              shifted_takeoff_curve_x[-1])
+
+    x_takeoff = np.linspace(shifted_takeoff_curve_x[0],
+                            shifted_takeoff_curve_x[-1] + 5.0)
+    y_takeoff = takeoff_line_slope * x_takeoff + takeoff_line_intercept
+
+    # plot flight trajectory
+    flight_xy = (flight_traj_x, flight_traj_y)
+
+    return approach_xy, takeoff_xy, flight_xy
 
 
 def plot_jump(start_pos, approach_len, slope_angle, takeoff_angle,
