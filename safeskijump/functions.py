@@ -3,6 +3,8 @@ from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
+from .classes import FlatSurface, Skier
+
 PARAMETERS = {
               'friction_coeff': 0.03,
               'grav_acc': 9.81,  # m/s**2
@@ -39,45 +41,13 @@ def compute_approach_exit_speed(slope_angle, start_pos, approach_len):
         to the takeoff curve.
 
     """
-    m = PARAMETERS['skier_mass']
-    g = PARAMETERS['grav_acc']
-    mu = PARAMETERS['friction_coeff']
-    CdA = PARAMETERS['drag_coeff_times_area']
-    rho = PARAMETERS['air_density']
+    surf = FlatSurface(-slope_angle, approach_len, start_pos=start_pos)
 
-    eta = (CdA * rho) / (2 * m)
+    skier = Skier()
 
-    cos_ang = np.cos(np.deg2rad(slope_angle))
-    sin_ang = np.sin(np.deg2rad(slope_angle))
+    times, states = skier.slide_on(surf)
 
-    def rhs(t, state):
-        """Right hand side of particle with drag and friction. The position
-        measurement is along the slope and the velocity is parallel to the
-        slope."""
-
-        vel = state[1]
-
-        pos_dot = vel
-        vel_dot = g * sin_ang - eta * vel**2 - mu * g * cos_ang * np.sign(vel)
-
-        return pos_dot, vel_dot
-
-    def reach_approach_end(t, state):
-        """Returns zero when the skier gets to the end of the approach
-        length."""
-        pos = state[0]
-        return pos - start_pos - approach_len
-
-    reach_approach_end.terminal = True
-
-    sol = solve_ivp(rhs,
-                    (0.0, 1E4),  # time span, tf is arbitrarily large
-                    (start_pos, 0),  # initial conditions, x0, v0
-                    events=(reach_approach_end, ))
-
-    exit_speed = sol.y[1, -1]
-
-    return exit_speed
+    return states[1, -1]
 
 
 def generate_takeoff_curve(slope_angle, entry_speed, takeoff_angle,
