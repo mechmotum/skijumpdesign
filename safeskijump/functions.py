@@ -3,7 +3,7 @@ from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
-from .classes import FlatSurface, Skier
+from .classes import Surface, FlatSurface, Skier
 
 PARAMETERS = {
               'friction_coeff': 0.03,
@@ -204,55 +204,13 @@ def compute_design_speed(slope_angle, entry_speed, takeoff_curve_x,
         called the "design speed".
 
     """
-    m = PARAMETERS['skier_mass']
-    g = PARAMETERS['grav_acc']
-    mu = PARAMETERS['friction_coeff']
-    CdA = PARAMETERS['drag_coeff_times_area']
-    rho = PARAMETERS['air_density']
+    surf = Surface(takeoff_curve_x, takeoff_curve_y)
 
-    eta = (CdA * rho) / (2 * m)
+    skier = Skier()
 
-    dydx = np.hstack((0, np.diff(takeoff_curve_y) / np.diff(takeoff_curve_x)))
-    ddydx = np.hstack((0, np.diff(dydx) / np.diff(takeoff_curve_x)))
-    kurvature = ddydx / (1 + dydx**2)**1.5
+    times, states = skier.slide_on(surf, entry_speed)
 
-    slope_interpolator = interp1d(takeoff_curve_x, dydx,
-                                  fill_value='extrapolate')
-    kurva_interpolator = interp1d(takeoff_curve_x, kurvature,
-                                  fill_value='extrapolate')
-
-    def rhs(t, state):
-
-        x = state[0]  # horizontal position
-        v = state[1]  # velocity tangent to slope
-
-        slope = slope_interpolator(x)
-        kurva = kurva_interpolator(x)
-
-        theta = np.arctan(slope)
-
-        xdot = v * np.cos(theta)
-
-        N = m * (g * np.cos(theta) + kurva * v * v)
-        vdot = -g * np.sin(theta) - eta*v*v - mu * N * np.sign(v) / m
-
-        return xdot, vdot
-
-    def reach_launch(t, state):
-        """Returns zero when the skier gets to the end of the approach
-        length."""
-        return state[0] - takeoff_curve_x[-1]
-
-    reach_launch.terminal = True
-
-    sol = solve_ivp(rhs,
-                    (0.0, 1E4),  # time span
-                    (takeoff_curve_x[0], entry_speed),  # initial conditions
-                    events=(reach_launch, ))
-
-    design_speed = sol.y[1, -1]
-
-    return design_speed
+    return states[1, -1]
 
 
 def add_takeoff_ramp(takeoff_angle, ramp_entry_speed, takeoff_curve_x,
