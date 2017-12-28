@@ -291,58 +291,14 @@ def compute_flight_trajectory(slope_angle, takeoff_point, takeoff_angle,
         The Y coordinates of the flight trajectory.
 
     """
-    slope_angle = np.deg2rad(slope_angle)
+    surf = FlatSurface(-slope_angle, 10000)
+    skier = Skier()
     takeoff_angle = np.deg2rad(takeoff_angle)
+    times, states = skier.fly_to(surf, takeoff_point,
+                                 (takeoff_speed * np.cos(takeoff_angle),
+                                  takeoff_speed * np.sin(takeoff_angle)))
 
-    m = PARAMETERS['skier_mass']
-    g = PARAMETERS['grav_acc']
-    CdA = PARAMETERS['drag_coeff_times_area']
-    rho = PARAMETERS['air_density']
-
-    eta = (CdA * rho) / (2 * m)
-
-    def rhs(t, state):
-
-        vx = state[2]
-        vy = state[3]
-
-        xdot = vx
-        ydot = vy
-
-        vxdot = -eta*np.sign(vx)*vx**2
-        vydot = -g - eta*np.sign(vy)*vy**2
-
-        return xdot, ydot, vxdot, vydot
-
-    def touch_slope(t, state):
-        """Returns zero when the skier gets to the end of the approach
-        length."""
-        x = state[0]
-        y = state[1]
-
-        m = np.tan(-slope_angle)
-        d = (y - m * x) * np.cos(slope_angle)
-
-        return d
-
-    touch_slope.terminal = True
-
-    init_conds = (takeoff_point[0],
-                  takeoff_point[1],
-                  takeoff_speed * np.cos(takeoff_angle),
-                  takeoff_speed * np.sin(takeoff_angle))
-
-    # TODO : The linspace call here takes some time. We could call solve_ivp
-    # twice, the first to find the ending time and the second with the smaller
-    # number of points. This would likely only be a little savings though.
-
-    sol = solve_ivp(rhs,
-                    (0.0, 1E4),
-                    init_conds,
-                    t_eval=np.linspace(0.0, 1E4, num=num_points),
-                    events=(touch_slope, ))
-
-    return sol.y[0], sol.y[1], sol.y[2], sol.y[3]
+    return states[0], states[1], states[2], states[3]
 
 
 def find_parallel_traj_point(slope_angle, flight_traj_x, flight_traj_y,

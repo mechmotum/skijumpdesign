@@ -175,7 +175,7 @@ class Skier(object):
                         t_eval=np.linspace(0.0, sol.t[-1],
                                            num=int(120 * sol.t[-1])))
 
-        return sol.y[0], sol.y[1], sol.y[2], sol.y[3]
+        return sol.t, sol.y
 
     def slide_on(self, surface, init_speed=0.0):
         """
