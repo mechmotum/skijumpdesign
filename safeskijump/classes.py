@@ -64,7 +64,7 @@ class Surface(object):
 
 class FlatSurface(Surface):
 
-    def __init__(self, angle, length, start_pos=0.0):
+    def __init__(self, angle, length, init_pos=(0.0, 0.0)):
         """Returns the speed of the skier in meters per second at the end of the
         approach (entry to approach-takeoff transition).
 
@@ -87,11 +87,10 @@ class FlatSurface(Surface):
 
         angle = np.deg2rad(angle)
 
-        start_x = start_pos * np.cos(angle)
-        start_y = start_pos * np.sin(angle)
-
-        x = np.linspace(start_x, start_x + length * np.cos(angle), num=100)
-        y = np.linspace(start_y, start_y + length * np.sin(angle), num=100)
+        x = np.linspace(init_pos[0], init_pos[0] + length * np.cos(angle),
+                        num=100)
+        y = np.linspace(init_pos[1], init_pos[1] + length * np.sin(angle),
+                        num=100)
 
         super(FlatSurface, self).__init__(x, y)
 
