@@ -41,7 +41,11 @@ def compute_approach_exit_speed(slope_angle, start_pos, approach_len):
         to the takeoff curve.
 
     """
-    surf = FlatSurface(-slope_angle, approach_len, start_pos=start_pos)
+    start_x = start_pos * np.cos(np.deg2rad(-slope_angle))
+    start_y = start_pos * np.sin(np.deg2rad(-slope_angle))
+
+    surf = FlatSurface(-slope_angle, approach_len,
+                       init_pos=(start_x, start_y))
 
     skier = Skier()
 
