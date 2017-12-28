@@ -413,9 +413,22 @@ def compute_flight_trajectory(slope_angle, takeoff_point, takeoff_angle,
     return sol.y[0], sol.y[1], sol.y[2], sol.y[3]
 
 
-def find_trajectory_point_where_path_is_parallel_to_parent_slope():
+def find_parallel_traj_point(slope_angle, flight_traj_x, flight_traj_y,
+                             flight_speed_x, flight_speed_y):
+    """Returns the X and Y coordinates of the point on the flight trajectory
+    where the flight trajectory slope is parallel to the parent slope."""
 
-    return
+    slope_angle = np.deg2rad(slope_angle)
+
+    flight_traj_slope = flight_speed_y / flight_speed_x
+
+    xpara_interpolator = interp1d(flight_traj_slope, flight_traj_x)
+    y_interpolator = interp1d(flight_traj_x, flight_traj_y)
+
+    xpara = xpara_interpolator(np.tan(-slope_angle))
+    ypara = y_interpolator(xpara)
+
+    return xpara, ypara
 
 
 def find_landing_transition_point():
@@ -460,6 +473,9 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle):
 
     traj_x, traj_y, vel_x, vel_y = compute_flight_trajectory(
         slope_angle, (init_x, init_y), takeoff_angle, design_speed)
+
+    xpara, ypara = find_parallel_traj_point(slope_angle, traj_x, traj_y, vel_x,
+                                            vel_y)
 
     return curve_x, curve_y, traj_x, traj_y
 
