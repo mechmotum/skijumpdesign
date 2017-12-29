@@ -112,19 +112,17 @@ class FlatSurface(Surface):
         super(FlatSurface, self).__init__(x, y)
 
 
-class ClothoidCircleClothoidSurface(Surface):
+class ClothoidCircleSurface(Surface):
 
     gamma = 0.99  # fraction of circular section in takeoff
 
-    def __init__(self, flat_surface, entry_speed, takeoff_angle, tolerable_acc,
-                 numpoints=500):
+    def __init__(self, entry_angle, exit_angle, entry_speed, tolerable_acc,
+                 init_pos=(0.0, 0.0), numpoints=500):
         """Returns the X and Y coordinates of the clothoid-circle-clothoid
         takeoff curve (without the flat takeoff ramp).
 
         Parameters
         ==========
-        flat_surface : FlatSurface
-            A flat surface in which the left clothoid will be adjacent to.
         entry_speed : float
             The magnitude of the skier's velocity in meters per second as they
             enter the takeoff curve (i.e. approach exit speed).
@@ -136,8 +134,14 @@ class ClothoidCircleClothoidSurface(Surface):
             The n number of points in the produced curve.
         """
 
-        lam = -flat_surface.angle_in_rad
-        beta = np.deg2rad(takeoff_angle)
+        self.entry_angle_in_deg = entry_angle
+        self.entry_angle_in_rad = np.deg2rad(entry_angle)
+
+        self.exit_angle_in_deg = exit_angle
+        self.exit_angle_in_rad = np.deg2rad(exit_angle)
+
+        lam = -self.entry_angle_in_rad
+        beta = self.exit_angle_in_rad
 
         rotation_clothoid = (lam - beta) / 2
         # used to rotate symmetric clothoid so that left side is at lam and
@@ -216,16 +220,67 @@ class ClothoidCircleClothoidSurface(Surface):
         # Shift the entry point of the curve to be at the end of the flat
         # surface.
 
-        X += flat_surface.x[-1]
-        Y += flat_surface.y[-1]
+        X += init_pos[0]
+        Y += init_pos[1]
 
-        super(ClothoidCircleClothoidSurface, self).__init__(X, Y)
+        super(ClothoidCircleSurface, self).__init__(X, Y)
+
+
+class TakeoffSurface(Surface):
+
+    def __init__(self, clth_surface, ramp_entry_speed, time_on_ramp):
+        """Returns the X and Y coordinates of the takeoff curve with the flat
+        takeoff ramp added to the terminus of the clothoid curve.
+
+        Parameters
+        ==========
+        takeoff_angle : float
+            The desired takeoff angle at the takeoff point in degrees, measured
+            as a positive Z rotation from the horizontal X axis.
+        ramp_entry_speed : float
+            The magnitude of the skier's speed at the exit of the second
+            clothoid.
+        takeoff_curve_x : ndarray, shape(n,)
+            The X coordinates in meters of points on the takeoff curve without
+            the takeoff ramp.
+        takeoff_curve_y : ndarray, shape(n,)
+            The Y coordinates in meters of points on the takeoff curve without
+            the takeoff ramp.
+
+        Returns
+        =======
+        ext_takeoff_curve_x : ndarray, shape(n,)
+            The X coordinates in meters of points on the takeoff curve with the
+            takeoff ramp added as an extension.
+        ext_takeoff_curve_y : ndarray, shape(n,)
+            The Y coordinates in meters of points on the takeoff curve with the
+            takeoff ramp added as an extension.
+
+        """
+
+        ramp_len = time_on_ramp * ramp_entry_speed  # meters
+
+        start_x = clth_surface.x[-1]
+        start_y = clth_surface.y[-1]
+
+        points_per_meter = len(clth_surface.x) / (start_x - clth_surface.x[0])
+
+        stop_x = start_x + ramp_len * np.cos(clth_surface.exit_angle_in_rad)
+        ramp_x = np.linspace(start_x, stop_x,
+                             num=int(points_per_meter * stop_x - start_x))
+
+        stop_y = start_y + ramp_len * np.sin(clth_surface.exit_angle_in_rad)
+        ramp_y = np.linspace(start_y, stop_y, num=len(ramp_x))
+
+        ext_takeoff_curve_x = np.hstack((clth_surface.x, ramp_x))
+        ext_takeoff_curve_y = np.hstack((clth_surface.y, ramp_y))
+
+        super(TakeoffSurface, self).__init__(ext_takeoff_curve_x,
+                                             ext_takeoff_curve_y)
 
 
 class Skier(object):
 
-    grav_acc = 9.81
-    air_density = 0.85
     samples_per_sec = 120
     tolerable_acc = 1.5
 
@@ -255,7 +310,7 @@ class Skier(object):
         """Returns the drag force in Newtons opposing the velocity of the
         skier."""
 
-        return (-np.sign(velocity) / 2 * self.air_density * self.drag_coeff *
+        return (-np.sign(velocity) / 2 * AIR_DENSITY * self.drag_coeff *
                 self.area * velocity**2)
 
     def friction_force(self, speed, slope=0.0, curvature=0.0):
@@ -275,7 +330,7 @@ class Skier(object):
 
         theta = np.tan(slope)
 
-        normal_force = self.mass * (self.grav_acc * np.cos(theta) + curvature *
+        normal_force = self.mass * (GRAV_ACC * np.cos(theta) + curvature *
                                     speed**2)
 
         return -np.sign(speed) * self.friction_coeff * normal_force
@@ -311,7 +366,7 @@ class Skier(object):
             ydot = state[3]
 
             vxdot = self.drag_force(xdot) / self.mass
-            vydot = -self.grav_acc + self.drag_force(ydot) / self.mass
+            vydot = -GRAV_ACC + self.drag_force(ydot) / self.mass
 
             return xdot, ydot, vxdot, vydot
 
@@ -363,7 +418,7 @@ class Skier(object):
             theta = np.arctan(slope)
 
             xdot = v * np.cos(theta)
-            vdot = -self.grav_acc * np.sin(theta) + (
+            vdot = -GRAV_ACC * np.sin(theta) + (
                 (self.drag_force(v) + self.friction_force(v, slope, kurva)) /
                 self.mass)
 
