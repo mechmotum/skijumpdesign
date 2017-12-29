@@ -362,6 +362,51 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle):
 
     return curve_x, curve_y, traj_x, traj_y
 
+def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle):
+
+    skier = Skier()
+
+    start_x = np.cos(np.deg2rad(slope_angle))
+    start_y = np.sin(np.deg2rad(slope_angle))
+
+    approach = FlatSurface(slope_angle, approach_len,
+                           init_pos=(start_x, start_y))
+
+    _, traj = skier.slide_on(approach)
+
+    takeoff_entry_speed = traj[1, -1]
+
+    takeoff_entry = ClothoidCircleSurface(slope_angle, takeoff_angle,
+                                          takeoff_entry_speed,
+                                          skier.tolerable_acc,
+                                          init_pos=approach.end)
+
+    _, traj = skier.slide_on(takeoff_entry, init_speed=takeoff_entry_speed)
+
+    ramp_entry_speed = traj[1, -1]
+
+    takeoff = TakeoffSurface(takeoff_entry, ramp_entry_speed, 0.2)
+
+    _, traj = skier.slide_on(takeoff, init_speed=takeoff_entry_speed)
+
+    slope = FlatSurface(slope_angle, approach_len * 10)
+
+    takeoff_speed_x = traj[1, -1] * np.cos(np.deg2rad(takeoff_angle))
+    takeoff_speed_y = traj[1, -1] * np.sin(np.deg2rad(takeoff_angle))
+
+    _, flight_traj = skier.fly_to(slope,
+                                  init_pos=takeoff.end,
+                                  init_speed=(takeoff_speed_x,
+                                              takeoff_speed_y)))
+
+    ax = slope.plot()
+    ax = approach.plot(ax=ax)
+    ax = takeoff.plot(ax=ax)
+    ax.plot(flight_traj[0, :], fligh_traj[1, :])
+
+    plt.show()
+
+
 
 def create_plot_arrays(slope_angle, start_pos, approach_len, takeoff_angle,
                        takeoff_curve_x, takeoff_curve_y, flight_traj_x,

@@ -38,6 +38,14 @@ class Surface(object):
         self.interp_slope = interp1d(x, self.slope, **interp_kwargs)
         self.interp_curvature = interp1d(x, self.curvature, **interp_kwargs)
 
+    @property
+    def start(self):
+        return self.x[0], self.y[0]
+
+    @property
+    def end(self):
+        return self.x[-1], self.y[-1]
+
     def distance_from(self, xp, yp):
         """Returns the shortest distance from point (xp, yp) to the surface.
 
@@ -67,6 +75,7 @@ class Surface(object):
         return np.sign(yp - self.interp_y(x)) * np.sqrt(distance_squared(x))
 
     def plot(self, ax=None):
+        """Creates a matplotlib plot of the surface."""
 
         if ax is None:
             fig, ax = plt.subplots(1, 1)
@@ -114,24 +123,27 @@ class FlatSurface(Surface):
 
 class ClothoidCircleSurface(Surface):
 
-    gamma = 0.99  # fraction of circular section in takeoff
-
     def __init__(self, entry_angle, exit_angle, entry_speed, tolerable_acc,
-                 init_pos=(0.0, 0.0), numpoints=500):
-        """Returns the X and Y coordinates of the clothoid-circle-clothoid
-        takeoff curve (without the flat takeoff ramp).
+                 init_pos=(0.0, 0.0), gamma=0.99, num_points=200):
+        """Instantiates a clothoid-circle-clothoid takeoff curve (without the
+        flat takeoff ramp).
 
         Parameters
         ==========
+        entry_angle : float
+            The entry angle tangent to the left clothoid in degrees.
+        exit_angle : float
+            The exit angle tangent to the right clothoid in degrees.
         entry_speed : float
             The magnitude of the skier's velocity in meters per second as they
             enter the takeoff curve (i.e. approach exit speed).
-        takeoff_angle : float
-            The desired takeoff angle at the takeoff point in degrees.
         tolerable_acc : float
             The tolerable acceleration of the skier in G's.
-        numpoints : integer, optional
-            The n number of points in the produced curve.
+        gamma : float
+            Fraction of circular section.
+        num_points : integer, optional
+            The n number of points in each section of the curve.
+
         """
 
         self.entry_angle_in_deg = entry_angle
@@ -158,7 +170,7 @@ class ClothoidCircleSurface(Surface):
         thetaCir = 0.5 * self.gamma * (lam + beta)
         xCirBound = radius_min * np.sin(thetaCir)
         xCirSt = -radius_min * np.sin(thetaCir)
-        xCir = np.linspace(xCirSt, xCirBound, num=numpoints)
+        xCir = np.linspace(xCirSt, xCirBound, num=num_points)
 
         # x,y data for one clothoid
         A_squared = radius_min**2 * (1 - self.gamma) * (lam + beta)
@@ -166,7 +178,7 @@ class ClothoidCircleSurface(Surface):
         clothoid_length = A * np.sqrt((1 - self.gamma) * (lam + beta))
 
         # generates arc length points for one clothoid
-        s = np.linspace(clothoid_length, 0, numpoints)
+        s = np.linspace(clothoid_length, 0, num=num_points)
 
         X1 = s - (s**5) / (40*A**4) + (s**9) / (3456*A**8)
         Y1 = (s**3) / (6*A**2) - (s**7) / (336*A**6) + (s**11) / (42240*A**10)
@@ -234,27 +246,13 @@ class TakeoffSurface(Surface):
 
         Parameters
         ==========
-        takeoff_angle : float
-            The desired takeoff angle at the takeoff point in degrees, measured
-            as a positive Z rotation from the horizontal X axis.
+        clth_surface : ClothoidCircleSurface
+            The approach-takeoff transition curve.
         ramp_entry_speed : float
             The magnitude of the skier's speed at the exit of the second
             clothoid.
-        takeoff_curve_x : ndarray, shape(n,)
-            The X coordinates in meters of points on the takeoff curve without
-            the takeoff ramp.
-        takeoff_curve_y : ndarray, shape(n,)
-            The Y coordinates in meters of points on the takeoff curve without
-            the takeoff ramp.
-
-        Returns
-        =======
-        ext_takeoff_curve_x : ndarray, shape(n,)
-            The X coordinates in meters of points on the takeoff curve with the
-            takeoff ramp added as an extension.
-        ext_takeoff_curve_y : ndarray, shape(n,)
-            The Y coordinates in meters of points on the takeoff curve with the
-            takeoff ramp added as an extension.
+        time_on_ramp : float
+            The time in seconds that the skier is on the takeoff ramp.
 
         """
 
