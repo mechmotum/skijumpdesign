@@ -47,9 +47,7 @@ def compute_approach_exit_speed(slope_angle, start_pos, approach_len):
     surf = FlatSurface(-slope_angle, approach_len,
                        init_pos=(start_x, start_y))
 
-    skier = Skier()
-
-    times, states = skier.slide_on(surf)
+    times, states = Skier().slide_on(surf)
 
     return states[1, -1]
 
@@ -210,9 +208,7 @@ def compute_design_speed(slope_angle, entry_speed, takeoff_curve_x,
     """
     surf = Surface(takeoff_curve_x, takeoff_curve_y)
 
-    skier = Skier()
-
-    times, states = skier.slide_on(surf, entry_speed)
+    times, states = Skier().slide_on(surf, entry_speed)
 
     return states[1, -1]
 
@@ -292,11 +288,10 @@ def compute_flight_trajectory(slope_angle, takeoff_point, takeoff_angle,
 
     """
     surf = FlatSurface(-slope_angle, 10000)
-    skier = Skier()
     takeoff_angle = np.deg2rad(takeoff_angle)
-    times, states = skier.fly_to(surf, takeoff_point,
-                                 (takeoff_speed * np.cos(takeoff_angle),
-                                  takeoff_speed * np.sin(takeoff_angle)))
+    times, states = Skier().fly_to(surf, takeoff_point,
+                                   (takeoff_speed * np.cos(takeoff_angle),
+                                    takeoff_speed * np.sin(takeoff_angle)))
 
     return states[0], states[1], states[2], states[3]
 
