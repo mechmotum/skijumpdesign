@@ -3,7 +3,8 @@ from math import isclose
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ..classes import Surface, Skier
+from ..classes import (Surface, FlatSurface, ClothoidCircleSurface,
+                       TakeoffSurface, Skier)
 
 
 def test_surface():
@@ -30,16 +31,31 @@ def test_surface():
                    abs_tol=1E-10)
 
 
-def test_linear_surface():
-    pass
+def test_flat_surface():
+    fsurf = FlatSurface(-10, 40, init_pos=(5.0, 5.0))
+
+    assert isclose(fsurf.x[0], 5.0)
+    assert isclose(fsurf.y[0], 5.0)
+    assert isclose(np.mean(np.atan(fsurf.slope)), -10)
 
 
-def test_circular_surface():
-    pass
+def test_clothoid_circle_surface():
+    fsurf = FlatSurface(-10, 40)
+    csurf = ClothoidCircleSurface(fsurf, 20, 15, 1.5)
+    ax = fsurf.plot()
+    ax = csurf.plot(ax=ax)
+    plt.show()
 
 
-def test_clothoid_surface():
-    pass
+def test_takeoff_surface():
+    fsurf = FlatSurface(-10, 40)
+    csurf = ClothoidCircleSurface(fsurf.angle_in_deg, 15, 20, 1.5,
+                                  init_pos=(fsurf.x[-1], fsurf.y[-1]))
+    tsurf = TakeoffSurface(csurf, 15, 1.0)
+    ax = fsurf.plot()
+    ax = tsurf.plot(ax=ax)
+    ax = csurf.plot(ax=ax)
+    plt.show()
 
 
 def test_exponential_surface():
@@ -90,28 +106,3 @@ def test_skier():
 
     plt.plot(times, traj.T)
     plt.show()
-
-
-def test_all():
-
-    """
-    skier
-    trajectory
-    slope/surface
-    weather/environment
-    """
-    skier = Skier(mass, cross_sectional_area, friction_coeff)
-
-    approach = ApproachSurface(angle, length)
-
-    pos, vel, acc = skier.slide_over(approach, init_speed)
-
-    takeoff = TakeoffSurface(angle, entry_speed, tolerable_acc)
-
-    pos, vel, acc = skier.slide_over(takeoff)
-
-    flight_pos, flight_vel, flight_acc = skier.fly(init_pos, init_speed)
-
-    landing = LandingSurface(slope_angle, flight_pos, flight_vel)
-
-    pos, vel, acc = skier.slide_over(landing, init_speed)
