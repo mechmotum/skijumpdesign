@@ -40,10 +40,12 @@ class Surface(object):
 
     @property
     def start(self):
+        """Returns the X and Y coordinates at the start of the surface."""
         return self.x[0], self.y[0]
 
     @property
     def end(self):
+        """Returns the X and Y coordinates at the end of the surface."""
         return self.x[-1], self.y[-1]
 
     def distance_from(self, xp, yp):
@@ -74,13 +76,15 @@ class Surface(object):
 
         return np.sign(yp - self.interp_y(x)) * np.sqrt(distance_squared(x))
 
-    def plot(self, ax=None):
+    def plot(self, ax=None, **plot_kwargs):
         """Creates a matplotlib plot of the surface."""
 
         if ax is None:
             fig, ax = plt.subplots(1, 1)
 
-        ax.plot(self.x, self.y)
+        ax.plot(self.x, self.y, **plot_kwargs)
+
+        ax.set_aspect('equal')
 
         return ax
 
@@ -145,6 +149,7 @@ class ClothoidCircleSurface(Surface):
             The n number of points in each section of the curve.
 
         """
+        self.gamma = gamma
 
         self.entry_angle_in_deg = entry_angle
         self.entry_angle_in_rad = np.deg2rad(entry_angle)
@@ -388,7 +393,8 @@ class Skier(object):
                         (0.0, sol.t[-1]),
                         init_pos + init_speed,
                         t_eval=np.linspace(0.0, sol.t[-1],
-                                           num=int(120 * sol.t[-1])))
+                                           num=int(self.samples_per_sec *
+                                                   sol.t[-1])))
 
         return sol.t, sol.y
 
@@ -438,6 +444,24 @@ class Skier(object):
                         (0.0, sol.t[-1]),
                         (surface.x[0], init_speed),
                         t_eval=np.linspace(0.0, sol.t[-1],
-                                           num=int(120 * sol.t[-1])))
+                                           num=int(self.samples_per_sec *
+                                                   sol.t[-1])))
 
         return sol.t, sol.y
+
+    def end_speed_on(self, surface, **kwargs):
+
+        _, traj = self.slide_on(surface, **kwargs)
+
+        return traj[1, -1]
+
+    def end_vel_on(self, surface, **kwargs):
+
+        _, traj = self.slide_on(surface, **kwargs)
+
+        end_angle = np.tan(surface.slope[-1])
+
+        speed_x = traj[1, -1] * np.cos(end_angle)
+        speed_y = traj[1, -1] * np.sin(end_angle)
+
+        return speed_x, speed_y
