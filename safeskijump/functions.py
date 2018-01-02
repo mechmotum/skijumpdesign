@@ -3,7 +3,8 @@ from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
-from .classes import Surface, FlatSurface, Skier
+from .classes import (Surface, FlatSurface, ClothoidCircleSurface,
+                      TakeoffSurface, Skier)
 
 PARAMETERS = {
               'friction_coeff': 0.03,
@@ -366,47 +367,42 @@ def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle):
 
     skier = Skier()
 
-    start_x = np.cos(np.deg2rad(slope_angle))
-    start_y = np.sin(np.deg2rad(slope_angle))
+    slope_ang_rad = np.deg2rad(slope_angle)
+    start_x = np.cos(slope_ang_rad)
+    start_y = np.sin(slope_ang_rad)
 
     approach = FlatSurface(slope_angle, approach_len,
                            init_pos=(start_x, start_y))
 
-    _, traj = skier.slide_on(approach)
+    takeoff_entry_speed = skier.end_speed_on(approach)
 
-    takeoff_entry_speed = traj[1, -1]
-
-    takeoff_entry = ClothoidCircleSurface(slope_angle, takeoff_angle,
+    takeoff_entry = ClothoidCircleSurface(slope_angle,
+                                          takeoff_angle,
                                           takeoff_entry_speed,
                                           skier.tolerable_acc,
                                           init_pos=approach.end)
 
-    _, traj = skier.slide_on(takeoff_entry, init_speed=takeoff_entry_speed)
-
-    ramp_entry_speed = traj[1, -1]
+    ramp_entry_speed = skier.end_speed_on(takeoff_entry,
+                                           init_speed=takeoff_entry_speed)
 
     takeoff = TakeoffSurface(takeoff_entry, ramp_entry_speed, 0.2)
 
-    _, traj = skier.slide_on(takeoff, init_speed=takeoff_entry_speed)
+    takeoff_vel = skier.end_vel_on(takeoff, init_speed=takeoff_entry_speed)
 
-    slope = FlatSurface(slope_angle, approach_len * 10)
+    slope = FlatSurface(slope_angle, approach_len * 3)
 
-    takeoff_speed_x = traj[1, -1] * np.cos(np.deg2rad(takeoff_angle))
-    takeoff_speed_y = traj[1, -1] * np.sin(np.deg2rad(takeoff_angle))
+    _, flight_traj = skier.fly_to(slope, init_pos=takeoff.end,
+                                  init_speed=takeoff_vel)
 
-    _, flight_traj = skier.fly_to(slope,
-                                  init_pos=takeoff.end,
-                                  init_speed=(takeoff_speed_x,
-                                              takeoff_speed_y)))
+    xpara, ypara = find_parallel_traj_point(-slope_angle, *flight_traj)
 
-    ax = slope.plot()
-    ax = approach.plot(ax=ax)
-    ax = takeoff.plot(ax=ax)
-    ax.plot(flight_traj[0, :], fligh_traj[1, :])
-
+    ax = slope.plot(linestyle='dashed', color='black', label='Slope')
+    ax = approach.plot(ax=ax, linewidth=2, label='Approach')
+    ax = takeoff.plot(ax=ax, linewidth=2, label='Takeoff')
+    ax.plot(*flight_traj[:2], linestyle='dotted', label='Flight')
+    ax.plot(xpara, ypara, 'o', markersize=10)
+    ax.legend()
     plt.show()
-
-
 
 def create_plot_arrays(slope_angle, start_pos, approach_len, takeoff_angle,
                        takeoff_curve_x, takeoff_curve_y, flight_traj_x,
