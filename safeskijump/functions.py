@@ -4,7 +4,7 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
 from .classes import (Surface, FlatSurface, ClothoidCircleSurface,
-                      TakeoffSurface, Skier)
+                      TakeoffSurface, LandingTransitionSurface, Skier)
 
 PARAMETERS = {
               'friction_coeff': 0.03,
@@ -368,8 +368,8 @@ def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle):
     skier = Skier()
 
     slope_ang_rad = np.deg2rad(slope_angle)
-    start_x = np.cos(slope_ang_rad)
-    start_y = np.sin(slope_ang_rad)
+    start_x = start_pos * np.cos(slope_ang_rad)
+    start_y = start_pos * np.sin(slope_ang_rad)
 
     approach = FlatSurface(slope_angle, approach_len,
                            init_pos=(start_x, start_y))
@@ -383,23 +383,26 @@ def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle):
                                           init_pos=approach.end)
 
     ramp_entry_speed = skier.end_speed_on(takeoff_entry,
-                                           init_speed=takeoff_entry_speed)
+                                          init_speed=takeoff_entry_speed)
 
     takeoff = TakeoffSurface(takeoff_entry, ramp_entry_speed, 0.2)
 
     takeoff_vel = skier.end_vel_on(takeoff, init_speed=takeoff_entry_speed)
 
-    slope = FlatSurface(slope_angle, approach_len * 3)
+    slope = FlatSurface(slope_angle, 4 * approach_len)
 
     _, flight_traj = skier.fly_to(slope, init_pos=takeoff.end,
                                   init_speed=takeoff_vel)
 
-    xpara, ypara = find_parallel_traj_point(-slope_angle, *flight_traj)
+    landing_trans = LandingTransitionSurface(slope, flight_traj, 0.2, 3.0)
+
+    xpara, ypara = landing_trans.find_parallel_traj_point()
 
     ax = slope.plot(linestyle='dashed', color='black', label='Slope')
     ax = approach.plot(ax=ax, linewidth=2, label='Approach')
     ax = takeoff.plot(ax=ax, linewidth=2, label='Takeoff')
     ax.plot(*flight_traj[:2], linestyle='dotted', label='Flight')
+    ax = landing_trans.plot(ax=ax, linewidth=2, label='Landing Transition')
     ax.plot(xpara, ypara, 'o', markersize=10)
     ax.legend()
     plt.show()

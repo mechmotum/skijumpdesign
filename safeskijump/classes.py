@@ -91,7 +91,7 @@ class Surface(object):
 
 class FlatSurface(Surface):
 
-    def __init__(self, angle, length, init_pos=(0.0, 0.0)):
+    def __init__(self, angle, length, init_pos=(0.0, 0.0), num_points=100):
         """Instantiates a flat surface that is oriented at an angle from the X
         axis.
 
@@ -118,9 +118,9 @@ class FlatSurface(Surface):
         self.angle_in_rad = angle
 
         x = np.linspace(init_pos[0], init_pos[0] + length * np.cos(angle),
-                        num=100)
+                        num=num_points)
         y = np.linspace(init_pos[1], init_pos[1] + length * np.sin(angle),
-                        num=100)
+                        num=num_points)
 
         super(FlatSurface, self).__init__(x, y)
 
@@ -280,6 +280,201 @@ class TakeoffSurface(Surface):
 
         super(TakeoffSurface, self).__init__(ext_takeoff_curve_x,
                                              ext_takeoff_curve_y)
+
+
+class LandingTransitionSurface(Surface):
+
+    acc_error_tolerance = 0.001
+    max_iterations = 1000
+    delta = 0.01  # used for central difference approximation
+
+    def __init__(self, parent_surface, flight_traj, fall_height, tolerable_acc,
+                 num_points=100):
+        """Instantiaties an exponentially decaying surface that connects the
+        landing surface to the parent slope.
+
+        Parameters
+        ==========
+        parent_surface : FlatSurface
+        flight_traj : ndarray, shape(4, n)
+        fall_height : float
+        tolerable_acc : float
+        num_points : integer
+
+        """
+
+        self.fall_height = fall_height
+        self.parent_surface = parent_surface
+        self.flight_traj = flight_traj
+        self.tolerable_acc = tolerable_acc
+
+        self.create_flight_interpolator()
+
+        trans_x, char_dist = self.find_transition_point()
+
+        x, y = self.create_trans_curve(trans_x, char_dist, num_points)
+
+        super(LandingTransitionSurface, self).__init__(x, y)
+
+    @property
+    def allowable_impact_speed(self):
+        """Returns the perpendicular speed one would reach if dropped from the
+        provided fall height."""
+        return np.sqrt(2 * GRAV_ACC * self.fall_height)
+
+    def create_flight_interpolator(self):
+        """Creates a method that interpolates the veritcal position, slope,
+        magnitude of the velocity, and angle of the velocity of the flight
+        trajectory given a horizontal distance."""
+
+        x = self.flight_traj[0]
+        y = self.flight_traj[1]
+        vx = self.flight_traj[2]
+        vy = self.flight_traj[3]
+
+        speed = np.sqrt(vx**2 + vy**2)
+
+        slope = vy / vx
+        angle = np.arctan(slope)
+
+        data = np.vstack((y, slope, speed, angle))
+
+        self._flight_interpolator = interp1d(x, data, fill_value='extrapolate')
+
+    def interp_flight(self, x):
+        """Returns the flight trajectory height, magnitude of the velocity, and
+        the angle of the velocity given a horizontal position.
+
+        Returns
+        =======
+
+        y : float
+            Trajectory height at position x.
+        slope : float
+            Trajectory slope at position x.
+        speed : float
+            Trajectory speed at position x.
+        angle : float
+            Trajectory speed direction at position x.
+
+        """
+
+        vals = self._flight_interpolator(x)
+
+        return vals[0], vals[1], vals[2], vals[3]
+
+    def calc_trans_acc(self, x):
+        """Returns the acceleration in G's the skier feels at the exit
+        transition occuring at the provided horizontal location."""
+
+        # NOTE : "slope" means dy/dx here
+
+        flight_y, _, flight_speed, flight_angle = self.interp_flight(x)
+
+        flight_rel_landing_angle = np.arcsin(self.allowable_impact_speed /
+                                             flight_speed)
+
+        landing_angle = flight_angle + flight_rel_landing_angle
+        landing_slope = np.tan(landing_angle)
+
+        parent_slope = self.parent_surface.interp_slope(x)
+        parent_rel_landing_slope = landing_slope - parent_slope
+
+        parent_y = self.parent_surface.interp_y(x)
+        height_above_parent = flight_y - parent_y
+
+        # required exponential characteristic distance, using three
+        # characteristic distances for transition
+        dx = np.abs(height_above_parent / parent_rel_landing_slope)
+
+        ydoubleprime = height_above_parent / dx**2
+
+        curvature = np.abs(ydoubleprime / (1 + landing_slope**2)**1.5)
+
+        trans_acc = (curvature * flight_speed**2 + GRAV_ACC *
+                     np.cos(landing_angle))
+
+        return np.abs(trans_acc / GRAV_ACC), dx
+
+    def find_dgdx(self, x):
+
+        x_plus = x + self.delta
+        x_minus = x - self.delta
+
+        acc_plus, _ = self.calc_trans_acc(x_plus)
+        acc_minus, _ = self.calc_trans_acc(x_minus)
+
+        return (acc_plus - acc_minus) / 2 / self.delta
+
+    def find_transition_point(self):
+        """Returns the horizontal position indicating the start of the landing
+        transition."""
+
+        # goal is to find the last possible transition point (that by
+        # definition minimizes the transition snow budget) that satisfies the
+        # allowable transition G's
+
+        i = 0
+        g_error = np.inf
+        x, _ = self.find_parallel_traj_point()
+
+        while g_error > .001:  # tolerance
+
+            transition_Gs, char_dist = self.calc_trans_acc(x)
+
+            g_error = abs(transition_Gs - self.tolerable_acc)
+
+            dx = -g_error / self.find_dgdx(x)
+
+            x += dx
+
+            if x > self.flight_traj[0, -1]:
+                x = self.flight_traj[0, -1] - 2 * self.delta
+
+            if i > self.max_iterations:
+                msg = 'ERROR: while loop ran more than {} times'
+                print(msg.format(self.max_iterations))
+                break
+            else:
+                i += 1
+
+        x -= dx  # loop stops after dx is added, so take previous
+
+        return x, char_dist
+
+    def find_parallel_traj_point(self):
+
+        slope_angle = self.parent_surface.angle_in_rad
+
+        flight_traj_slope = self.flight_traj[3] / self.flight_traj[2]
+
+        xpara_interpolator = interp1d(flight_traj_slope, self.flight_traj[0])
+
+        xpara = xpara_interpolator(np.tan(slope_angle))
+
+        ypara, _, _, _ = self.interp_flight(xpara)
+
+        return xpara, ypara
+
+    def create_trans_curve(self, trans_x, char_dist, num_points):
+
+        xTranOutEnd = trans_x + 4 * char_dist
+
+        xParent = np.linspace(trans_x, xTranOutEnd, num_points)
+
+        yParent0 = self.parent_surface.interp_y(trans_x)
+
+        yParent = (yParent0 + (xParent - trans_x) *
+                   np.tan(self.parent_surface.angle_in_rad))
+
+        xTranOut = np.linspace(trans_x, xTranOutEnd, num_points)
+
+        dy = (self.interp_flight(trans_x)[0] -
+              self.parent_surface.interp_y(trans_x))
+
+        yTranOut = yParent + dy * np.exp(-1*(xTranOut - trans_x) / char_dist)
+
+        return xTranOut, yTranOut
 
 
 class Skier(object):
