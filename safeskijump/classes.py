@@ -4,6 +4,9 @@ from scipy.interpolate import interp1d
 from scipy.optimize import fsolve
 from scipy.integrate import solve_ivp
 
+# NOTE : These parameters are more associated with an environment, but this
+# doesn't warrant making a class for them. Maybe a namedtuple would be useful
+# though.
 GRAV_ACC = 9.81  # m/s/s
 AIR_DENSITY = 0.85  # kg/m/m/m
 
@@ -477,10 +480,20 @@ class LandingTransitionSurface(Surface):
         return xTranOut, yTranOut
 
 
+class LandingSurface(Surface):
+
+    def __init__(self):
+
+        x = 0
+        y = 0
+
+        super(LandingSurface, self).__init__(x, y)
+
+
 class Skier(object):
 
     samples_per_sec = 120
-    tolerable_acc = 1.5
+    tolerable_acc = 1.5  # G
 
     def __init__(self, mass=75.0, area=0.34, drag_coeff=0.821,
                  friction_coeff=0.03):
@@ -533,7 +546,7 @@ class Skier(object):
 
         return -np.sign(speed) * self.friction_coeff * normal_force
 
-    def fly_to(self, surface, init_pos, init_speed):
+    def fly_to(self, surface, init_pos, init_vel):
         """Returns the flight trajectory of the skier given the initial
         conditions and a surface which the skier contacts at the end of the
         flight trajectory.
@@ -544,7 +557,7 @@ class Skier(object):
             A landing surface. This surface must intersect the flight path.
         init_pos : two tuple of floats
             The X and Y coordinates of the starting point of the flight.
-        init_speed : two tuple of floats
+        init_vel : 2-tuple of floats
             The X and Y components of the skier's velocity at the start of the
             flight.
 
@@ -580,13 +593,13 @@ class Skier(object):
         # integrate to find the final time point
         sol = solve_ivp(rhs,
                         (0.0, np.inf),
-                        init_pos + init_speed,
+                        init_pos + init_vel,
                         events=(touch_surface, ))
 
         # integrate at higher resolution
         sol = solve_ivp(rhs,
                         (0.0, sol.t[-1]),
-                        init_pos + init_speed,
+                        init_pos + init_vel,
                         t_eval=np.linspace(0.0, sol.t[-1],
                                            num=int(self.samples_per_sec *
                                                    sol.t[-1])))
@@ -660,3 +673,69 @@ class Skier(object):
         speed_y = traj[1, -1] * np.sin(end_angle)
 
         return speed_x, speed_y
+
+    def speed_to_land_at(self, landing_point, takeoff_point, takeoff_angle):
+        """Returns the magnitude of the velocity required to land at a specific
+        point.
+
+        Parameters
+        ==========
+        landing_point : 2-tuple of floats
+            The (x, y) coordinates of the desired landing point in meters.
+        takeoff_point : 2-tuple of floats
+            The (x, y) coordinates of the takeoff point in meters.
+        takeoff_angle : float
+            The takeoff angle in degrees.
+
+        Returns
+        =======
+        takeoff_speed : float
+            The magnitude of the takeoff velocity.
+
+        """
+
+        # NOTE : This may only work if the landing surface is below the takeoff
+        # point.
+
+        # TODO : Is it possible to solve a boundary value problem here instead
+        # using this iterative approach with an initial value problem?
+
+        x = landing_point[0]
+        y = landing_point[1]
+
+        cto = np.cos(np.deg2rad(takeoff_angle))
+        sto = np.sin(np.deg2rad(takeoff_angle))
+        tto = np.tan(np.deg2rad(takeoff_angle))
+
+        # guess init. velocity for impact at x,y based on explicit solution
+        # for the no drag case
+        vo = np.sqrt(x**2 * GRAV_ACC / (2*cto**2*(x*tto - y)))
+        # dvody is calculated from the explicit solution without drag @ (x,y)
+        dvody = (x**2*GRAV_ACC/2/cto**2)**0.5*((x*tto-y)**(-3/2))/2
+
+        # creates a flat landing surface that starts at the landing point x
+        # position and 1 meter below the y position, this ensures we get a
+        # flight trajectory that passes through a horizontal line through the
+        # landing position
+        surf = FlatSurface(0.0, 1.0, init_pos=(x, y - 1.0), num_points=5)
+
+        deltay = np.inf
+
+        while abs(deltay) > 0.001:
+            vox = vo*cto
+            voy = vo*sto
+
+            times, flight_traj = self.fly_to(surf, init_pos=takeoff_point,
+                                             init_speed=(vox, voy))
+
+            interpolator = interp1d(*flight_traj[:2])
+
+            ypred = interpolator(x)
+            deltay = ypred-y
+            dvo = -deltay * dvody
+            vo = vo + dvo
+
+        # the takeoff velocity is adjsted by dvo before the while loop ends
+        vo = vo - dvo
+
+        return vo
