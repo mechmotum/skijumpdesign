@@ -90,9 +90,24 @@ def test_skier():
     loc = (4.0, 3.0)  # x, y
     speed = (1.0, 10.0)  # vx, vy
 
-    surf = Surface(np.linspace(0.0, 30.0, num=50), np.zeros(50))
+    surf = Surface(np.linspace(0.0, 10.0, num=10), np.zeros(10))
 
-    flight_traj = skier.fly_to(surf, loc, speed)
+    times, flight_traj = skier.fly_to(surf, loc, speed)
+
+    #ax = surf.plot()
+    #ax.plot(flight_traj[0], flight_traj[1])
+    # plt.show()
+
+    landing_point = flight_traj[0, -1], flight_traj[1, -1]
+    landing_vel = flight_traj[2, -1], flight_traj[3, -1]
+
+    takeoff_speed, impact_vel = skier.speed_to_land_at(
+        landing_point, loc, np.rad2deg(np.arctan(speed[1] / speed[0])))
+
+    # TODO : Set reasonable tolerances.
+    #assert isclose(takeoff_speed, np.sqrt(speed[0]**2 + speed[1]**2))
+    #assert isclose(landing_vel[0], impact_vel[0])
+    #assert isclose(landing_vel[1], impact_vel[1])
 
     x = np.linspace(0, 20)
     y = -1.0 * x + 10.0

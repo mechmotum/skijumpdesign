@@ -1,10 +1,10 @@
 import numpy as np
-from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
 from .classes import (Surface, FlatSurface, ClothoidCircleSurface,
-                      TakeoffSurface, LandingTransitionSurface, Skier)
+                      TakeoffSurface, LandingTransitionSurface, LandingSurface,
+                      Skier)
 
 PARAMETERS = {
               'friction_coeff': 0.03,
@@ -318,17 +318,17 @@ def find_parallel_traj_point(slope_angle, flight_traj_x, flight_traj_y,
 def find_landing_transition_point():
     # beginning of transition curve
 
-    return x, y
+    return None
 
 
 def compute_landing_surface():
 
-    return x, y
+    return None
 
 
 def calculate_landing_transition_curve():
 
-    return x, y
+    return None
 
 
 def make_jump(slope_angle, start_pos, approach_len, takeoff_angle):
@@ -363,7 +363,10 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle):
 
     return curve_x, curve_y, traj_x, traj_y
 
+
 def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle):
+
+    fall_height = 0.2
 
     skier = Skier()
 
@@ -392,17 +395,23 @@ def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle):
     slope = FlatSurface(slope_angle, 4 * approach_len)
 
     _, flight_traj = skier.fly_to(slope, init_pos=takeoff.end,
-                                  init_speed=takeoff_vel)
+                                  init_vel=takeoff_vel)
 
-    landing_trans = LandingTransitionSurface(slope, flight_traj, 0.2, 3.0)
+
+    landing_trans = LandingTransitionSurface(slope, flight_traj, fall_height,
+                                             3.0)
 
     xpara, ypara = landing_trans.find_parallel_traj_point()
+
+    landing = LandingSurface(skier, takeoff.end, takeoff_angle,
+                             landing_trans.start, fall_height)
 
     ax = slope.plot(linestyle='dashed', color='black', label='Slope')
     ax = approach.plot(ax=ax, linewidth=2, label='Approach')
     ax = takeoff.plot(ax=ax, linewidth=2, label='Takeoff')
     ax.plot(*flight_traj[:2], linestyle='dotted', label='Flight')
     ax = landing_trans.plot(ax=ax, linewidth=2, label='Landing Transition')
+    ax = landing.plot(ax=ax, linewidth=2, label='Landing')
     ax.plot(xpara, ypara, 'o', markersize=10)
     ax.legend()
     plt.show()

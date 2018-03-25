@@ -1,3 +1,5 @@
+from math import isclose
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
@@ -9,6 +11,37 @@ from scipy.integrate import solve_ivp
 # though.
 GRAV_ACC = 9.81  # m/s/s
 AIR_DENSITY = 0.85  # kg/m/m/m
+
+EPS = np.finfo(float).eps
+
+
+def speed2vel(speed, angle):
+    """
+    speed : float
+        Magnitude of the speed in meters per second.
+    angle : float
+        Angle in radians. Clockwise is negative and counter clockwise is
+        positive.
+
+    Returns
+    =======
+    vel_x : float
+    vel_y : float
+
+    """
+    vel_x = speed * np.cos(angle)
+    vel_y = -speed * np.sin(angle)
+    return vel_x, vel_y
+
+def vel2speed(hor_vel, ver_vel):
+
+    speed = np.sqrt(hor_vel**2 + ver_vel**2)
+
+    slope = ver_vel / hor_vel
+
+    angle = np.arctan(slope)
+
+    return speed, angle
 
 
 class Surface(object):
@@ -111,7 +144,7 @@ class FlatSurface(Surface):
 
         """
 
-        if angle > 90.0 or angle < -90.0:
+        if angle >= 90.0 or angle <= -90.0:
             raise ValueError('Angle must be between -90 and 90 degrees')
 
         self.angle_in_deg = angle
@@ -482,12 +515,116 @@ class LandingTransitionSurface(Surface):
 
 class LandingSurface(Surface):
 
-    def __init__(self):
+    def __init__(self, skier, takeoff_point, takeoff_angle, max_landing_point,
+                 fall_height):
+        """
+        skier : Skier
+        takeoff_point : 2-tuple of floats
 
-        x = 0
-        y = 0
+        takeoff_angle : float
+            Degrees
+        max_landing_point : 2-tuple of floats
+            meters
+        fall_height : float
+            Meters
+
+        """
+
+        self.skier = skier
+        self.takeoff_point = takeoff_point
+        self.takeoff_angle = takeoff_angle
+        self.max_landing_point = max_landing_point
+        self.fall_height = fall_height
+
+        x, y = self.create_safe_surface()
 
         super(LandingSurface, self).__init__(x, y)
+
+    @property
+    def allowable_impact_speed(self):
+        """Returns the perpendicular speed one would reach if dropped from the
+        provided fall height."""
+        # NOTE : This is used in the LandingTransitionSurface class too and is
+        # duplicate code. May need to be a simple function.
+        return np.sqrt(2 * GRAV_ACC * self.fall_height)
+
+    def create_safe_surface(self):
+
+        def rhs(x, y):
+            """Returns the slope of the safe surface that ensures the impact
+            speed is equivalent to the impact speed from the equivalent fall
+            height.
+
+            dy
+            -- = ...
+            dx
+
+            x : integrating through x instead of time
+            y : single state variable
+
+            equivalent to safe_surface.m
+
+            integrates from the impact location backwards
+
+            If the direction of the velocity vector is known, and
+            the mangitude at impact is known, and
+            the angle between v and the slope is known, then we can find out how the
+            slope should be oriented.
+
+            """
+            print(type(y))
+
+            y = y[0]
+
+            takeoff_speed, impact_vel = self.skier.speed_to_land_at(
+                (x, y), self.takeoff_point, self.takeoff_angle)
+
+            if takeoff_speed > 0.0:
+                impact_speed, impact_angle = vel2speed(*impact_vel)
+            else:  # else takeoff_speed == 0, what about < 0?
+                impact_speed = self.allowable_impact_speed
+                impact_angle = -np.pi / 2.0  # this is vertical?
+
+            speed_ratio = self.allowable_impact_speed / impact_speed
+
+            # beta is the allowed angle between slope and path at speed vImpact
+
+            if isclose(speed_ratio, 1.0):
+                beta = -np.pi / 2.0 + EPS
+            else:
+                beta = -np.arcsin(speed_ratio)
+
+            safe_surface_angle = impact_angle - beta
+
+            dydx = np.tan(safe_surface_angle)
+
+            print('x = {}, y = {}'.format(x, y))
+
+            print('dydx = ', dydx)
+
+            return dydx
+
+        # NOTE : This is working for this range (back to 16.5), I think it is
+        # getting hung in the find skier.speed_to_land_at().
+
+        x_eval = np.linspace(self.max_landing_point[0], self.takeoff_point[0],
+                             num=100)
+
+        print(x_eval)
+
+        y0 = np.array([self.max_landing_point[1]])
+
+        print('Making sure rhs() works.')
+        print(rhs(self.max_landing_point[0], y0))
+
+        print('Integrating...')
+        sol = solve_ivp(rhs, (x_eval[0], x_eval[-1]), y0, t_eval=x_eval)
+        print('Integrating done.')
+
+        x = sol.t[::-1]
+        y = sol.y.squeeze()[::-1]
+
+        return x, y
 
 
 class Skier(object):
@@ -692,6 +829,11 @@ class Skier(object):
         takeoff_speed : float
             The magnitude of the takeoff velocity.
 
+        Notes
+        =====
+
+        This method corresponds to Mont's Matlab function findVoWithDrag.m.
+
         """
 
         # NOTE : This may only work if the landing surface is below the takeoff
@@ -700,8 +842,13 @@ class Skier(object):
         # TODO : Is it possible to solve a boundary value problem here instead
         # using this iterative approach with an initial value problem?
 
-        x = landing_point[0]
-        y = landing_point[1]
+        x, y = landing_point
+
+        if isclose(landing_point[0] - takeoff_point[0], 0.0):
+            return 0.0, (0.0, 0.0)
+
+        print('Landing point')
+        print(landing_point)
 
         cto = np.cos(np.deg2rad(takeoff_angle))
         sto = np.sin(np.deg2rad(takeoff_angle))
@@ -709,33 +856,66 @@ class Skier(object):
 
         # guess init. velocity for impact at x,y based on explicit solution
         # for the no drag case
-        vo = np.sqrt(x**2 * GRAV_ACC / (2*cto**2*(x*tto - y)))
+        x_norm = landing_point[0] - takeoff_point[0]
+        y_norm = landing_point[1] - takeoff_point[1]
+        print('normed', x_norm, y_norm)
+        vo = np.sqrt(x_norm**2 * GRAV_ACC / (2*cto**2 * (x_norm*tto - y_norm)))
         # dvody is calculated from the explicit solution without drag @ (x,y)
-        dvody = (x**2*GRAV_ACC/2/cto**2)**0.5*((x*tto-y)**(-3/2))/2
+        dvody = (x_norm**2 * GRAV_ACC / 2 / cto**2)**0.5 * ((x_norm*tto-y_norm)**(-3/2)) / 2
+        print('dvody')
+        print(dvody)
 
         # creates a flat landing surface that starts at the landing point x
         # position and 1 meter below the y position, this ensures we get a
         # flight trajectory that passes through a horizontal line through the
         # landing position
-        surf = FlatSurface(0.0, 1.0, init_pos=(x, y - 1.0), num_points=5)
+        surf = FlatSurface(45.0, 10.0, init_pos=(x + 6, y),
+                           num_points=100)
+        surf = FlatSurface(-20.0, 40.0)
+
+        print('Takeoff Point')
+        print(takeoff_point)
+
+        print('Surface: x, y')
+        print(surf.x)
+        print(surf.y)
 
         deltay = np.inf
+
+        ax = surf.plot()
 
         while abs(deltay) > 0.001:
             vox = vo*cto
             voy = vo*sto
 
-            times, flight_traj = self.fly_to(surf, init_pos=takeoff_point,
-                                             init_speed=(vox, voy))
+            times, flight_traj = self.fly_to(surf,
+                                             init_pos=takeoff_point,
+                                             init_vel=(vox, voy))
 
-            interpolator = interp1d(*flight_traj[:2])
+            ax.plot(*flight_traj[:2])
+
+            interpolator = interp1d(*flight_traj[:2], fill_value='extrapolate')
 
             ypred = interpolator(x)
-            deltay = ypred-y
+            print('ypred', ypred)
+
+            deltay = ypred - y
+            print('deltay', deltay)
             dvo = -deltay * dvody
+            print('dvo', dvo)
             vo = vo + dvo
+            print('vo', vo)
+
+        ax.plot(*takeoff_point, 'o')
+        ax.plot(*landing_point, 'o')
+        ax.set_xlim((10.0, 35.0))
+        plt.show()
 
         # the takeoff velocity is adjsted by dvo before the while loop ends
         vo = vo - dvo
 
-        return vo
+        takeoff_speed = vo
+
+        impact_vel = tuple(flight_traj[2:, -1])
+
+        return takeoff_speed, impact_vel
