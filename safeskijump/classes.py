@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.optimize import fsolve
 from scipy.integrate import solve_ivp
+import sympy as sm
+from sympy.utilities.autowrap import autowrap
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -17,6 +19,22 @@ GRAV_ACC = 9.81  # m/s/s
 AIR_DENSITY = 0.85  # kg/m/m/m
 
 EPS = np.finfo(float).eps
+
+
+def generate_fast_drag_func():
+    v, A, ro, C = sm.symbols('v, A, ro, C')
+    drag_expr = -sm.sign(v) / 2 * ro * C * A * v**2
+    return autowrap(drag_expr, backend='cython', args=(ro, v, C, A))
+
+compute_drag = generate_fast_drag_func()
+
+def gen_fast_distance_from():
+    theta, x, y = sm.symbols('theta, x, y')
+    expr = (y - sm.tan(theta) * x) * sm.cos(theta)
+
+    return autowrap(expr, backend='cython', args=(theta, x, y))
+
+compute_dist_from_flat = gen_fast_distance_from()
 
 
 def speed2vel(speed, angle):
@@ -170,10 +188,12 @@ class FlatSurface(Surface):
 
     def distance_from(self, xp, yp):
 
-        m = np.tan(self.angle)
-        d = (yp - m * xp) * np.cos(self.angle)
+        return compute_dist_from_flat(self.angle, xp, yp)
 
-        return d
+        #m = np.tan(self.angle)
+        #d = (yp - m * xp) * np.cos(self.angle)
+#
+        #return d
 
 
 class ClothoidCircleSurface(Surface):
@@ -527,7 +547,7 @@ class LandingTransitionSurface(Surface):
 class LandingSurface(Surface):
 
     def __init__(self, skier, takeoff_point, takeoff_angle, max_landing_point,
-                 fall_height):
+                 fall_height, surf=None):
         """
         skier : Skier
         takeoff_point : 2-tuple of floats
@@ -546,6 +566,7 @@ class LandingSurface(Surface):
         self.takeoff_angle = takeoff_angle
         self.max_landing_point = max_landing_point
         self.fall_height = fall_height
+        self.surf = surf
 
         x, y = self.create_safe_surface()
 
@@ -590,7 +611,7 @@ class LandingSurface(Surface):
             logging.debug('x = {}, y = {}'.format(x, y))
 
             takeoff_speed, impact_vel = self.skier.speed_to_land_at(
-                (x, y), self.takeoff_point, self.takeoff_angle)
+                (x, y), self.takeoff_point, self.takeoff_angle, surf=self.surf)
 
             if takeoff_speed > 0.0:
                 impact_speed, impact_angle = vel2speed(*impact_vel)
@@ -678,8 +699,10 @@ class Skier(object):
         """Returns the drag force in Newtons opposing the velocity of the
         skier."""
 
-        return (-np.sign(velocity) / 2 * AIR_DENSITY * self.drag_coeff *
-                self.area * velocity**2)
+        return compute_drag(AIR_DENSITY, velocity, self.drag_coeff, self.area)
+
+        #return (-np.sign(velocity) / 2 * AIR_DENSITY * self.drag_coeff *
+                #self.area * velocity**2)
 
     def friction_force(self, speed, slope=0.0, curvature=0.0):
         """Returns the friction force in Newtons opposing the speed of the
@@ -831,7 +854,8 @@ class Skier(object):
 
         return speed_x, speed_y
 
-    def speed_to_land_at(self, landing_point, takeoff_point, takeoff_angle):
+    def speed_to_land_at(self, landing_point, takeoff_point, takeoff_angle,
+                         surf=None):
         """Returns the magnitude of the velocity required to land at a specific
         point.
 
@@ -894,9 +918,10 @@ class Skier(object):
         # position and 1 meter below the y position, this ensures we get a
         # flight trajectory that passes through a horizontal line through the
         # landing position
-        surf = FlatSurface(np.deg2rad(45.0), 10.0, init_pos=(x + 6, y),
-                           num_points=100)
-        surf = FlatSurface(np.deg2rad(-20.0), 40.0)
+        if surf is None:
+            #surf = FlatSurface(np.deg2rad(45.0), 10.0, init_pos=(x + 6, y),
+                            #num_points=100)
+            surf = FlatSurface(np.deg2rad(-20.0), 40.0)
 
         #print('Takeoff Point')
         #print(takeoff_point)

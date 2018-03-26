@@ -427,7 +427,7 @@ def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle,
     xpara, ypara = landing_trans.find_parallel_traj_point()
 
     landing = LandingSurface(skier, takeoff.end, takeoff_angle,
-                             landing_trans.start, fall_height)
+                             landing_trans.start, fall_height, surf=slope)
 
     ax = slope.plot(linestyle='dashed', color='black', label='Slope')
     ax = approach.plot(ax=ax, linewidth=2, label='Approach')

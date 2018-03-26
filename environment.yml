@@ -11,6 +11,8 @@ dependencies:
   - numpy
   - scipy >=1.0
   - matplotlib
+  - sympy
+  - cython
   - nbformat  # plotly dep, oddly not included in conda dep
   - jupyter_core  # plotly dep, oddly not included in conda dep
   - plotly
