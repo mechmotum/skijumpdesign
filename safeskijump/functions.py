@@ -101,8 +101,3 @@ def plot_jump(slope, approach, takeoff, landing, landing_trans, flight):
     ax.grid()
     ax.legend()
     return ax
-
-
-def create_plot_arrays(slope, approach, takeoff, landing, landing_trans,
-                       flight):
-    return approach.xy, takeoff.xy, flight.xy

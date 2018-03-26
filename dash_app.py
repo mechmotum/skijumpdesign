@@ -4,7 +4,7 @@ from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
 
-from safeskijump.functions import make_jump, create_plot_arrays
+from safeskijump.functions import make_jump
 
 BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 
@@ -27,6 +27,14 @@ approach_len_widget = html.Div([
               value='50')
     ])
 
+fall_height_widget = html.Div([
+    html.P('Fall Height [m]'),
+    dcc.Input(id='fall_height',
+              placeholder='Fall Height [meters]',
+              type='number',
+              value='0.2')
+    ])
+
 slope_angle_widget = html.Div([
     html.P('Slope Angle: 10 degrees', id='slope-text'),
     dcc.Slider(
@@ -36,7 +44,7 @@ slope_angle_widget = html.Div([
         step=1,
         value=10,
         marks={0: '0 [deg]', 45: '45 [deg]'},
-        #updatemode='drag'
+        # updatemode='drag'
         )
     ])
 
@@ -49,12 +57,13 @@ takeoff_angle_widget = html.Div([
         step=1,
         value=20,
         marks={0: '0 [deg]', 45: '45 [deg]'},
-        #updatemode='drag'
+        # updatemode='drag'
         )
     ])
 
 controls_widget = html.Div([start_pos_widget, approach_len_widget,
-                            slope_angle_widget, takeoff_angle_widget],
+                            fall_height_widget, slope_angle_widget,
+                            takeoff_angle_widget],
                            className='col-md-4')
 
 layout = go.Layout(autosize=False,
@@ -71,8 +80,11 @@ app.layout = html.Div([html.H1('Ski Jump Design'),
                                 className='row')],
                       className='container')
 
-inputs = [Input('slope_angle', 'value'), Input('start_pos', 'value'),
-          Input('approach_len', 'value'), Input('takeoff_angle', 'value')]
+inputs = [Input('slope_angle', 'value'),
+          Input('start_pos', 'value'),
+          Input('approach_len', 'value'),
+          Input('takeoff_angle', 'value'),
+          Input('fall_height', 'value')]
 
 
 @app.callback(Output('slope-text', 'children'),
@@ -90,23 +102,27 @@ def update_takeoff_text(takeoff_angle):
 
 
 @app.callback(Output('my-graph', 'figure'), inputs)
-def update_graph(slope_angle, start_pos, approach_len, takeoff_angle):
+def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
+                 fall_height):
 
     slope_angle = float(slope_angle)
     start_pos = float(start_pos)
     approach_len = float(approach_len)
     takeoff_angle = float(takeoff_angle)
-    # TODO : Make widget for this.
-    fall_height = 0.4
+    fall_height = float(fall_height)
 
     surfs = make_jump(-slope_angle, start_pos, approach_len, takeoff_angle,
-                       fall_height)
-    ap_xy, to_xy, fl_xy = create_plot_arrays(*surfs)
+                      fall_height)
+    slope, approach, takeoff, landing, landtrans, flight = surfs
 
-    return {'data': [{'x': [0], 'y': [0], 'name': 'Slope Top'},
-                     {'x': ap_xy[0], 'y': ap_xy[1], 'name': 'Approach'},
-                     {'x': to_xy[0], 'y': to_xy[1], 'name': 'Takeoff'},
-                     {'x': fl_xy[0], 'y': fl_xy[1], 'name': 'Flight'}],
+    return {'data': [
+                     {'x': slope.x, 'y': slope.y, 'name': 'Slope'},
+                     {'x': approach.x, 'y': approach.y, 'name': 'Approach'},
+                     {'x': takeoff.x, 'y': takeoff.y, 'name': 'Takeoff'},
+                     {'x': landing.x, 'y': landing.y, 'name': 'Landing'},
+                     {'x': landtrans.x, 'y': landtrans.y, 'name': 'Landing Transition'},
+                     {'x': flight.x, 'y': flight.y, 'name': 'Flight'},
+                    ],
             'layout': layout}
 
 if __name__ == '__main__':
