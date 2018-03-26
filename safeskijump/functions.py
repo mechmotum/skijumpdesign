@@ -6,8 +6,8 @@ from .classes import (Surface, FlatSurface, ClothoidCircleSurface,
                       Skier)
 
 
-def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle,
-               fall_height, plot=False):
+def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
+              plot=False):
     """
 
     Parameters
@@ -84,13 +84,13 @@ def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle,
                              landing_trans.start, fall_height, surf=slope)
 
     if plot:
-        plot_jump2(slope, approach, takeoff, landing, landing_trans, flight)
+        plot_jump(slope, approach, takeoff, landing, landing_trans, flight)
         plt.show()
 
     return slope, approach, takeoff, landing, landing_trans, flight
 
 
-def plot_jump2(slope, approach, takeoff, landing, landing_trans, flight):
+def plot_jump(slope, approach, takeoff, landing, landing_trans, flight):
     """Returns a matplotlib axes that plots the jump."""
     ax = slope.plot(linestyle='dashed', color='black', label='Slope')
     ax = approach.plot(ax=ax, linewidth=2, label='Approach')
@@ -103,6 +103,6 @@ def plot_jump2(slope, approach, takeoff, landing, landing_trans, flight):
     return ax
 
 
-def create_plot_arrays2(slope, approach, takeoff, landing, landing_trans,
+def create_plot_arrays(slope, approach, takeoff, landing, landing_trans,
                         flight):
     return approach.xy, takeoff.xy, flight.xy

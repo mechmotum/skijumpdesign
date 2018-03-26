@@ -4,7 +4,7 @@ from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
 
-from safeskijump.functions import make_jump2, create_plot_arrays2
+from safeskijump.functions import make_jump, create_plot_arrays
 
 BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 
@@ -99,9 +99,9 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle):
     # TODO : Make widget for this.
     fall_height = 0.4
 
-    surfs = make_jump2(-slope_angle, start_pos, approach_len, takeoff_angle,
+    surfs = make_jump(-slope_angle, start_pos, approach_len, takeoff_angle,
                        fall_height)
-    ap_xy, to_xy, fl_xy = create_plot_arrays2(*surfs)
+    ap_xy, to_xy, fl_xy = create_plot_arrays(*surfs)
 
     return {'data': [{'x': [0], 'y': [0], 'name': 'Slope Top'},
                      {'x': ap_xy[0], 'y': ap_xy[1], 'name': 'Approach'},
