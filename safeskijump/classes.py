@@ -28,6 +28,7 @@ def generate_fast_drag_func():
 
 compute_drag = generate_fast_drag_func()
 
+
 def gen_fast_distance_from():
     theta, x, y = sm.symbols('theta, x, y')
     expr = (y - sm.tan(theta) * x) * sm.cos(theta)
@@ -106,6 +107,11 @@ class Surface(object):
     def end(self):
         """Returns the X and Y coordinates at the end of the surface."""
         return self.x[-1], self.y[-1]
+
+    @property
+    def xy(self):
+        """Returns a tuple of the x and y coordinates."""
+        return self.x, self.y
 
     def distance_from(self, xp, yp):
         """Returns the shortest distance from point (xp, yp) to the surface.
@@ -671,7 +677,8 @@ class LandingSurface(Surface):
 class Skier(object):
 
     samples_per_sec = 120
-    tolerable_acc = 1.5  # G
+    tolerable_sliding_acc = 1.5  # G
+    tolerable_landing_acc = 3.0  # G
 
     def __init__(self, mass=75.0, area=0.34, drag_coeff=0.821,
                  friction_coeff=0.03):
