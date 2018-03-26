@@ -1,3 +1,4 @@
+import logging
 from math import isclose
 
 import numpy as np
@@ -5,6 +6,9 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.optimize import fsolve
 from scipy.integrate import solve_ivp
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 # NOTE : These parameters are more associated with an environment, but this
 # doesn't warrant making a class for them. Maybe a namedtuple would be useful
@@ -32,6 +36,7 @@ def speed2vel(speed, angle):
     vel_x = speed * np.cos(angle)
     vel_y = -speed * np.sin(angle)
     return vel_x, vel_y
+
 
 def vel2speed(hor_vel, ver_vel):
 
@@ -572,9 +577,11 @@ class LandingSurface(Surface):
             slope should be oriented.
 
             """
-            print(type(y))
 
+            # NOTE : y is an array of length 1
             y = y[0]
+
+            logging.debug('x = {}, y = {}'.format(x, y))
 
             takeoff_speed, impact_vel = self.skier.speed_to_land_at(
                 (x, y), self.takeoff_point, self.takeoff_angle)
@@ -583,24 +590,30 @@ class LandingSurface(Surface):
                 impact_speed, impact_angle = vel2speed(*impact_vel)
             else:  # else takeoff_speed == 0, what about < 0?
                 impact_speed = self.allowable_impact_speed
-                impact_angle = -np.pi / 2.0  # this is vertical?
+                impact_angle = -np.pi / 2.0
 
             speed_ratio = self.allowable_impact_speed / impact_speed
 
+            logging.debug('speed ratio = {}'.format(speed_ratio))
+
             # beta is the allowed angle between slope and path at speed vImpact
 
-            if isclose(speed_ratio, 1.0):
-                beta = -np.pi / 2.0 + EPS
+            if speed_ratio > 1.0:
+                beta = np.pi / 2.0 + EPS
             else:
-                beta = -np.arcsin(speed_ratio)
+                beta = np.arcsin(speed_ratio)
 
-            safe_surface_angle = impact_angle - beta
+            logging.debug('impact angle = {} deg'.format(np.rad2deg(impact_angle)))
+            logging.debug('beta = {} deg'.format(np.rad2deg(beta)))
+
+            safe_surface_angle = beta + impact_angle
+
+            logging.debug('safe_surface_angle = {} deg'.format(np.rad2deg(safe_surface_angle)))
 
             dydx = np.tan(safe_surface_angle)
 
-            print('x = {}, y = {}'.format(x, y))
 
-            print('dydx = ', dydx)
+            logging.debug('dydx = {}'.format(dydx))
 
             return dydx
 
@@ -608,18 +621,19 @@ class LandingSurface(Surface):
         # getting hung in the find skier.speed_to_land_at().
 
         x_eval = np.linspace(self.max_landing_point[0], self.takeoff_point[0],
-                             num=100)
+                             num=1000)
 
-        print(x_eval)
+        logging.debug(x_eval)
 
         y0 = np.array([self.max_landing_point[1]])
 
-        print('Making sure rhs() works.')
-        print(rhs(self.max_landing_point[0], y0))
+        logging.debug('Making sure rhs() works.')
+        logging.debug(rhs(self.max_landing_point[0], y0))
 
-        print('Integrating...')
-        sol = solve_ivp(rhs, (x_eval[0], x_eval[-1]), y0, t_eval=x_eval)
-        print('Integrating done.')
+        logging.info('Integrating...')
+        sol = solve_ivp(rhs, (x_eval[0], x_eval[-1]), y0, t_eval=x_eval,
+                        max_step=1.0)
+        logging.info('Integrating done.')
 
         x = sol.t[::-1]
         y = sol.y.squeeze()[::-1]
@@ -847,23 +861,27 @@ class Skier(object):
         if isclose(landing_point[0] - takeoff_point[0], 0.0):
             return 0.0, (0.0, 0.0)
 
-        print('Landing point')
-        print(landing_point)
-
+        theta = np.deg2rad(takeoff_angle)
         cto = np.cos(np.deg2rad(takeoff_angle))
         sto = np.sin(np.deg2rad(takeoff_angle))
         tto = np.tan(np.deg2rad(takeoff_angle))
 
         # guess init. velocity for impact at x,y based on explicit solution
         # for the no drag case
-        x_norm = landing_point[0] - takeoff_point[0]
-        y_norm = landing_point[1] - takeoff_point[1]
-        print('normed', x_norm, y_norm)
-        vo = np.sqrt(x_norm**2 * GRAV_ACC / (2*cto**2 * (x_norm*tto - y_norm)))
+        delx = landing_point[0] - takeoff_point[0]
+        dely = landing_point[1] - takeoff_point[1]
+        logging.debug('delx = {}, dely = {}'.format(delx, dely))
+        logging.debug(delx**2 * GRAV_ACC / (2*cto**2 * (delx*tto - dely)))
+        logging.debug(2*cto**2 * (delx*tto - dely))
+        vo = np.sqrt(delx**2 * GRAV_ACC / (2*cto**2 * (delx*tto - dely)))
+        logging.debug('vo = {}'.format(vo))
         # dvody is calculated from the explicit solution without drag @ (x,y)
-        dvody = (x_norm**2 * GRAV_ACC / 2 / cto**2)**0.5 * ((x_norm*tto-y_norm)**(-3/2)) / 2
-        print('dvody')
-        print(dvody)
+        dvody = (delx**2 * GRAV_ACC / 2 / cto**2)**0.5 * ((delx*tto-dely)**(-3/2)) / 2
+        dvody =  (np.sqrt(GRAV_ACC*(delx)**2/((delx)*np.sin(2*theta) -
+                       2*(dely)*cto**2))*cto**2/
+                  ((delx)*np.sin(2*theta) - 2*(dely)*cto**2))
+        #print('dvody')
+        #print(dvody)
 
         # creates a flat landing surface that starts at the landing point x
         # position and 1 meter below the y position, this ensures we get a
@@ -873,16 +891,16 @@ class Skier(object):
                            num_points=100)
         surf = FlatSurface(-20.0, 40.0)
 
-        print('Takeoff Point')
-        print(takeoff_point)
-
-        print('Surface: x, y')
-        print(surf.x)
-        print(surf.y)
+        #print('Takeoff Point')
+        #print(takeoff_point)
+#
+        #print('Surface: x, y')
+        #print(surf.x)
+        #print(surf.y)
 
         deltay = np.inf
 
-        ax = surf.plot()
+        #ax = surf.plot()
 
         while abs(deltay) > 0.001:
             vox = vo*cto
@@ -891,31 +909,34 @@ class Skier(object):
             times, flight_traj = self.fly_to(surf,
                                              init_pos=takeoff_point,
                                              init_vel=(vox, voy))
+            x_traj = flight_traj[0]
 
-            ax.plot(*flight_traj[:2])
+            #ax.plot(*flight_traj[:2])
 
-            interpolator = interp1d(*flight_traj[:2], fill_value='extrapolate')
+            interpolator = interp1d(x_traj, flight_traj[1:], fill_value='extrapolate')
 
-            ypred = interpolator(x)
-            print('ypred', ypred)
+            traj_at_impact = interpolator(x)
+
+            ypred = traj_at_impact[0]
+            #logging.debug('ypred = {}'.format(ypred))
 
             deltay = ypred - y
-            print('deltay', deltay)
+            #logging.debug('deltay = {}'.format(deltay))
             dvo = -deltay * dvody
-            print('dvo', dvo)
+            #logging.debug('dvo = {}'.format(dvo))
             vo = vo + dvo
-            print('vo', vo)
+            #logging.debug('vo = {}'.format(vo))
 
-        ax.plot(*takeoff_point, 'o')
-        ax.plot(*landing_point, 'o')
-        ax.set_xlim((10.0, 35.0))
-        plt.show()
+        #ax.plot(*takeoff_point, 'o')
+        #ax.plot(*landing_point, 'o')
+        #ax.set_xlim((10.0, 35.0))
+        #plt.show()
 
         # the takeoff velocity is adjsted by dvo before the while loop ends
         vo = vo - dvo
 
         takeoff_speed = vo
 
-        impact_vel = tuple(flight_traj[2:, -1])
+        impact_vel = (traj_at_impact[1], traj_at_impact[2])
 
         return takeoff_speed, impact_vel
