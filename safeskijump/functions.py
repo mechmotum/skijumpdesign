@@ -42,8 +42,10 @@ def compute_approach_exit_speed(slope_angle, start_pos, approach_len):
         to the takeoff curve.
 
     """
-    start_x = start_pos * np.cos(np.deg2rad(-slope_angle))
-    start_y = start_pos * np.sin(np.deg2rad(-slope_angle))
+    slope_angle = np.deg2rad(slope_angle)
+
+    start_x = start_pos * np.cos(-slope_angle)
+    start_y = start_pos * np.sin(-slope_angle)
 
     surf = FlatSurface(-slope_angle, approach_len,
                        init_pos=(start_x, start_y))
@@ -288,8 +290,10 @@ def compute_flight_trajectory(slope_angle, takeoff_point, takeoff_angle,
         The Y coordinates of the flight trajectory.
 
     """
-    surf = FlatSurface(-slope_angle, 10000)
+    slope_angle = np.deg2rad(slope_angle)
     takeoff_angle = np.deg2rad(takeoff_angle)
+
+    surf = FlatSurface(-slope_angle, 10000)
     times, states = Skier().fly_to(surf, takeoff_point,
                                    (takeoff_speed * np.cos(takeoff_angle),
                                     takeoff_speed * np.sin(takeoff_angle)))
@@ -365,7 +369,7 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle):
 
 
 def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle,
-               fall_height):
+               fall_height, plot=False):
     """
 
     Parameters
@@ -383,61 +387,88 @@ def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle,
         positive and clockwise is negative.
     fall_height : float
         The equivalent fall height in meters.
+    plot : boolean
+        If True a matplotlib figure showing the jump will appear.
 
     """
 
-    time_on_ramp = 0.2
-    tolerable_acc = 3.0
+    # TODO : Move these to skier?
+    time_on_ramp = 0.2  # seconds
+
+    skier = Skier()
 
     slope_angle = np.deg2rad(slope_angle)
     takeoff_angle = np.deg2rad(takeoff_angle)
 
-    skier = Skier()
+    # The approach is the flat slope that the skier starts from rest on to gain
+    # speed before reaching the takeoff ramp.
+    init_pos = (start_pos * np.cos(slope_angle),
+                start_pos * np.sin(slope_angle))
 
-    start_x = start_pos * np.cos(slope_angle)
-    start_y = start_pos * np.sin(slope_angle)
+    approach = FlatSurface(slope_angle, approach_len, init_pos=init_pos)
 
-    approach = FlatSurface(slope_angle, approach_len,
-                           init_pos=(start_x, start_y))
-
+    # The takeoff entry surface is the first portion of the ramp that the skier
+    # encounters that does not include the flat final portion of the takeoff
+    # surface.
     takeoff_entry_speed = skier.end_speed_on(approach)
 
     takeoff_entry = ClothoidCircleSurface(slope_angle,
                                           takeoff_angle,
                                           takeoff_entry_speed,
-                                          skier.tolerable_acc,
+                                          skier.tolerable_sliding_acc,
                                           init_pos=approach.end)
 
+    # The takeoff surface is the combined circle-clothoid-circle-flat.
     ramp_entry_speed = skier.end_speed_on(takeoff_entry,
                                           init_speed=takeoff_entry_speed)
 
     takeoff = TakeoffSurface(takeoff_entry, ramp_entry_speed, time_on_ramp)
 
+    # The skier becomes airborne after the takeoff surface and the trajectory
+    # is computed until the skier contacts the parent slope.
     takeoff_vel = skier.end_vel_on(takeoff, init_speed=takeoff_entry_speed)
 
     slope = FlatSurface(slope_angle, 4 * approach_len)
 
-    _, flight_traj = skier.fly_to(slope, init_pos=takeoff.end,
-                                  init_vel=takeoff_vel)
+    flight_time, flight_traj = skier.fly_to(slope, init_pos=takeoff.end,
+                                            init_vel=takeoff_vel)
 
+    flight = Surface(x=flight_traj[0], y=flight_traj[1])
 
+    # The landing transition curve transfers the max velocity skier from their
+    # landing point smoothly to the parent slope.
     landing_trans = LandingTransitionSurface(slope, flight_traj, fall_height,
-                                             tolerable_acc)
+                                             skier.tolerable_landing_acc)
 
-    xpara, ypara = landing_trans.find_parallel_traj_point()
-
+    # The landing surface ensures an equivalent fall height for any skiers that
+    # do not reach maximum velocity.
     landing = LandingSurface(skier, takeoff.end, takeoff_angle,
                              landing_trans.start, fall_height, surf=slope)
 
+    if plot:
+        plot_jump2(slope, approach, takeoff, landing, landing_trans, flight)
+        plt.show()
+
+    return slope, approach, takeoff, landing, landing_trans, flight
+
+
+def plot_jump2(slope, approach, takeoff, landing, landing_trans, flight):
+    """Returns a matplotlib axes that plots the jump."""
     ax = slope.plot(linestyle='dashed', color='black', label='Slope')
     ax = approach.plot(ax=ax, linewidth=2, label='Approach')
     ax = takeoff.plot(ax=ax, linewidth=2, label='Takeoff')
-    ax.plot(*flight_traj[:2], linestyle='dotted', label='Flight')
-    ax = landing_trans.plot(ax=ax, linewidth=2, label='Landing Transition')
     ax = landing.plot(ax=ax, linewidth=2, label='Landing')
-    #ax.plot(xpara, ypara, 'o', markersize=10)
+    ax = landing_trans.plot(ax=ax, linewidth=2, label='Landing Transition')
+    ax = flight.plot(ax=ax, linestyle='dotted', label='Flight')
+    ax.grid()
     ax.legend()
-    plt.show()
+    return ax
+
+
+def create_plot_arrays2(slope, approach, takeoff, landing, landing_trans,
+                        flight):
+    return approach.xy, takeoff.xy, flight.xy
+
 
 def create_plot_arrays(slope_angle, start_pos, approach_len, takeoff_angle,
                        takeoff_curve_x, takeoff_curve_y, flight_traj_x,
