@@ -4,7 +4,7 @@ from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
 
-from safeskijump.functions import make_jump, create_plot_arrays
+from safeskijump.functions import make_jump2, create_plot_arrays2
 
 BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 
@@ -36,7 +36,8 @@ slope_angle_widget = html.Div([
         step=1,
         value=10,
         marks={0: '0 [deg]', 45: '45 [deg]'},
-        updatemode='drag')
+        #updatemode='drag'
+        )
     ])
 
 takeoff_angle_widget = html.Div([
@@ -48,7 +49,8 @@ takeoff_angle_widget = html.Div([
         step=1,
         value=20,
         marks={0: '0 [deg]', 45: '45 [deg]'},
-        updatemode='drag')
+        #updatemode='drag'
+        )
     ])
 
 controls_widget = html.Div([start_pos_widget, approach_len_widget,
@@ -94,12 +96,12 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle):
     start_pos = float(start_pos)
     approach_len = float(approach_len)
     takeoff_angle = float(takeoff_angle)
+    # TODO : Make widget for this.
+    fall_height = 0.4
 
-    jump_x, jump_y, traj_x, traj_y = make_jump(slope_angle, start_pos,
-                                               approach_len, takeoff_angle)
-    ap_xy, to_xy, fl_xy = create_plot_arrays(slope_angle, start_pos,
-                                             approach_len, takeoff_angle,
-                                             jump_x, jump_y, traj_x, traj_y)
+    surfs = make_jump2(-slope_angle, start_pos, approach_len, takeoff_angle,
+                       fall_height)
+    ap_xy, to_xy, fl_xy = create_plot_arrays2(*surfs)
 
     return {'data': [{'x': [0], 'y': [0], 'name': 'Slope Top'},
                      {'x': ap_xy[0], 'y': ap_xy[1], 'name': 'Approach'},
