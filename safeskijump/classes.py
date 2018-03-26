@@ -108,6 +108,9 @@ class Surface(object):
 
         """
 
+        # TODO : Use explicit functions for caculating the distance from to
+        # avoid the interpolation and fsolve slow down.
+
         def distance_squared(x):
             return (xp - x)**2 + (yp - self.interp_y(x))**2
 
