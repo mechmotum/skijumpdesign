@@ -364,15 +364,38 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle):
     return curve_x, curve_y, traj_x, traj_y
 
 
-def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle):
+def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle,
+               fall_height):
+    """
 
-    fall_height = 0.2
+    Parameters
+    ==========
+    slope_angle : float
+        The parent slope angle in degrees. Counter clockwise is positive and
+        clockwise is negative.
+    start_pos : float
+        The distance in meters from the top for the parent slope to where the
+        skier starts from.
+    approach_len : float
+        The distance in meters
+    takeoff_angle : float
+        The angle in degrees at end of the takeoff ramp. Counter clockwise is
+        positive and clockwise is negative.
+    fall_height : float
+        The equivalent fall height in meters.
+
+    """
+
+    time_on_ramp = 0.2
+    tolerable_acc = 3.0
+
+    slope_angle = np.deg2rad(slope_angle)
+    takeoff_angle = np.deg2rad(takeoff_angle)
 
     skier = Skier()
 
-    slope_ang_rad = np.deg2rad(slope_angle)
-    start_x = start_pos * np.cos(slope_ang_rad)
-    start_y = start_pos * np.sin(slope_ang_rad)
+    start_x = start_pos * np.cos(slope_angle)
+    start_y = start_pos * np.sin(slope_angle)
 
     approach = FlatSurface(slope_angle, approach_len,
                            init_pos=(start_x, start_y))
@@ -388,7 +411,7 @@ def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle):
     ramp_entry_speed = skier.end_speed_on(takeoff_entry,
                                           init_speed=takeoff_entry_speed)
 
-    takeoff = TakeoffSurface(takeoff_entry, ramp_entry_speed, 0.2)
+    takeoff = TakeoffSurface(takeoff_entry, ramp_entry_speed, time_on_ramp)
 
     takeoff_vel = skier.end_vel_on(takeoff, init_speed=takeoff_entry_speed)
 
@@ -399,7 +422,7 @@ def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle):
 
 
     landing_trans = LandingTransitionSurface(slope, flight_traj, fall_height,
-                                             3.0)
+                                             tolerable_acc)
 
     xpara, ypara = landing_trans.find_parallel_traj_point()
 

@@ -142,7 +142,7 @@ class FlatSurface(Surface):
         Parameters
         ==========
         angle : float
-            The angle of the surface in degrees. This is the angle about the
+            The angle of the surface in radians. This is the angle about the
             positive Z axis.
         length : float
             The distance in meters along the surface from the initial position.
@@ -152,14 +152,10 @@ class FlatSurface(Surface):
 
         """
 
-        if angle >= 90.0 or angle <= -90.0:
+        if angle >= np.pi / 2.0 or angle <= -np.pi / 2.0:
             raise ValueError('Angle must be between -90 and 90 degrees')
 
-        self.angle_in_deg = angle
-
-        angle = np.deg2rad(angle)
-
-        self.angle_in_rad = angle
+        self.angle = angle
 
         x = np.linspace(init_pos[0], init_pos[0] + length * np.cos(angle),
                         num=num_points)
@@ -179,9 +175,9 @@ class ClothoidCircleSurface(Surface):
         Parameters
         ==========
         entry_angle : float
-            The entry angle tangent to the left clothoid in degrees.
+            The entry angle tangent to the left clothoid in radians
         exit_angle : float
-            The exit angle tangent to the right clothoid in degrees.
+            The exit angle tangent to the right clothoid in radians.
         entry_speed : float
             The magnitude of the skier's velocity in meters per second as they
             enter the takeoff curve (i.e. approach exit speed).
@@ -194,15 +190,11 @@ class ClothoidCircleSurface(Surface):
 
         """
         self.gamma = gamma
+        self.entry_angle = entry_angle
+        self.exit_angle = exit_angle
 
-        self.entry_angle_in_deg = entry_angle
-        self.entry_angle_in_rad = np.deg2rad(entry_angle)
-
-        self.exit_angle_in_deg = exit_angle
-        self.exit_angle_in_rad = np.deg2rad(exit_angle)
-
-        lam = -self.entry_angle_in_rad
-        beta = self.exit_angle_in_rad
+        lam = -self.entry_angle
+        beta = self.exit_angle
 
         rotation_clothoid = (lam - beta) / 2
         # used to rotate symmetric clothoid so that left side is at lam and
@@ -312,11 +304,11 @@ class TakeoffSurface(Surface):
 
         points_per_meter = len(clth_surface.x) / (start_x - clth_surface.x[0])
 
-        stop_x = start_x + ramp_len * np.cos(clth_surface.exit_angle_in_rad)
+        stop_x = start_x + ramp_len * np.cos(clth_surface.exit_angle)
         ramp_x = np.linspace(start_x, stop_x,
                              num=int(points_per_meter * stop_x - start_x))
 
-        stop_y = start_y + ramp_len * np.sin(clth_surface.exit_angle_in_rad)
+        stop_y = start_y + ramp_len * np.sin(clth_surface.exit_angle)
         ramp_y = np.linspace(start_y, stop_y, num=len(ramp_x))
 
         ext_takeoff_curve_x = np.hstack((clth_surface.x, ramp_x))
@@ -488,7 +480,7 @@ class LandingTransitionSurface(Surface):
 
     def find_parallel_traj_point(self):
 
-        slope_angle = self.parent_surface.angle_in_rad
+        slope_angle = self.parent_surface.angle
 
         flight_traj_slope = self.flight_traj[3] / self.flight_traj[2]
 
@@ -509,7 +501,7 @@ class LandingTransitionSurface(Surface):
         yParent0 = self.parent_surface.interp_y(trans_x)
 
         yParent = (yParent0 + (xParent - trans_x) *
-                   np.tan(self.parent_surface.angle_in_rad))
+                   np.tan(self.parent_surface.angle))
 
         xTranOut = np.linspace(trans_x, xTranOutEnd, num_points)
 
@@ -530,7 +522,7 @@ class LandingSurface(Surface):
         takeoff_point : 2-tuple of floats
 
         takeoff_angle : float
-            Degrees
+            Radians
         max_landing_point : 2-tuple of floats
             meters
         fall_height : float
@@ -839,7 +831,7 @@ class Skier(object):
         takeoff_point : 2-tuple of floats
             The (x, y) coordinates of the takeoff point in meters.
         takeoff_angle : float
-            The takeoff angle in degrees.
+            The takeoff angle in radians.
 
         Returns
         =======
@@ -864,10 +856,10 @@ class Skier(object):
         if isclose(landing_point[0] - takeoff_point[0], 0.0):
             return 0.0, (0.0, 0.0)
 
-        theta = np.deg2rad(takeoff_angle)
-        cto = np.cos(np.deg2rad(takeoff_angle))
-        sto = np.sin(np.deg2rad(takeoff_angle))
-        tto = np.tan(np.deg2rad(takeoff_angle))
+        theta = takeoff_angle
+        cto = np.cos(takeoff_angle)
+        sto = np.sin(takeoff_angle)
+        tto = np.tan(takeoff_angle)
 
         # guess init. velocity for impact at x,y based on explicit solution
         # for the no drag case
@@ -886,13 +878,14 @@ class Skier(object):
         #print('dvody')
         #print(dvody)
 
+        # TODO : Make this should take in the parent slope and use it.
         # creates a flat landing surface that starts at the landing point x
         # position and 1 meter below the y position, this ensures we get a
         # flight trajectory that passes through a horizontal line through the
         # landing position
-        surf = FlatSurface(45.0, 10.0, init_pos=(x + 6, y),
+        surf = FlatSurface(np.deg2rad(45.0), 10.0, init_pos=(x + 6, y),
                            num_points=100)
-        surf = FlatSurface(-20.0, 40.0)
+        surf = FlatSurface(np.deg2rad(-20.0), 40.0)
 
         #print('Takeoff Point')
         #print(takeoff_point)
