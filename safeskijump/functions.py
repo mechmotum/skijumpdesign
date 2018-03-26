@@ -104,5 +104,5 @@ def plot_jump(slope, approach, takeoff, landing, landing_trans, flight):
 
 
 def create_plot_arrays(slope, approach, takeoff, landing, landing_trans,
-                        flight):
+                       flight):
     return approach.xy, takeoff.xy, flight.xy

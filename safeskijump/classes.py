@@ -194,12 +194,11 @@ class FlatSurface(Surface):
 
     def distance_from(self, xp, yp):
 
-        return compute_dist_from_flat(self.angle, xp, yp)
+        # m = np.tan(self.angle)
+        # d = (yp - m * xp) * np.cos(self.angle)
+        # return d
 
-        #m = np.tan(self.angle)
-        #d = (yp - m * xp) * np.cos(self.angle)
-#
-        #return d
+        return compute_dist_from_flat(self.angle, xp, yp)
 
 
 class ClothoidCircleSurface(Surface):
@@ -604,10 +603,9 @@ class LandingSurface(Surface):
 
             integrates from the impact location backwards
 
-            If the direction of the velocity vector is known, and
-            the mangitude at impact is known, and
-            the angle between v and the slope is known, then we can find out how the
-            slope should be oriented.
+            If the direction of the velocity vector is known, and the mangitude
+            at impact is known, and the angle between v and the slope is known,
+            then we can find out how the slope should be oriented.
 
             """
 
@@ -636,15 +634,16 @@ class LandingSurface(Surface):
             else:
                 beta = np.arcsin(speed_ratio)
 
-            logging.debug('impact angle = {} deg'.format(np.rad2deg(impact_angle)))
+            logging.debug('impact angle = {} deg'.format(
+                np.rad2deg(impact_angle)))
             logging.debug('beta = {} deg'.format(np.rad2deg(beta)))
 
             safe_surface_angle = beta + impact_angle
 
-            logging.debug('safe_surface_angle = {} deg'.format(np.rad2deg(safe_surface_angle)))
+            logging.debug('safe_surface_angle = {} deg'.format(
+                np.rad2deg(safe_surface_angle)))
 
             dydx = np.tan(safe_surface_angle)
-
 
             logging.debug('dydx = {}'.format(dydx))
 
@@ -706,10 +705,10 @@ class Skier(object):
         """Returns the drag force in Newtons opposing the velocity of the
         skier."""
 
-        return compute_drag(AIR_DENSITY, velocity, self.drag_coeff, self.area)
+        # return (-np.sign(velocity) / 2 * AIR_DENSITY * self.drag_coeff *
+        # self.area * velocity**2)
 
-        #return (-np.sign(velocity) / 2 * AIR_DENSITY * self.drag_coeff *
-                #self.area * velocity**2)
+        return compute_drag(AIR_DENSITY, velocity, self.drag_coeff, self.area)
 
     def friction_force(self, speed, slope=0.0, curvature=0.0):
         """Returns the friction force in Newtons opposing the speed of the
@@ -913,12 +912,11 @@ class Skier(object):
         vo = np.sqrt(delx**2 * GRAV_ACC / (2*cto**2 * (delx*tto - dely)))
         logging.debug('vo = {}'.format(vo))
         # dvody is calculated from the explicit solution without drag @ (x,y)
-        dvody = (delx**2 * GRAV_ACC / 2 / cto**2)**0.5 * ((delx*tto-dely)**(-3/2)) / 2
-        dvody =  (np.sqrt(GRAV_ACC*(delx)**2/((delx)*np.sin(2*theta) -
-                       2*(dely)*cto**2))*cto**2/
-                  ((delx)*np.sin(2*theta) - 2*(dely)*cto**2))
-        #print('dvody')
-        #print(dvody)
+        dvody = ((delx**2 * GRAV_ACC / 2 / cto**2)**0.5 *
+                 ((delx*tto-dely)**(-3/2)) / 2)
+        dvody = (np.sqrt(GRAV_ACC*(delx)**2/((delx)*np.sin(2*theta) -
+                                             2*(dely)*cto**2))*cto**2 /
+                 ((delx)*np.sin(2*theta) - 2*(dely)*cto**2))
 
         # TODO : Make this should take in the parent slope and use it.
         # creates a flat landing surface that starts at the landing point x
@@ -929,13 +927,6 @@ class Skier(object):
             #surf = FlatSurface(np.deg2rad(45.0), 10.0, init_pos=(x + 6, y),
                             #num_points=100)
             surf = FlatSurface(np.deg2rad(-20.0), 40.0)
-
-        #print('Takeoff Point')
-        #print(takeoff_point)
-#
-        #print('Surface: x, y')
-        #print(surf.x)
-        #print(surf.y)
 
         deltay = np.inf
 
