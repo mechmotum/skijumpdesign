@@ -155,7 +155,7 @@ class FlatSurface(Surface):
         if angle >= np.pi / 2.0 or angle <= -np.pi / 2.0:
             raise ValueError('Angle must be between -90 and 90 degrees')
 
-        self.angle = angle
+        self._angle = angle
 
         x = np.linspace(init_pos[0], init_pos[0] + length * np.cos(angle),
                         num=num_points)
@@ -163,6 +163,17 @@ class FlatSurface(Surface):
                         num=num_points)
 
         super(FlatSurface, self).__init__(x, y)
+
+    @property
+    def angle(self):
+        return self._angle
+
+    def distance_from(self, xp, yp):
+
+        m = np.tan(self.angle)
+        d = (yp - m * xp) * np.cos(self.angle)
+
+        return d
 
 
 class ClothoidCircleSurface(Surface):
