@@ -435,7 +435,7 @@ def make_jump2(slope_angle, start_pos, approach_len, takeoff_angle,
     ax.plot(*flight_traj[:2], linestyle='dotted', label='Flight')
     ax = landing_trans.plot(ax=ax, linewidth=2, label='Landing Transition')
     ax = landing.plot(ax=ax, linewidth=2, label='Landing')
-    ax.plot(xpara, ypara, 'o', markersize=10)
+    #ax.plot(xpara, ypara, 'o', markersize=10)
     ax.legend()
     plt.show()
 
