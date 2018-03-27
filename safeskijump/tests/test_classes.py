@@ -32,37 +32,40 @@ def test_surface():
 
 
 def test_flat_surface():
-    fsurf = FlatSurface(-10, 40, init_pos=(5.0, 5.0))
+
+    fsurf = FlatSurface(-np.deg2rad(10), 40, init_pos=(5.0, 5.0))
 
     assert isclose(fsurf.x[0], 5.0)
     assert isclose(fsurf.y[0], 5.0)
-    assert isclose(np.mean(np.atan(fsurf.slope)), -10)
+    assert isclose(np.mean(np.arctan(fsurf.slope)), -np.deg2rad(10))
 
 
-def test_clothoid_circle_surface():
-    fsurf = FlatSurface(-10, 40)
-    csurf = ClothoidCircleSurface(fsurf, 20, 15, 1.5)
-    ax = fsurf.plot()
-    ax = csurf.plot(ax=ax)
-    plt.show()
+def test_clothoid_circle_surface(plot=False):
+
+    fsurf = FlatSurface(-np.deg2rad(10), 40)
+    csurf = ClothoidCircleSurface(fsurf.angle, np.deg2rad(20), 15, 1.5)
+
+    if plot:
+        ax = fsurf.plot()
+        ax = csurf.plot(ax=ax)
+        plt.show()
 
 
-def test_takeoff_surface():
-    fsurf = FlatSurface(-10, 40)
-    csurf = ClothoidCircleSurface(fsurf.angle_in_deg, 15, 20, 1.5,
+def test_takeoff_surface(plot=False):
+
+    fsurf = FlatSurface(-np.deg2rad(10), 40)
+    csurf = ClothoidCircleSurface(fsurf.angle, np.deg2rad(15), 20, 1.5,
                                   init_pos=(fsurf.x[-1], fsurf.y[-1]))
     tsurf = TakeoffSurface(csurf, 15, 1.0)
-    ax = fsurf.plot()
-    ax = tsurf.plot(ax=ax)
-    ax = csurf.plot(ax=ax)
-    plt.show()
+
+    if plot:
+        ax = fsurf.plot()
+        ax = tsurf.plot(ax=ax)
+        ax = csurf.plot(ax=ax)
+        plt.show()
 
 
-def test_exponential_surface():
-    pass
-
-
-def test_skier():
+def test_skier(plot=False):
 
     mass = 75.0
     area = 0.5
@@ -82,10 +85,8 @@ def test_skier():
     assert isclose(skier.drag_force(vel), 1 / 2 * vel**2 * air_density *
                    drag_coeff * area)
 
-    slope = np.tan(10)
-
-    #assert isclose(skier.friction_force(vel, slope=slope),
-                   #friction_coeff * mass * 9.81 * np.cos(10.0))
+    assert isclose(skier.friction_force(vel, slope=10.0),
+                   friction_coeff * mass * 9.81 * np.cos(np.tan(10.0)))
 
     loc = (4.0, 3.0)  # x, y
     speed = (1.0, 10.0)  # vx, vy
@@ -94,9 +95,9 @@ def test_skier():
 
     times, flight_traj = skier.fly_to(surf, loc, speed)
 
-    #ax = surf.plot()
-    #ax.plot(flight_traj[0], flight_traj[1])
-    # plt.show()
+    if plot:
+        ax = surf.plot()
+        ax.plot(flight_traj[0], flight_traj[1])
 
     landing_point = flight_traj[0, -1], flight_traj[1, -1]
     landing_vel = flight_traj[2, -1], flight_traj[3, -1]
@@ -119,5 +120,6 @@ def test_skier():
 
     times, traj = skier.slide_on(surf, 50.0)
 
-    plt.plot(times, traj.T)
-    plt.show()
+    if plot:
+        plt.plot(times, traj.T)
+        plt.show()
