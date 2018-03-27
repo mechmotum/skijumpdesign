@@ -15,24 +15,35 @@ start_pos_widget = html.Div([
     html.P('Start Position [m]'),
     dcc.Input(id='start_pos',
               placeholder='Start Position [meters]',
+              inputmode='numeric',
               type='number',
-              value='10')
+              value=10.0,
+              min=0.0,
+              step=1.0)
     ])
 
 approach_len_widget = html.Div([
     html.P('Approach Length [m]'),
     dcc.Input(id='approach_len',
               placeholder='Approach Length [meters]',
+              inputmode='numeric',
               type='number',
-              value='50')
+              value=50.0,
+              min=1.0,
+              step=1.0)
     ])
 
 fall_height_widget = html.Div([
     html.P('Fall Height [m]'),
     dcc.Input(id='fall_height',
               placeholder='Fall Height [meters]',
+              inputmode='numeric',
               type='number',
-              value='0.2')
+              value=0.2,
+              max=3.0,
+              min=0.1,
+              step=0.1,
+              )
     ])
 
 slope_angle_widget = html.Div([
@@ -116,12 +127,12 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
     slope, approach, takeoff, landing, landtrans, flight = surfs
 
     return {'data': [
-                     {'x': slope.x, 'y': slope.y, 'name': 'Slope'},
-                     {'x': approach.x, 'y': approach.y, 'name': 'Approach'},
-                     {'x': takeoff.x, 'y': takeoff.y, 'name': 'Takeoff'},
-                     {'x': landing.x, 'y': landing.y, 'name': 'Landing'},
-                     {'x': landtrans.x, 'y': landtrans.y, 'name': 'Landing Transition'},
-                     {'x': flight.x, 'y': flight.y, 'name': 'Flight'},
+                     {'x': slope.x, 'y': slope.y, 'name': 'Slope', 'line': {'color': 'black', 'dash': 'dash'}},
+                     {'x': approach.x, 'y': approach.y, 'name': 'Approach', 'line': {'width': 4}},
+                     {'x': takeoff.x, 'y': takeoff.y, 'name': 'Takeoff', 'line': {'width': 4}},
+                     {'x': landing.x, 'y': landing.y, 'name': 'Landing', 'line': {'width': 4}},
+                     {'x': landtrans.x, 'y': landtrans.y, 'name': 'Landing Transition', 'line': {'width': 4}},
+                     {'x': flight.x, 'y': flight.y, 'name': 'Flight', 'line': {'dash': 'dot'}},
                     ],
             'layout': layout}
 
