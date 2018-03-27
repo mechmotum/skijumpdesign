@@ -1,8 +1,20 @@
-A ski jump design tool for the web written in Python backed by Dash, NumPy and
-SciPy.
+Introduction
+============
+
+An equivalent fall height ski jump design tool based on the work presented in
+[1]_. Includes a library for 2D skiing simulations and a graphical web
+application for designing ski jumps. It is written in Python backed by NumPy,
+SciPy, SymPy, Cython, matplotlib, Plotly, and Dash.
+
+.. [1] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. “A
+   Design Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall
+   Height.” Sports Engineering 18, no. 4 (December 2015): 227–39.
+   https://doi.org/10.1007/s12283-015-0182-6.
 
 Installation
 ============
+
+Download the source code to a local directory, e.g. ``/path/to/safe-ski-jump``.
 
 Open a terminal. Navigate to the ``safe-ski-jump`` directory::
 
@@ -39,8 +51,8 @@ Open your web browser and enter the displayed URL to interact with the web app.
 To shutdown the web app, close the tab in your web browser. Go back to Spyder
 and type and execute ``<CTRL>+C`` to shutdown the web server.
 
-In the terminal
----------------
+In a terminal
+-------------
 
 Navigate to the ``safe-ski-jump`` directory::
 
@@ -77,10 +89,9 @@ In the IPython console execute::
    In [1]: from safeskijump.functions import *
 
 This will import all of the functions defined in ``safeskijump/functions.py``.
-For example you can now use the ``compute_approach_exit_speed()`` function::
+For example you can now use the ``make_jump()`` function::
 
-   In [2]: compute_approach_exit_speed(10.0, 5.0, 75.0)
-   Out[2]: 13.739985254238626
+   In [2]: surfaces = make_jump(-30.0, 0.0, 60.0, 10.0, 1.0)
 
 To run the test functions::
 
