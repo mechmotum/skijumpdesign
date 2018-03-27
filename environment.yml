@@ -9,7 +9,7 @@ dependencies:
   - ipython
   - spyder
   - numpy
-  - scipy >=1.0
+  - scipy >=1.0  # requires solve_ivp()
   - matplotlib
   - sympy
   - cython
