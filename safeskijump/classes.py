@@ -39,12 +39,16 @@ compute_dist_from_flat = gen_fast_distance_from()
 
 
 def speed2vel(speed, angle):
-    """
+    """Returns the x and y components of velocity given the magnitude and angle
+    of the velocity vector.
+
+    Parameters
+    ==========
     speed : float
-        Magnitude of the speed in meters per second.
+        Magnitude of the velocity vector in meters per second.
     angle : float
-        Angle in radians. Clockwise is negative and counter clockwise is
-        positive.
+        Angle of velocity vector in radians. Clockwise is negative and counter
+        clockwise is positive.
 
     Returns
     =======
@@ -350,7 +354,7 @@ class TakeoffSurface(Surface):
         ext_takeoff_curve_x = np.hstack((clth_surface.x, ramp_x))
         ext_takeoff_curve_y = np.hstack((clth_surface.y, ramp_y))
 
-        # TODO : The following warning is produced when pasing in the xy
+        # TODO : The following warning is produced when passing in the xy
         # coordinates:
         """
         /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages/numpy/lib/function_base.py:1772: RuntimeWarning: divide by zero encountered in true_divide
@@ -744,7 +748,7 @@ class Skier(object):
 
         return -np.sign(speed) * self.friction_coeff * normal_force
 
-    def fly_to(self, surface, init_pos, init_vel):
+    def fly_to(self, surface, init_pos, init_vel, fine=True):
         """Returns the flight trajectory of the skier given the initial
         conditions and a surface which the skier contacts at the end of the
         flight trajectory.
@@ -758,6 +762,10 @@ class Skier(object):
         init_vel : 2-tuple of floats
             The X and Y components of the skier's velocity at the start of the
             flight.
+        fine : boolean
+            If True two integrations occur. The first finds the landing time
+            with coarse time steps and the second integrates over a finer
+            equally spaced time steps. False will skip the second integration.
 
         Returns
         =======
@@ -794,17 +802,16 @@ class Skier(object):
                         init_pos + init_vel,
                         events=(touch_surface, ))
 
-        # integrate at higher resolution
-        sol = solve_ivp(rhs,
-                        (0.0, sol.t[-1]),
-                        init_pos + init_vel,
-                        t_eval=np.linspace(0.0, sol.t[-1],
-                                           num=int(self.samples_per_sec *
-                                                   sol.t[-1])))
+        if fine:
+            # integrate at higher resolution
+            times = np.linspace(0.0, sol.t[-1],
+                                num=int(self.samples_per_sec * sol.t[-1]))
+            sol = solve_ivp(rhs, (0.0, sol.t[-1]), init_pos + init_vel,
+                            t_eval=times)
 
         return sol.t, sol.y
 
-    def slide_on(self, surface, init_speed=0.0):
+    def slide_on(self, surface, init_speed=0.0, fine=True):
         """Returns the trajectory of the skier sliding over a surface.
 
         Parameters
@@ -814,6 +821,10 @@ class Skier(object):
         init_speed : float
             The magnitude of the velocity of the skier at the start of the
             surface which is directed tangent to the surface.
+        fine : boolean
+            If True two integrations occur. The first finds the exit time with
+            coarse time steps and the second integrates over a finer equally
+            spaced time steps. False will skip the second integration.
 
         """
 
@@ -846,12 +857,11 @@ class Skier(object):
                         (surface.x[0], init_speed),  # initial conditions
                         events=(reach_end, ))
 
-        sol = solve_ivp(rhs,
-                        (0.0, sol.t[-1]),
-                        (surface.x[0], init_speed),
-                        t_eval=np.linspace(0.0, sol.t[-1],
-                                           num=int(self.samples_per_sec *
-                                                   sol.t[-1])))
+        if fine:
+            times = np.linspace(0.0, sol.t[-1],
+                                num=int(self.samples_per_sec * sol.t[-1]))
+            sol = solve_ivp(rhs, (0.0, sol.t[-1]), (surface.x[0], init_speed),
+                            t_eval=times)
 
         return sol.t, sol.y
 
