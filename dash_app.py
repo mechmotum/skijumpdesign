@@ -89,19 +89,19 @@ graph_widget = html.Div([dcc.Graph(id='my-graph',
 
 row1 = html.Div([html.H1('Ski Jump Design')], className='row')
 
-row2 = html.Div([html.P('Invalid Jump Design')], id='error-bar',
+row2 = html.Div([graph_widget], className='row')
+
+row3 = html.Div([html.P('Invalid Jump Design')], id='error-bar',
                 className='alert alert-warning', style={'display': 'none'})
 
-row3 = html.Div([html.Div([start_pos_widget], className='col-md-4'),
+row4 = html.Div([html.Div([start_pos_widget], className='col-md-4'),
                  html.Div([approach_len_widget], className='col-md-4'),
                  html.Div([fall_height_widget], className='col-md-4'),
                  ], className='row')
 
-row4 = html.Div([html.Div([slope_angle_widget], className='col-md-6'),
+row5 = html.Div([html.Div([slope_angle_widget], className='col-md-6'),
                  html.Div([takeoff_angle_widget], className='col-md-6'),
                  ], className='row')
-
-row5 = html.Div([graph_widget], className='row')
 
 app.layout = html.Div([row1, row2, row3, row4, row5], className='container')
 
