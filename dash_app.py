@@ -13,8 +13,9 @@ logger.setLevel(logging.INFO)
 
 BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 
-app = dash.Dash()
+app = dash.Dash(__name__)
 app.css.append_css({'external_url': BS_URL})
+server = app.server
 
 start_pos_widget = html.Div([
     html.P('Start Position [m]'),
@@ -221,4 +222,4 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
             'layout': layout}
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(debug=True)

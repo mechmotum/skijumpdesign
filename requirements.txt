@@ -1,0 +1,14 @@
+numpy
+scipy >=1.0
+matplotlib
+sympy
+cython
+nbformat
+jupyter_core
+plotly
+flask
+flask-compress
+dash
+dash-renderer
+dash-html-components
+dash-core-components
