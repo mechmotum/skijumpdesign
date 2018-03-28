@@ -31,8 +31,6 @@ def generate_fast_drag_func():
     drag_expr = -sm.sign(v) / 2 * ro * C * A * v**2
     return autowrap(drag_expr, backend='cython', args=(ro, v, C, A))
 
-compute_drag = generate_fast_drag_func()
-
 
 def gen_fast_distance_from():
     theta, x, y = sm.symbols('theta, x, y')
@@ -40,7 +38,12 @@ def gen_fast_distance_from():
 
     return autowrap(expr, backend='cython', args=(theta, x, y))
 
-compute_dist_from_flat = gen_fast_distance_from()
+if 'ONHEROKU' in os.environ:
+    compute_drag = None
+    compute_dist_from_flat = None
+else:
+    compute_drag = generate_fast_drag_func()
+    compute_dist_from_flat = gen_fast_distance_from()
 
 
 def speed2vel(speed, angle):
@@ -203,11 +206,12 @@ class FlatSurface(Surface):
 
     def distance_from(self, xp, yp):
 
-        # m = np.tan(self.angle)
-        # d = (yp - m * xp) * np.cos(self.angle)
-        # return d
-
-        return compute_dist_from_flat(self.angle, xp, yp)
+        if compute_dist_from_flat is None:
+            m = np.tan(self.angle)
+            d = (yp - m * xp) * np.cos(self.angle)
+            return d
+        else:
+            return compute_dist_from_flat(self.angle, xp, yp)
 
 
 class ClothoidCircleSurface(Surface):
@@ -726,10 +730,12 @@ class Skier(object):
         """Returns the drag force in Newtons opposing the velocity of the
         skier."""
 
-        # return (-np.sign(velocity) / 2 * AIR_DENSITY * self.drag_coeff *
-        # self.area * velocity**2)
-
-        return compute_drag(AIR_DENSITY, velocity, self.drag_coeff, self.area)
+        if compute_drag is None:
+            return (-np.sign(velocity) / 2 * AIR_DENSITY * self.drag_coeff *
+                    self.area * velocity**2)
+        else:
+            return compute_drag(AIR_DENSITY, velocity, self.drag_coeff,
+                                self.area)
 
     def friction_force(self, speed, slope=0.0, curvature=0.0):
         """Returns the friction force in Newtons opposing the speed of the
