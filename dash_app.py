@@ -1,10 +1,15 @@
-import plotly.graph_objs as go
+import logging
+
 import dash
 from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
+import plotly.graph_objs as go
 
 from safeskijump.functions import make_jump
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 
@@ -127,13 +132,16 @@ inputs = [Input('slope_angle', 'value'),
 def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
                  fall_height):
 
-    slope_angle = float(slope_angle)
+    slope_angle = -float(slope_angle)
     start_pos = float(start_pos)
     approach_len = float(approach_len)
     takeoff_angle = float(takeoff_angle)
     fall_height = float(fall_height)
 
-    surfs = make_jump(-slope_angle, start_pos, approach_len, takeoff_angle,
+    logging.info('Calling make_jump({}, {}, {}, {}, {})'.format(
+        slope_angle, start_pos, approach_len, takeoff_angle, fall_height))
+
+    surfs = make_jump(slope_angle, start_pos, approach_len, takeoff_angle,
                       fall_height)
     slope, approach, takeoff, landing, trans, flight = surfs
 
