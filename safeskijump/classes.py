@@ -1,13 +1,18 @@
+import os
 import logging
 from math import isclose
 
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.optimize import fsolve
 from scipy.integrate import solve_ivp
 import sympy as sm
 from sympy.utilities.autowrap import autowrap
+
+if 'ONHEROKU' in os.environ:
+    plt = None
+else:
+    import matplotlib.pyplot as plt
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

@@ -1,5 +1,11 @@
+import os
+
 import numpy as np
-import matplotlib.pyplot as plt
+
+if 'ONHEROKU' in os.environ:
+    plt = None
+else:
+    import matplotlib.pyplot as plt
 
 from .classes import (Surface, FlatSurface, ClothoidCircleSurface,
                       TakeoffSurface, LandingTransitionSurface, LandingSurface,
