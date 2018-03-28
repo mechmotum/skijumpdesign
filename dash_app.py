@@ -24,7 +24,7 @@ start_pos_widget = html.Div([
               type='number',
               value=10.0,
               min=0.0,
-              step=1.0)
+              step=5.0)
     ])
 
 approach_len_widget = html.Div([
@@ -35,7 +35,7 @@ approach_len_widget = html.Div([
               type='number',
               value=50.0,
               min=1.0,
-              step=1.0)
+              step=5.0)
     ])
 
 fall_height_widget = html.Div([
@@ -59,7 +59,10 @@ slope_angle_widget = html.Div([
         max=45,
         step=1,
         value=10,
-        marks={0: '0 [deg]', 45: '45 [deg]'},
+        marks={0: '0 [deg]',
+               15: '15 [deg]',
+               30: '30 [deg]',
+               45: '45 [deg]'},
         # updatemode='drag'
         )
     ])
@@ -72,7 +75,10 @@ takeoff_angle_widget = html.Div([
         max=45,
         step=1,
         value=20,
-        marks={0: '0 [deg]', 45: '45 [deg]'},
+        marks={0: '0 [deg]',
+               15: '15 [deg]',
+               30: '30 [deg]',
+               45: '45 [deg]'},
         # updatemode='drag'
         )
     ])
@@ -89,7 +95,8 @@ graph_widget = html.Div([dcc.Graph(id='my-graph',
                                    figure=go.Figure(layout=layout))],
                         className='col-md-12')
 
-row1 = html.Div([html.H1('Ski Jump Design')], className='row')
+row1 = html.Div([html.H1('Equivalent Fall Height Ski Jump Design Tool')],
+                className='row')
 
 row2 = html.Div([graph_widget], className='row')
 
@@ -101,11 +108,61 @@ row4 = html.Div([html.Div([start_pos_widget], className='col-md-4'),
                  html.Div([fall_height_widget], className='col-md-4'),
                  ], className='row')
 
-row5 = html.Div([html.Div([slope_angle_widget], className='col-md-6'),
-                 html.Div([takeoff_angle_widget], className='col-md-6'),
-                 ], className='row')
+row5 = html.Div([html.Div([slope_angle_widget], className='col-md-5'),
+                 html.Div([], className='col-md-2'),
+                 html.Div([takeoff_angle_widget], className='col-md-5'),
+                 ], className='row', style={'margin-top': 15})
 
-app.layout = html.Div([row1, row2, row3, row4, row5], className='container')
+markdown_text = """\
+# Explanation
+
+This tool allows you to design a ski or snowboard jump that ensures that no
+matter what speed the skier take's off at, they will only ever impact the slope
+at the same speed one would if dropped vertically from a desired fall height.
+
+## Inputs
+
+- **Fall Height**: The desired equivalent fall height for the jump design.
+- **Slope Angle**: The downward angle of the parent slope you wish to build
+  the jump on.
+- **Start Position**:  Distance down the slope where the skier starts skiing
+  from. The skier starts skiing at 0 m/s from this location.
+- **Approach Length**: The distance along the slope that the skier slides on
+  to build up speed. The skier reaches a theoretical maximum speed at the end
+  of the approach and the jump shape is designed around this maximum achievable
+  speed.
+- **Takeoff Angle**: The upward angle, relative to horizontal, that the end of
+  the takeoff ramp is set to.
+
+## Outputs
+
+- **Takeoff Surface**: This curve is designed to give a smooth, constant
+  acceleration transition from the parent slope to the takeoff ramp. The skier
+  catches air at the end of the takeoff ramp.
+- **Landing Surface**: This curve ensures that skiers launching at any speeds
+  from 0 m/s to the maximum achievable speed at the end of the approach always
+  impacts the landing surface with a speed no greater than the impact speed
+  from and equivalent vertical fall height.
+- **Landing Transition Surface**: This surface ensures a smooth transition from
+  the landing surface back to the parent surface.
+- **Flight Trajectory**: This shows the flight path from the maximum achievable
+  takeoff speed.
+
+# Colophon
+
+This website was designed by Jason K. Moore and Mont Hubbard and based based on
+the work detailed in:
+
+Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A Design
+Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall Height."
+Sports Engineering 18, no. 4 (December 2015): 227–39.
+[https://doi.org/10.1007/s12283-015-0182-6](https://doi.org/10.1007/s12283-015-0182-6)."""
+
+row6 = html.Div([dcc.Markdown(markdown_text, className='bg-info')],
+                className='row', style={'margin-top': 30})
+
+app.layout = html.Div([row1, row2, row3, row4, row5, row6],
+                      className='container')
 
 
 @app.callback(Output('slope-text', 'children'),
@@ -148,7 +205,7 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
     slope, approach, takeoff, landing, trans, flight = surfs
 
     return {'data': [
-                     {'x': slope.x, 'y': slope.y, 'name': 'Slope',
+                     {'x': slope.x, 'y': slope.y, 'name': 'Parent Slope',
                       'line': {'color': 'black', 'dash': 'dash'}},
                      {'x': approach.x, 'y': approach.y, 'name': 'Approach',
                       'line': {'width': 4}},
