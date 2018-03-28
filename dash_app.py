@@ -80,7 +80,9 @@ takeoff_angle_widget = html.Div([
 layout = go.Layout(autosize=False,
                    width=1200,
                    height=800,
-                   yaxis={'scaleanchor': 'x'})  # equal aspect ratio
+                   xaxis={'title': 'Distance [m]'},
+                   yaxis={'scaleanchor': 'x',  # equal aspect ratio
+                          'title': 'Height [m]'})
 
 # TODO : See if the className can be added to Graph instead of Div.
 graph_widget = html.Div([dcc.Graph(id='my-graph',
