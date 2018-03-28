@@ -65,6 +65,9 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     # The takeoff entry surface is the first portion of the ramp that the skier
     # encounters that does not include the flat final portion of the takeoff
     # surface.
+    # TODO : It is possible with too little mass, too much friction, and/or to
+    # little slope that the skier stops before reaching the takeoff. Need to
+    # raise and error if so.
     takeoff_entry_speed = skier.end_speed_on(approach)
 
     takeoff_entry = ClothoidCircleSurface(slope_angle,
@@ -74,6 +77,9 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
                                           init_pos=approach.end)
 
     # The takeoff surface is the combined circle-clothoid-circle-flat.
+    # TODO : If there is not enough speed, then this method will run forever
+    # because the skier can't make the jump. Need to raise an error if this is
+    # the case.
     ramp_entry_speed = skier.end_speed_on(takeoff_entry,
                                           init_speed=takeoff_entry_speed)
 
