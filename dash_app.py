@@ -72,30 +72,30 @@ takeoff_angle_widget = html.Div([
         )
     ])
 
-controls_widget = html.Div([start_pos_widget, approach_len_widget,
-                            fall_height_widget, slope_angle_widget,
-                            takeoff_angle_widget],
-                           className='col-md-4')
-
 layout = go.Layout(autosize=False,
-                   width=800,
+                   width=1200,
                    height=800,
                    yaxis={'scaleanchor': 'x'})  # equal aspect ratio
 
+# TODO : See if the className can be added to Graph instead of Div.
 graph_widget = html.Div([dcc.Graph(id='my-graph',
                                    figure=go.Figure(layout=layout))],
-                        className='col-md-4')
+                        className='col-md-12')
 
-app.layout = html.Div([html.H1('Ski Jump Design'),
-                       html.Div([controls_widget, graph_widget],
-                                className='row')],
-                      className='container')
+row1 = html.Div([html.H1('Ski Jump Design')], className='row')
 
-inputs = [Input('slope_angle', 'value'),
-          Input('start_pos', 'value'),
-          Input('approach_len', 'value'),
-          Input('takeoff_angle', 'value'),
-          Input('fall_height', 'value')]
+row2 = html.Div([html.Div([start_pos_widget], className='col-md-4'),
+                 html.Div([approach_len_widget], className='col-md-4'),
+                 html.Div([fall_height_widget], className='col-md-4'),
+                 ], className='row')
+
+row3 = html.Div([html.Div([slope_angle_widget], className='col-md-6'),
+                 html.Div([takeoff_angle_widget], className='col-md-6'),
+                 ], className='row')
+
+row4 = html.Div([graph_widget], className='row')
+
+app.layout = html.Div([row1, row2, row3, row4], className='container')
 
 
 @app.callback(Output('slope-text', 'children'),
@@ -111,6 +111,13 @@ def update_takeoff_text(takeoff_angle):
     takeoff_angle = float(takeoff_angle)
     return 'Takeoff Angle: {:0.0f} degrees'.format(takeoff_angle)
 
+inputs = [Input('slope_angle', 'value'),
+          Input('start_pos', 'value'),
+          Input('approach_len', 'value'),
+          Input('takeoff_angle', 'value'),
+          Input('fall_height', 'value')
+          ]
+
 
 @app.callback(Output('my-graph', 'figure'), inputs)
 def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
@@ -124,15 +131,21 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
 
     surfs = make_jump(-slope_angle, start_pos, approach_len, takeoff_angle,
                       fall_height)
-    slope, approach, takeoff, landing, landtrans, flight = surfs
+    slope, approach, takeoff, landing, trans, flight = surfs
 
     return {'data': [
-                     {'x': slope.x, 'y': slope.y, 'name': 'Slope', 'line': {'color': 'black', 'dash': 'dash'}},
-                     {'x': approach.x, 'y': approach.y, 'name': 'Approach', 'line': {'width': 4}},
-                     {'x': takeoff.x, 'y': takeoff.y, 'name': 'Takeoff', 'line': {'width': 4}},
-                     {'x': landing.x, 'y': landing.y, 'name': 'Landing', 'line': {'width': 4}},
-                     {'x': landtrans.x, 'y': landtrans.y, 'name': 'Landing Transition', 'line': {'width': 4}},
-                     {'x': flight.x, 'y': flight.y, 'name': 'Flight', 'line': {'dash': 'dot'}},
+                     {'x': slope.x, 'y': slope.y, 'name': 'Slope',
+                      'line': {'color': 'black', 'dash': 'dash'}},
+                     {'x': approach.x, 'y': approach.y, 'name': 'Approach',
+                      'line': {'width': 4}},
+                     {'x': takeoff.x, 'y': takeoff.y, 'name': 'Takeoff',
+                      'line': {'width': 4}},
+                     {'x': landing.x, 'y': landing.y, 'name': 'Landing',
+                      'line': {'width': 4}},
+                     {'x': trans.x, 'y': trans.y, 'name': 'Landing Transition',
+                      'line': {'width': 4}},
+                     {'x': flight.x, 'y': flight.y, 'name': 'Flight',
+                      'line': {'dash': 'dot'}},
                     ],
             'layout': layout}
 

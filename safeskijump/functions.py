@@ -66,7 +66,7 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     # is computed until the skier contacts the parent slope.
     takeoff_vel = skier.end_vel_on(takeoff, init_speed=takeoff_entry_speed)
 
-    slope = FlatSurface(slope_angle, 4 * approach_len)
+    slope = FlatSurface(slope_angle, 10 * approach_len)
 
     flight_time, flight_traj = skier.fly_to(slope, init_pos=takeoff.end,
                                             init_vel=takeoff_vel)
@@ -77,6 +77,9 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     # landing point smoothly to the parent slope.
     landing_trans = LandingTransitionSurface(slope, flight_traj, fall_height,
                                              skier.tolerable_landing_acc)
+
+    slope = FlatSurface(slope_angle, np.sqrt(landing_trans.end[0]**2 +
+                                             landing_trans.end[1]**2) + 1.0)
 
     # The landing surface ensures an equivalent fall height for any skiers that
     # do not reach maximum velocity.
