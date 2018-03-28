@@ -1,3 +1,4 @@
+import os
 import logging
 
 import dash
@@ -16,6 +17,9 @@ BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 app = dash.Dash(__name__)
 app.css.append_css({'external_url': BS_URL})
 server = app.server
+if 'ONHEROKU' in os.environ:
+    import dash_auth
+    auth = dash_auth.BasicAuth(app, [['skiteam', 'howhigh']])
 
 start_pos_widget = html.Div([
     html.P('Start Position [m]'),

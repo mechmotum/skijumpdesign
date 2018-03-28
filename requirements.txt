@@ -9,6 +9,7 @@ plotly
 flask
 flask-compress
 dash
+dash-auth
 dash-renderer
 dash-html-components
 dash-core-components
