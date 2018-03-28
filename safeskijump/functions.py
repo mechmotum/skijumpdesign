@@ -8,7 +8,8 @@ from .classes import (Surface, FlatSurface, ClothoidCircleSurface,
 
 def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
               plot=False):
-    """
+    """Returns a set of surfaces that define the equivalent fall height jump
+    design and the skier's flight trajectory.
 
     Parameters
     ==========
@@ -16,17 +17,33 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
         The parent slope angle in degrees. Counter clockwise is positive and
         clockwise is negative.
     start_pos : float
-        The distance in meters from the top for the parent slope to where the
-        skier starts from.
+        The distance in meters along the parent slope from the top (x=0, y=0)
+        to where the skier starts skiing.
     approach_len : float
-        The distance in meters
+        The distance in meters along the parent slope the skier travels before
+        entering the takeoff.
     takeoff_angle : float
         The angle in degrees at end of the takeoff ramp. Counter clockwise is
         positive and clockwise is negative.
     fall_height : float
-        The equivalent fall height in meters.
+        The desired equivalent fall height of the landing surface in meters.
     plot : boolean
         If True a matplotlib figure showing the jump will appear.
+
+    Returns
+    =======
+    slope : FlatSurface
+        The parent slope starting at (x=0, y=0) until a meter after the jump.
+    approach : FlatSurface
+        The slope the skier travels on before entering the takeoff.
+    takeoff : TakeoffSurface
+        The circle-clothoid-circle-flat takeoff ramp.
+    landing : LandingSurface
+        The equivalent fall height landing surface.
+    landing_trans : LandingTransitionSurface
+        The minimum exponential landing transition.
+    flight : Surface
+        A "surface" that encodes the maximum velocity flight trajectory.
 
     """
 
@@ -66,7 +83,7 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     # is computed until the skier contacts the parent slope.
     takeoff_vel = skier.end_vel_on(takeoff, init_speed=takeoff_entry_speed)
 
-    slope = FlatSurface(slope_angle, 10 * approach_len)
+    slope = FlatSurface(slope_angle, 100 * approach_len)
 
     flight_time, flight_traj = skier.fly_to(slope, init_pos=takeoff.end,
                                             init_vel=takeoff_vel)
@@ -94,7 +111,8 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
 
 
 def plot_jump(slope, approach, takeoff, landing, landing_trans, flight):
-    """Returns a matplotlib axes that plots the jump."""
+    """Returns a matplotlib axes with the jump and flight plotted given the
+    surfaces created by ``make_jump()``."""
     ax = slope.plot(linestyle='dashed', color='black', label='Slope')
     ax = approach.plot(ax=ax, linewidth=2, label='Approach')
     ax = takeoff.plot(ax=ax, linewidth=2, label='Takeoff')
