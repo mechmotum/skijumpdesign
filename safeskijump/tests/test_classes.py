@@ -53,10 +53,10 @@ def test_clothoid_circle_surface(plot=False):
 
 def test_takeoff_surface(plot=False):
 
-    fsurf = FlatSurface(-np.deg2rad(10), 40)
-    csurf = ClothoidCircleSurface(fsurf.angle, np.deg2rad(15), 20, 1.5,
-                                  init_pos=(fsurf.x[-1], fsurf.y[-1]))
-    tsurf = TakeoffSurface(csurf, 15, 1.0)
+    fsurf = FlatSurface(-np.deg2rad(10.0), 2.0)
+    csurf = ClothoidCircleSurface(fsurf.angle, np.deg2rad(10), 5.0, 1.5,
+                                  init_pos=fsurf.end)
+    tsurf = TakeoffSurface(csurf, 1.0, 0.2)
 
     if plot:
         ax = fsurf.plot()

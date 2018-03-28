@@ -351,8 +351,8 @@ class TakeoffSurface(Surface):
         stop_y = start_y + ramp_len * np.sin(clth_surface.exit_angle)
         ramp_y = np.linspace(start_y, stop_y, num=len(ramp_x))
 
-        ext_takeoff_curve_x = np.hstack((clth_surface.x, ramp_x))
-        ext_takeoff_curve_y = np.hstack((clth_surface.y, ramp_y))
+        ext_takeoff_curve_x = np.hstack((clth_surface.x[:-1], ramp_x))
+        ext_takeoff_curve_y = np.hstack((clth_surface.y[:-1], ramp_y))
 
         # TODO : The following warning is produced when passing in the xy
         # coordinates:
