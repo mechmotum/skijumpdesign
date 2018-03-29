@@ -27,7 +27,7 @@ start_pos_widget = html.Div([
               placeholder='Start Position [meters]',
               inputmode='numeric',
               type='number',
-              value=10.0,
+              value=0.0,
               min=0.0,
               step=5.0)
     ])
@@ -38,8 +38,8 @@ approach_len_widget = html.Div([
               placeholder='Approach Length [meters]',
               inputmode='numeric',
               type='number',
-              value=50.0,
-              min=1.0,
+              value=30.0,
+              min=10.0,
               step=5.0)
     ])
 
