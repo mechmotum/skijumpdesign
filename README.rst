@@ -49,7 +49,7 @@ If successful, you will see something like::
 Open your web browser and enter the displayed URL to interact with the web app.
 
 To shutdown the web app, close the tab in your web browser. Go back to Spyder
-and type and execute ``<CTRL>+C`` to shutdown the web server.
+and execute ``<CTRL>+C`` to shutdown the web server.
 
 In a terminal
 -------------
@@ -73,8 +73,8 @@ You should see something like::
 Open your web browser and enter the displayed URL to interact with the web app.
 Type ``<CTRL>+C`` in the terminal to shutdown the web server.
 
-Running the functions
-=====================
+Using the Library
+=================
 
 In Spyder
 ---------
@@ -92,13 +92,3 @@ This will import all of the functions defined in ``safeskijump/functions.py``.
 For example you can now use the ``make_jump()`` function::
 
    In [2]: surfaces = make_jump(-30.0, 0.0, 60.0, 10.0, 1.0)
-
-To run the test functions::
-
-   In [3]: from safeskijump.tests.test_functions import *
-
-This will import all of the functions defined in
-``safeskijump/tests/test_functions.py``.  For example you can now use the
-``test_all()`` function::
-
-   In [4]: test_all(plot=True)
