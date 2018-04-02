@@ -3,6 +3,7 @@ from math import isclose
 import numpy as np
 import matplotlib.pyplot as plt
 
+from ..classes import vel2speed
 from ..classes import (Surface, FlatSurface, ClothoidCircleSurface,
                        TakeoffSurface, Skier)
 
@@ -88,27 +89,30 @@ def test_skier(plot=False):
     assert isclose(skier.friction_force(vel, slope=10.0),
                    friction_coeff * mass * 9.81 * np.cos(np.tan(10.0)))
 
-    loc = (4.0, 3.0)  # x, y
-    speed = (1.0, 10.0)  # vx, vy
+    takeoff_pos = (4.0, 3.0)  # x, y
+    takeoff_vel = (1.0, 10.0)  # vx, vy
 
     surf = Surface(np.linspace(0.0, 10.0, num=10), np.zeros(10))
 
-    times, flight_traj = skier.fly_to(surf, loc, speed)
+    times, flight_traj = skier.fly_to(surf, takeoff_pos, takeoff_vel)
 
     if plot:
         ax = surf.plot()
         ax.plot(flight_traj[0], flight_traj[1])
 
-    landing_point = flight_traj[0, -1], flight_traj[1, -1]
+    landing_pos = flight_traj[0, -1], flight_traj[1, -1]
     landing_vel = flight_traj[2, -1], flight_traj[3, -1]
 
-    takeoff_speed, impact_vel = skier.speed_to_land_at(
-        landing_point, loc, np.rad2deg(np.arctan(speed[1] / speed[0])))
+    takeoff_speed, takeoff_angle = vel2speed(*takeoff_vel)
 
-    # TODO : Set reasonable tolerances.
-    #assert isclose(takeoff_speed, np.sqrt(speed[0]**2 + speed[1]**2))
-    #assert isclose(landing_vel[0], impact_vel[0])
-    #assert isclose(landing_vel[1], impact_vel[1])
+    takeoff_speed2, landing_vel2 = skier.speed_to_land_at(landing_pos,
+                                                          takeoff_pos,
+                                                          takeoff_angle,
+                                                          surf=surf)
+
+    assert isclose(takeoff_speed, takeoff_speed2, rel_tol=1e-5)
+    assert isclose(landing_vel[0], landing_vel2[0], rel_tol=1e-5)
+    assert isclose(landing_vel[1], landing_vel2[1], rel_tol=1e-5)
 
     x = np.linspace(0, 20)
     y = -1.0 * x + 10.0
@@ -122,4 +126,6 @@ def test_skier(plot=False):
 
     if plot:
         plt.plot(times, traj.T)
+
+    if plot:
         plt.show()
