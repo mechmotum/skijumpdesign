@@ -62,6 +62,10 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
 
     skier = Skier()
 
+    if takeoff_angle >= 90.0 or takeoff_angle <= slope_angle:
+        msg = 'Invalid takeoff angle. Enter value between {} and 90 degrees'
+        raise ValueError(msg.format(slope_angle))
+
     slope_angle = np.deg2rad(slope_angle)
     takeoff_angle = np.deg2rad(takeoff_angle)
 
@@ -118,6 +122,9 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     # do not reach maximum velocity.
     landing = LandingSurface(skier, takeoff.end, takeoff_angle,
                              landing_trans.start, fall_height, surf=slope)
+
+    if landing.y[0] < slope.interp_y(landing.x[0]):
+        raise ValueError('Fall height is too large.')
 
     if plot:
         plot_jump(slope, approach, takeoff, landing, landing_trans, flight)
