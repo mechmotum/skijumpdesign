@@ -110,12 +110,15 @@ row1 = html.Div([html.H1('Equivalent Fall Height Ski Jump Design Tool',
                 className='page-header',
                 style={'height': '100px',
                        'margin-top': '-20px',
-                       'background': 'rgba(128, 128, 128, 0.75)'})
+                       'background': 'rgba(128, 128, 128, 0.75)',
+                       'border-bottom': '4px solid #eee'})
 
 row2 = html.Div([graph_widget], className='row')
 
-row3 = html.Div([html.P('Invalid Jump Design')], id='error-bar',
-                className='alert alert-warning', style={'display': 'none'})
+row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')], id='error-bar',
+                className='alert alert-warning',
+                style={'display': 'none'}
+                )
 
 row4 = html.Div([html.Div([start_pos_widget], className='col-md-4'),
                  html.Div([approach_len_widget], className='col-md-4'),
@@ -128,15 +131,24 @@ row5 = html.Div([html.Div([slope_angle_widget], className='col-md-5'),
                  ], className='row', style={'margin-top': 15})
 
 markdown_text = """\
+# Instructions
+
+- Select a parent slope angle to match the grade you plan to build the ski jump
+  on.
+- Set the length of the approach to be the maximum distance along the slope
+  before the jump that a skier can traverse when starting from a stop.
+- Set the desired takeoff angle of the ramp exit.
+- Choose a desired equivalent fall height.
+- Inspect and view the graph of the resulting jump design using the menu bar.
+
 # Explanation
 
-This tool allows you to design a ski or snowboard jump that ensures that no
-matter what speed the skier take's off at, they will only ever impact the slope
-at the same speed one would if dropped vertically from a desired fall height.
+This tool allows you to design a ski jump for takeoff speeds up to a maximum
+that ensures no the jumper will always impact the slope at the same speed one
+would if dropped vertically from a desired fall height onto a flat surface.
 
 ## Inputs
 
-- **Fall Height**: The desired equivalent fall height for the jump design.
 - **Slope Angle**: The downward angle of the parent slope you wish to build
   the jump on.
 - **Start Position**:  Distance down the slope where the skier starts skiing
@@ -147,6 +159,7 @@ at the same speed one would if dropped vertically from a desired fall height.
   speed.
 - **Takeoff Angle**: The upward angle, relative to horizontal, that the end of
   the takeoff ramp is set to.
+- **Fall Height**: The desired equivalent fall height for the jump design.
 
 ## Outputs
 
@@ -174,7 +187,7 @@ Sports Engineering 18, no. 4 (December 2015): 227–39.
 
 row6 = html.Div([dcc.Markdown(markdown_text)],
                 className='row',
-                style={'background-color': 'rgba(128, 128, 128, 0.75)',
+                style={'background-color': 'rgba(128, 128, 128, 0.9)',
                        'color': 'white',
                        'padding-right': '20px',
                        'padding-left': '20px',
@@ -228,15 +241,15 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
                      {'x': slope.x, 'y': slope.y, 'name': 'Parent Slope',
                       'line': {'color': 'black', 'dash': 'dash'}},
                      {'x': approach.x, 'y': approach.y, 'name': 'Approach',
-                      'line': {'width': 4}},
+                      'line': {'color': 'black', 'width': 4}},
                      {'x': takeoff.x, 'y': takeoff.y, 'name': 'Takeoff',
-                      'line': {'width': 4}},
+                      'line': {'color': 'black', 'width': 4}},
                      {'x': landing.x, 'y': landing.y, 'name': 'Landing',
-                      'line': {'width': 4}},
+                      'line': {'color': 'grey', 'width': 4}},
                      {'x': trans.x, 'y': trans.y, 'name': 'Landing Transition',
-                      'line': {'width': 4}},
+                      'line': {'color': 'grey','width': 4}},
                      {'x': flight.x, 'y': flight.y, 'name': 'Flight',
-                      'line': {'dash': 'dot'}},
+                      'line': {'color': 'black', 'dash': 'dot'}},
                     ],
             'layout': layout}
 
