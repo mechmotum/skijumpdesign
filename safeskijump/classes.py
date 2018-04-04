@@ -144,8 +144,8 @@ class Surface(object):
 
         """
 
-        # TODO : Use explicit functions for caculating the distance from to
-        # avoid the interpolation and fsolve slow down.
+        # NOTE : This general implementation can be slow, so implement
+        # overloaded distance_from methods in subclasses when you can.
 
         def distance_squared(x):
             return (xp - x)**2 + (yp - self.interp_y(x))**2
@@ -363,18 +363,6 @@ class TakeoffSurface(Surface):
         ext_takeoff_curve_x = np.hstack((clth_surface.x[:-1], ramp_x))
         ext_takeoff_curve_y = np.hstack((clth_surface.y[:-1], ramp_y))
 
-        # TODO : The following warning is produced when passing in the xy
-        # coordinates:
-        """
-        /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages/numpy/lib/function_base.py:1772: RuntimeWarning: divide by zero encountered in true_divide
-          a = -(dx2)/(dx1 * (dx1 + dx2))
-        /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages/numpy/lib/function_base.py:1773: RuntimeWarning: divide by zero encountered in true_divide
-          b = (dx2 - dx1) / (dx1 * dx2)
-        /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages/numpy/lib/function_base.py:1774: RuntimeWarning: divide by zero encountered in true_divide
-          c = dx1 / (dx2 * (dx1 + dx2))
-        /home/moorepants/miniconda3/envs/safeskijump/lib/python3.6/site-packages/numpy/lib/function_base.py:1780: RuntimeWarning: invalid value encountered in add
-          out[slice1] = a * f[slice2] + b * f[slice3] + c * f[slice4]
-        """
         super(TakeoffSurface, self).__init__(ext_takeoff_curve_x,
                                              ext_takeoff_curve_y)
 
