@@ -13,16 +13,17 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
+CUS_URL = 'https://moorepants.info/misc/skijump.css'
 
 app = dash.Dash(__name__)
-app.css.append_css({'external_url': BS_URL})
+app.css.append_css({'external_url': [BS_URL, CUS_URL]})
 server = app.server
 if 'ONHEROKU' in os.environ:
     import dash_auth
     auth = dash_auth.BasicAuth(app, [['skiteam', 'howhigh']])
 
 start_pos_widget = html.Div([
-    html.P('Start Position [m]'),
+    html.H3('Start Position [m]'),
     dcc.Input(id='start_pos',
               placeholder='Start Position [meters]',
               inputmode='numeric',
@@ -33,7 +34,7 @@ start_pos_widget = html.Div([
     ])
 
 approach_len_widget = html.Div([
-    html.P('Approach Length [m]'),
+    html.H3('Approach Length [m]'),
     dcc.Input(id='approach_len',
               placeholder='Approach Length [meters]',
               inputmode='numeric',
@@ -44,7 +45,7 @@ approach_len_widget = html.Div([
     ])
 
 fall_height_widget = html.Div([
-    html.P('Fall Height [m]'),
+    html.H3('Fall Height [m]'),
     dcc.Input(id='fall_height',
               placeholder='Fall Height [meters]',
               inputmode='numeric',
@@ -57,7 +58,7 @@ fall_height_widget = html.Div([
     ])
 
 slope_angle_widget = html.Div([
-    html.P('Slope Angle: 10 degrees', id='slope-text'),
+    html.H3('Slope Angle: 10 degrees', id='slope-text'),
     dcc.Slider(
         id='slope_angle',
         min=0,
@@ -73,7 +74,7 @@ slope_angle_widget = html.Div([
     ])
 
 takeoff_angle_widget = html.Div([
-    html.P('Takeoff Angle: 10 degrees', id='takeoff-text'),
+    html.H3('Takeoff Angle: 10 degrees', id='takeoff-text'),
     dcc.Slider(
         id='takeoff_angle',
         min=0,
@@ -89,8 +90,10 @@ takeoff_angle_widget = html.Div([
     ])
 
 layout = go.Layout(autosize=False,
-                   width=1200,
-                   height=800,
+                   width=1000,
+                   height=600,
+                   paper_bgcolor='rgba(96, 164, 255, 0.0)',
+                   plot_bgcolor='rgba(255, 255, 255, 0.5)',
                    xaxis={'title': 'Distance [m]'},
                    yaxis={'scaleanchor': 'x',  # equal aspect ratio
                           'title': 'Height [m]'})
@@ -100,8 +103,14 @@ graph_widget = html.Div([dcc.Graph(id='my-graph',
                                    figure=go.Figure(layout=layout))],
                         className='col-md-12')
 
-row1 = html.Div([html.H1('Equivalent Fall Height Ski Jump Design Tool')],
-                className='row')
+row1 = html.Div([html.H1('Equivalent Fall Height Ski Jump Design Tool',
+                         style={'text-align': 'center',
+                                'padding-top': '20px',
+                                'color': 'white'})],
+                className='page-header',
+                style={'height': '100px',
+                       'margin-top': '-20px',
+                       'background': 'rgba(128, 128, 128, 0.75)'})
 
 row2 = html.Div([graph_widget], className='row')
 
@@ -163,11 +172,17 @@ Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall Height."
 Sports Engineering 18, no. 4 (December 2015): 227–39.
 [https://doi.org/10.1007/s12283-015-0182-6](https://doi.org/10.1007/s12283-015-0182-6)."""
 
-row6 = html.Div([dcc.Markdown(markdown_text, className='bg-info')],
-                className='row', style={'margin-top': 30})
+row6 = html.Div([dcc.Markdown(markdown_text)],
+                className='row',
+                style={'background-color': 'rgba(128, 128, 128, 0.75)',
+                       'color': 'white',
+                       'padding-right': '20px',
+                       'padding-left': '20px',
+                       'margin-top': '40px',
+                       'text-shadow': '1px 1px black'})
 
-app.layout = html.Div([row1, row2, row3, row4, row5, row6],
-                      className='container')
+app.layout = html.Div([row1, html.Div([row2, row3, row4, row5, row6],
+                      className='container')])
 
 
 @app.callback(Output('slope-text', 'children'),

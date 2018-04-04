@@ -1,0 +1,8 @@
+body {
+     background: url('https://upload.wikimedia.org/wikipedia/commons/e/eb/Snow_on_the_shore_of_frozen_Hooker_Glacier_Lake_with_Mount_Cook_in_the_background.jpg');
+     background-repeat: no-repeat;
+}
+
+.svg-container {
+    margin: auto !important;
+}
