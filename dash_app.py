@@ -3,11 +3,13 @@ import logging
 
 import dash
 from dash.dependencies import Input, Output
+from dash.exceptions import PreventUpdate
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 
 from safeskijump.functions import make_jump
+from safeskijump.classes import InvalidJumpError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -69,7 +71,6 @@ slope_angle_widget = html.Div([
                15: '15 [deg]',
                30: '30 [deg]',
                45: '45 [deg]'},
-        # updatemode='drag'
         )
     ])
 
@@ -85,7 +86,6 @@ takeoff_angle_widget = html.Div([
                15: '15 [deg]',
                30: '30 [deg]',
                45: '45 [deg]'},
-        # updatemode='drag'
         )
     ])
 
@@ -233,8 +233,12 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
     logging.info('Calling make_jump({}, {}, {}, {}, {})'.format(
         slope_angle, start_pos, approach_len, takeoff_angle, fall_height))
 
-    surfs = make_jump(slope_angle, start_pos, approach_len, takeoff_angle,
-                      fall_height)
+    try:
+        surfs = make_jump(slope_angle, start_pos, approach_len, takeoff_angle,
+                          fall_height)
+    except InvalidJumpError:
+        raise PreventUpdate('Invalid jump parameters, graph update aborted.')
+
     slope, approach, takeoff, landing, trans, flight = surfs
 
     return {'data': [
@@ -247,7 +251,7 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
                      {'x': landing.x, 'y': landing.y, 'name': 'Landing',
                       'line': {'color': 'grey', 'width': 4}},
                      {'x': trans.x, 'y': trans.y, 'name': 'Landing Transition',
-                      'line': {'color': 'grey','width': 4}},
+                      'line': {'color': 'grey', 'width': 4}},
                      {'x': flight.x, 'y': flight.y, 'name': 'Flight',
                       'line': {'color': 'black', 'dash': 'dot'}},
                     ],

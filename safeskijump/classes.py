@@ -15,7 +15,8 @@ else:
     import matplotlib.pyplot as plt
 
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
+#logger.setLevel(logging.INFO)
 
 # NOTE : These parameters are more associated with an environment, but this
 # doesn't warrant making a class for them. Maybe a namedtuple would be useful
@@ -78,6 +79,10 @@ def vel2speed(hor_vel, ver_vel):
     angle = np.arctan(slope)
 
     return speed, angle
+
+
+class InvalidJumpError(Exception):
+    pass
 
 
 class Surface(object):
@@ -387,6 +392,8 @@ class LandingTransitionSurface(Surface):
         num_points : integer
 
         """
+        if fall_height <= 0.0:
+            raise ValueError('Fall height must be greater than zero.')
 
         self.fall_height = fall_height
         self.parent_surface = parent_surface
@@ -450,14 +457,23 @@ class LandingTransitionSurface(Surface):
 
     def calc_trans_acc(self, x):
         """Returns the acceleration in G's the skier feels at the exit
-        transition occuring at the provided horizontal location."""
+        transition occuring at the provided horizontal location, x."""
+
+        # TODO : This code seems to be repeated some in the LandingSurface
+        # creation code.
 
         # NOTE : "slope" means dy/dx here
 
         flight_y, _, flight_speed, flight_angle = self.interp_flight(x)
 
-        flight_rel_landing_angle = np.arcsin(self.allowable_impact_speed /
-                                             flight_speed)
+        # NOTE : Not sure if setting this to pi/2 if the flight speed is
+        # greater than the allowable impact speed is a correct thing to do but
+        # it prevents some arcsin RunTimeWarnings for invalid values.
+        ratio = self.allowable_impact_speed / flight_speed
+        if ratio > 1.0:
+            flight_rel_landing_angle = np.pi / 2
+        else:
+            flight_rel_landing_angle = np.arcsin(ratio)
 
         landing_angle = flight_angle + flight_rel_landing_angle
         landing_slope = np.tan(landing_angle)
@@ -568,16 +584,24 @@ class LandingSurface(Surface):
                  fall_height, surf=None):
         """
         skier : Skier
+            A skier.
         takeoff_point : 2-tuple of floats
 
         takeoff_angle : float
-            Radians
+            The takeoff angle in radians.
         max_landing_point : 2-tuple of floats
             meters
         fall_height : float
-            Meters
+            The desired equivalent fall height in meters. This should always be
+            greater than zero.
+        surf : Surface
+            A surface below the full flight trajectory. It is useful if the
+            distance_from method runs very fast, as it is called a lot
+            internally.
 
         """
+        if fall_height <= 0.0:
+            raise ValueError('Fall height must be greater than zero.')
 
         self.skier = skier
         self.takeoff_point = takeoff_point
@@ -935,6 +959,8 @@ class Skier(object):
         # dvody is calculated from the explicit solution without drag @ (x,y)
         dvody = ((delx**2 * GRAV_ACC / 2 / cto**2)**0.5 *
                  ((delx*tto-dely)**(-3/2)) / 2)
+        # TODO : This gets a negative under the sqrt for some cases, e.g.
+        # make_jump(-10.0, 0.0, 30.0, 20.0, 0.1)
         dvody = (np.sqrt(GRAV_ACC*(delx)**2/((delx)*np.sin(2*theta) -
                                              2*(dely)*cto**2))*cto**2 /
                  ((delx)*np.sin(2*theta) - 2*(dely)*cto**2))

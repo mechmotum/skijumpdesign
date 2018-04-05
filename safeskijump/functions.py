@@ -13,7 +13,7 @@ else:
 
 from .classes import (Surface, FlatSurface, ClothoidCircleSurface,
                       TakeoffSurface, LandingTransitionSurface, LandingSurface,
-                      Skier)
+                      Skier, InvalidJumpError)
 
 
 def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
@@ -124,7 +124,7 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
                              landing_trans.start, fall_height, surf=slope)
 
     if landing.y[0] < slope.interp_y(landing.x[0]):
-        raise ValueError('Fall height is too large.')
+        raise InvalidJumpError('Fall height is too large.')
 
     if plot:
         plot_jump(slope, approach, takeoff, landing, landing_trans, flight)
