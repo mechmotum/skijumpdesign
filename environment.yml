@@ -13,6 +13,7 @@ dependencies:
   - matplotlib
   - sympy
   - cython
+  - fastcache
   - pytest
   - nbformat  # plotly dep, oddly not included in conda dep
   - jupyter_core  # plotly dep, oddly not included in conda dep

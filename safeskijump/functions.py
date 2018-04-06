@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+from fastcache import clru_cache
 
 # TODO : Might be better to use:
 # import matplotlib
@@ -16,6 +17,7 @@ from .classes import (Surface, FlatSurface, ClothoidCircleSurface,
                       Skier, InvalidJumpError)
 
 
+@clru_cache(maxsize=128)
 def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
               plot=False):
     """Returns a set of surfaces that define the equivalent fall height jump
