@@ -39,12 +39,12 @@ def gen_fast_distance_from():
 
     return autowrap(expr, backend='cython', args=(theta, x, y))
 
-if 'ONHEROKU' in os.environ:
-    compute_drag = None
-    compute_dist_from_flat = None
-else:
-    compute_drag = generate_fast_drag_func()
-    compute_dist_from_flat = gen_fast_distance_from()
+#if 'ONHEROKU' in os.environ:
+    #compute_drag = None
+    #compute_dist_from_flat = None
+#else:
+compute_drag = generate_fast_drag_func()
+compute_dist_from_flat = gen_fast_distance_from()
 
 
 def speed2vel(speed, angle):
