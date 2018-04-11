@@ -9,6 +9,7 @@ from scipy.integrate import solve_ivp
 import sympy as sm
 from sympy.utilities.autowrap import autowrap
 
+
 if 'ONHEROKU' in os.environ:
     plt = None
 else:
@@ -476,26 +477,26 @@ class LandingTransitionSurface(Surface):
             flight_rel_landing_angle = np.arcsin(ratio)
 
         landing_angle = flight_angle + flight_rel_landing_angle
-        landing_slope = np.tan(landing_angle)
+        landing_slope = np.tan(landing_angle)  # y'E(x0)
 
         parent_slope = self.parent_surface.interp_slope(x)
         parent_rel_landing_slope = landing_slope - parent_slope
 
         parent_y = self.parent_surface.interp_y(x)
-        height_above_parent = flight_y - parent_y
+        height_above_parent = flight_y - parent_y  # C in Mont's paper
 
         # required exponential characteristic distance, using three
         # characteristic distances for transition
-        dx = np.abs(height_above_parent / parent_rel_landing_slope)
+        char_dist = np.abs(height_above_parent / parent_rel_landing_slope)
 
-        ydoubleprime = height_above_parent / dx**2
+        ydoubleprime = height_above_parent / char_dist**2
 
         curvature = np.abs(ydoubleprime / (1 + landing_slope**2)**1.5)
 
         trans_acc = (curvature * flight_speed**2 + GRAV_ACC *
                      np.cos(landing_angle))
 
-        return np.abs(trans_acc / GRAV_ACC), dx
+        return np.abs(trans_acc / GRAV_ACC), char_dist
 
     def find_dgdx(self, x):
 
@@ -508,12 +509,11 @@ class LandingTransitionSurface(Surface):
         return (acc_plus - acc_minus) / 2 / self.delta
 
     def find_transition_point(self):
-        """Returns the horizontal position indicating the start of the landing
-        transition."""
-
-        # goal is to find the last possible transition point (that by
-        # definition minimizes the transition snow budget) that satisfies the
-        # allowable transition G's
+        """Returns the horizontal position indicating the intersection of the
+        flight path with the beginning of the landing transition. This is the
+        last possible transition point, that by definition minimizes the
+        transition snow budget, that satisfies the allowable transition
+        acceleration."""
 
         i = 0
         g_error = np.inf
@@ -529,17 +529,23 @@ class LandingTransitionSurface(Surface):
 
             x += dx
 
-            if x > self.flight_traj[0, -1]:
+            if x >= self.flight_traj[0, -1]:
                 x = self.flight_traj[0, -1] - 2 * self.delta
 
             if i > self.max_iterations:
-                msg = 'ERROR: while loop ran more than {} times'
-                print(msg.format(self.max_iterations))
+                msg = 'Landing transition while loop ran more than {} times.'
+                logging.warning(msg.format(self.max_iterations))
                 break
             else:
                 i += 1
 
+        logging.debug('{} iterations in the landing transition loop.'.format(i))
+
         x -= dx  # loop stops after dx is added, so take previous
+
+        msg = ("The maximum landing transition acceleration is {} G's and the "
+               "tolerable landing transition acceleration is {} G's.")
+        logging.info(msg.format(transition_Gs, self.tolerable_acc))
 
         return x, char_dist
 
@@ -559,6 +565,7 @@ class LandingTransitionSurface(Surface):
 
     def create_trans_curve(self, trans_x, char_dist, num_points):
 
+        # TODO : Mont's code has 3 * char_dist
         xTranOutEnd = trans_x + 4 * char_dist
 
         xParent = np.linspace(trans_x, xTranOutEnd, num_points)
@@ -818,19 +825,39 @@ class Skier(object):
             return surface.distance_from(x, y)
 
         touch_surface.terminal = True
+        # NOTE: always from above surface, positive to negative crossing
+        touch_surface.direction = -1
+
+        # NOTE : For a more accurate event time, the error tolerances on the
+        # states need to be lower.
 
         # integrate to find the final time point
         sol = solve_ivp(rhs,
                         (0.0, np.inf),
                         init_pos + init_vel,
-                        events=(touch_surface, ))
+                        events=(touch_surface, ),
+                        rtol=1e-6, atol=1e-9)
+
+        logging.debug(sol.t[-1])
+        logging.debug(sol.t_events[0])
+        logging.debug(sol.t[-1] - sol.t_events[0])
+        logging.debug(sol.y[:, -1])
+        logging.debug(touch_surface(sol.t[-1], sol.y[:, -1]))
+
+        te = sol.t_events[0]
 
         if fine:
             # integrate at higher resolution
             times = np.linspace(0.0, sol.t[-1],
                                 num=int(self.samples_per_sec * sol.t[-1]))
             sol = solve_ivp(rhs, (0.0, sol.t[-1]), init_pos + init_vel,
-                            t_eval=times)
+                            t_eval=times,
+                        rtol=1e-6, atol=1e-9)
+
+        logging.debug(sol.t[-1])
+        logging.debug(sol.t[-1] - te)
+        logging.debug(sol.y[:, -1])
+        logging.debug(touch_surface(sol.t[-1], sol.y[:, -1]))
 
         return sol.t, sol.y
 
@@ -995,14 +1022,14 @@ class Skier(object):
             traj_at_impact = interpolator(x)
 
             ypred = traj_at_impact[0]
-            #logging.debug('ypred = {}'.format(ypred))
+            logging.debug('ypred = {}'.format(ypred))
 
             deltay = ypred - y
-            #logging.debug('deltay = {}'.format(deltay))
+            logging.debug('deltay = {}'.format(deltay))
             dvo = -deltay * dvody
-            #logging.debug('dvo = {}'.format(dvo))
+            logging.debug('dvo = {}'.format(dvo))
             vo = vo + dvo
-            #logging.debug('vo = {}'.format(vo))
+            logging.debug('vo = {}'.format(vo))
 
         #ax.plot(*takeoff_point, 'o')
         #ax.plot(*landing_point, 'o')
