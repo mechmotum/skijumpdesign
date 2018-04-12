@@ -6,7 +6,7 @@ from math import isclose
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.optimize import fsolve
-from scipy.integrate import solve_ivp
+from scipy.integrate import solve_ivp, trapz
 import sympy as sm
 from sympy.utilities.autowrap import autowrap
 
@@ -162,6 +162,26 @@ class Surface(object):
         x = fsolve(distance_squared, self.x[np.argmin(distances)])
 
         return np.sign(yp - self.interp_y(x)) * np.sqrt(distance_squared(x))
+
+    def area_under(self, x_start=None, x_end=None):
+        """Returns the area under the curve integrating wrt to the x axis."""
+        start_idx = 0
+        end_idx = -1
+
+        if x_start is not None:
+            if x_start < self.start[0] or x_start > self.end[0]:
+                raise ValueError('x_start has to be between start and end.')
+            start_idx = np.argmin(np.abs(x_start - self.x))
+
+        if x_end is not None:
+            if x_end < self.start[0] or x_end > self.end[0]:
+                raise ValueError('x_end has to be between end and end.')
+            end_idx = np.argmin(np.abs(x_end - self.x))
+
+        #if end_idx <= start_idx:
+            #raise ValueError('x_end has to be greater than x_start.')
+
+        return trapz(self.y[start_idx:end_idx], self.x[start_idx:end_idx])
 
     def plot(self, ax=None, **plot_kwargs):
         """Creates a matplotlib plot of the surface."""
