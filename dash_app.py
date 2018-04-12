@@ -1,9 +1,9 @@
 import os
 import logging
 
+import numpy as np
 import dash
 from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
@@ -94,9 +94,9 @@ layout = go.Layout(autosize=False,
                    height=600,
                    paper_bgcolor='rgba(96, 164, 255, 0.0)',
                    plot_bgcolor='rgba(255, 255, 255, 0.5)',
-                   xaxis={'title': 'Distance [m]'},
+                   xaxis={'title': 'Distance [m]', 'zeroline': False},
                    yaxis={'scaleanchor': 'x',  # equal aspect ratio
-                          'title': 'Height [m]'})
+                          'title': 'Height [m]', 'zeroline': False})
 
 # TODO : See if the className can be added to Graph instead of Div.
 graph_widget = html.Div([dcc.Graph(id='my-graph',
@@ -219,6 +219,27 @@ inputs = [Input('slope_angle', 'value'),
           Input('fall_height', 'value')
           ]
 
+nan_line = [np.nan]
+blank_graph = {'data': [
+                     {'x': [0.0, 0.0], 'y': [0.0, 0.0], 'name': 'Parent Slope',
+                      'text': ['Invalid Jump Parameters'],
+                      'mode': 'markers+text',
+                      'textfont': {'size': 24},
+                      'textposition': 'top',
+                      'line': {'color': 'black', 'dash': 'dash'}},
+                     {'x': nan_line, 'y': nan_line, 'name': 'Approach',
+                      'line': {'color': 'black', 'width': 4}},
+                     {'x': nan_line, 'y': nan_line, 'name': 'Takeoff',
+                      'line': {'color': 'black', 'width': 4}},
+                     {'x': nan_line, 'y': nan_line, 'name': 'Landing',
+                      'line': {'color': 'grey', 'width': 4}},
+                     {'x': nan_line, 'y': nan_line, 'name': 'Landing Transition',
+                      'line': {'color': 'grey', 'width': 4}},
+                     {'x': nan_line, 'y': nan_line, 'name': 'Flight',
+                      'line': {'color': 'black', 'dash': 'dot'}},
+                    ],
+            'layout': layout}
+
 
 @app.callback(Output('my-graph', 'figure'), inputs)
 def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
@@ -234,7 +255,7 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
         surfs = make_jump(slope_angle, start_pos, approach_len, takeoff_angle,
                           fall_height)
     except InvalidJumpError:
-        raise PreventUpdate('Invalid jump parameters, graph update aborted.')
+        return blank_graph
 
     slope, approach, takeoff, landing, trans, flight = surfs
 

@@ -19,7 +19,7 @@ def test_make_jump_expected_to_fail():
 def test_invalid_fall_height():
 
     # Shouldn't be able to pass in 0.0 as the fall height.
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidJumpError):
         make_jump(-25.0, 0.0, 30.0, 20.0, 0.0)
 
 

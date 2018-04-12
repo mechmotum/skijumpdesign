@@ -196,7 +196,7 @@ class FlatSurface(Surface):
         """
 
         if angle >= np.pi / 2.0 or angle <= -np.pi / 2.0:
-            raise ValueError('Angle must be between -90 and 90 degrees')
+            raise InvalidJumpError('Angle must be between -90 and 90 degrees')
 
         self._angle = angle
 
@@ -395,7 +395,7 @@ class LandingTransitionSurface(Surface):
 
         """
         if fall_height <= 0.0:
-            raise ValueError('Fall height must be greater than zero.')
+            raise InvalidJumpError('Fall height must be greater than zero.')
 
         self.fall_height = fall_height
         self.parent_surface = parent_surface
@@ -609,7 +609,7 @@ class LandingSurface(Surface):
 
         """
         if fall_height <= 0.0:
-            raise ValueError('Fall height must be greater than zero.')
+            raise InvalidJumpError('Fall height must be greater than zero.')
 
         self.skier = skier
         self.takeoff_point = takeoff_point
