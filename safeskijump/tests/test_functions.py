@@ -77,5 +77,8 @@ def test_problematic_jump_parameters():
     # this first situation seems to be that the acceleration at max landing
     # can't be below the threshold, thus the landing transition point ends up
     # under the parent slope surface.
-    make_jump(-45.0, 0.0, 30.0, 0.0, 0.2)
-    make_jump(-45.0, 0.0, 30.0, 0.0, 0.3)
+    make_jump(-45.0, 0.0, 30.0, 0.0, 0.2)  # fixed, regression test
+    make_jump(-45.0, 0.0, 30.0, 0.0, 0.3)  # fixed, regression test
+    # the following jump can't find appropriate landing point and generates a
+    # unrealistic curve
+    make_jump(-30.0, 0.0, 1.0, 15.0, 0.5)
