@@ -15,7 +15,7 @@ else:
 
 from .classes import (Surface, FlatSurface, ClothoidCircleSurface,
                       TakeoffSurface, LandingTransitionSurface, LandingSurface,
-                      Skier, InvalidJumpError)
+                      Skier, InvalidJumpError, vel2speed)
 
 
 @clru_cache(maxsize=128)
@@ -108,12 +108,13 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     # is computed until the skier contacts the parent slope.
     takeoff_vel = skier.end_vel_on(takeoff, init_speed=takeoff_entry_speed)
 
+    msg = 'Takeoff speed: {:1.3f} [m/s]'
+    logging.info(msg.format(vel2speed(*takeoff_vel)[0]))
+
     slope = FlatSurface(slope_angle, 100 * approach_len)
 
-    flight_time, flight_traj = skier.fly_to(slope, init_pos=takeoff.end,
-                                            init_vel=takeoff_vel)
-
-    flight = Surface(x=flight_traj[0], y=flight_traj[1])
+    _, flight_traj = skier.fly_to(slope, init_pos=takeoff.end,
+                                  init_vel=takeoff_vel)
 
     # The landing transition curve transfers the max velocity skier from their
     # landing point smoothly to the parent slope.
@@ -122,6 +123,18 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
 
     slope = FlatSurface(slope_angle, np.sqrt(landing_trans.end[0]**2 +
                                              landing_trans.end[1]**2) + 1.0)
+
+    land_trans_contact = Surface(np.linspace(0.0, landing_trans.end[0]),
+                                 np.ones(50) * landing_trans.start[1])
+
+    flight_time, flight_traj = skier.fly_to(land_trans_contact,
+                                            init_pos=takeoff.end,
+                                            init_vel=takeoff_vel)
+
+    logging.info('Flight time: {:1.3f} [s]'.format(flight_time[-1]))
+
+    # TODO : Truncate the flight surface and flight time.
+    flight = Surface(x=flight_traj[0], y=flight_traj[1])
 
     # The landing surface ensures an equivalent fall height for any skiers that
     # do not reach maximum velocity.
