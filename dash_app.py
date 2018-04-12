@@ -254,7 +254,8 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
     try:
         surfs = make_jump(slope_angle, start_pos, approach_len, takeoff_angle,
                           fall_height)
-    except InvalidJumpError:
+    except InvalidJumpError as e:
+        logging.error('Graph update error:', exc_info=e)
         return blank_graph
 
     slope, approach, takeoff, landing, trans, flight = surfs
