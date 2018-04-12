@@ -1,4 +1,5 @@
 import os
+import logging
 
 import numpy as np
 from fastcache import clru_cache
@@ -58,6 +59,8 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
         A "surface" that encodes the maximum velocity flight trajectory.
 
     """
+    logging.info('Calling make_jump({}, {}, {}, {}, {})'.format(
+        slope_angle, start_pos, approach_len, takeoff_angle, fall_height))
 
     # TODO : Move these to skier?
     time_on_ramp = 0.2  # seconds

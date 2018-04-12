@@ -1,4 +1,5 @@
 import os
+import time
 import logging
 from math import isclose
 
@@ -17,7 +18,7 @@ else:
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
-#logger.setLevel(logging.INFO)
+logger.setLevel(logging.INFO)
 
 # NOTE : These parameters are more associated with an environment, but this
 # doesn't warrant making a class for them. Maybe a namedtuple would be useful
@@ -706,10 +707,12 @@ class LandingSurface(Surface):
         logging.debug('Making sure rhs() works.')
         logging.debug(rhs(self.max_landing_point[0], y0))
 
-        logging.info('Integrating...')
+        logging.info('Integrating landing surface.')
+        start_time = time.time()
         sol = solve_ivp(rhs, (x_eval[0], x_eval[-1]), y0, t_eval=x_eval,
                         max_step=1.0)
-        logging.info('Integrating done.')
+        msg = 'Landing surface finished in {} seconds.'
+        logging.info(msg.format(time.time() - start_time))
 
         x = sol.t[::-1]
         y = sol.y.squeeze()[::-1]
@@ -719,7 +722,8 @@ class LandingSurface(Surface):
 
 class Skier(object):
 
-    samples_per_sec = 120
+    samples_per_sec = 360
+    max_flight_time = 30.0  # seconds
     tolerable_sliding_acc = 1.5  # G
     tolerable_landing_acc = 3.0  # G
 
@@ -830,16 +834,23 @@ class Skier(object):
 
         # NOTE : For a more accurate event time, the error tolerances on the
         # states need to be lower.
+        logging.info('Integrating skier flight.')
+        start_time = time.time()
 
         # integrate to find the final time point
         sol = solve_ivp(rhs,
-                        (0.0, np.inf),
+                        (0.0, self.max_flight_time),
                         init_pos + init_vel,
                         events=(touch_surface, ),
                         rtol=1e-6, atol=1e-9)
 
-        logging.debug(sol.t[-1])
-        logging.debug(sol.t_events[0])
+        if isclose(sol.t[-1], self.max_flight_time):
+            msg = ('Flying skier did not contact ground within {} seconds, '
+                   'integration aborted.')
+            raise InvalidJumpError(msg.format(self.max_flight_time))
+
+        logging.debug('Flight integration terminated at {} s'.format(sol.t[-1]))
+        logging.debug('Flight contact event occurred at {} s'.format(sol.t_events[0]))
         logging.debug(sol.t[-1] - sol.t_events[0])
         logging.debug(sol.y[:, -1])
         logging.debug(touch_surface(sol.t[-1], sol.y[:, -1]))
@@ -847,17 +858,20 @@ class Skier(object):
         te = sol.t_events[0]
 
         if fine:
-            # integrate at higher resolution
+            # integrate at desired resolution
             times = np.linspace(0.0, sol.t[-1],
                                 num=int(self.samples_per_sec * sol.t[-1]))
             sol = solve_ivp(rhs, (0.0, sol.t[-1]), init_pos + init_vel,
-                            t_eval=times,
-                        rtol=1e-6, atol=1e-9)
+                            t_eval=times, rtol=1e-6, atol=1e-9)
+
+        msg = 'Flight integration finished in {} seconds.'
+        logging.info(msg.format(time.time() - start_time))
 
         logging.debug(sol.t[-1])
         logging.debug(sol.t[-1] - te)
         logging.debug(sol.y[:, -1])
         logging.debug(touch_surface(sol.t[-1], sol.y[:, -1]))
+
 
         return sol.t, sol.y
 
@@ -902,6 +916,9 @@ class Skier(object):
 
         reach_end.terminal = True
 
+        logging.info('Integrating skier sliding.')
+        start_time = time.time()
+
         sol = solve_ivp(rhs,
                         (0.0, np.inf),  # time span
                         (surface.x[0], init_speed),  # initial conditions
@@ -912,6 +929,14 @@ class Skier(object):
                                 num=int(self.samples_per_sec * sol.t[-1]))
             sol = solve_ivp(rhs, (0.0, sol.t[-1]), (surface.x[0], init_speed),
                             t_eval=times)
+
+        msg = 'Sliding integration finished in {} seconds.'
+        logging.info(msg.format(time.time() - start_time))
+
+        if np.any(sol.y[1] < 0.0):  # if tangential velocity is ever negative
+            msg = ('Skier does not have a high enough velocity to make it over '
+                   'the ramp. Decrease the takeoff angle.')
+            raise InvalidJumpError(msg)
 
         return sol.t, sol.y
 

@@ -230,9 +230,6 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
     takeoff_angle = float(takeoff_angle)
     fall_height = float(fall_height)
 
-    logging.info('Calling make_jump({}, {}, {}, {}, {})'.format(
-        slope_angle, start_pos, approach_len, takeoff_angle, fall_height))
-
     try:
         surfs = make_jump(slope_angle, start_pos, approach_len, takeoff_angle,
                           fall_height)
