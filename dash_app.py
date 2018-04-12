@@ -1,5 +1,6 @@
 import os
 import logging
+import textwrap
 
 import numpy as np
 import dash
@@ -219,10 +220,12 @@ inputs = [Input('slope_angle', 'value'),
           Input('fall_height', 'value')
           ]
 
-nan_line = [np.nan]
-blank_graph = {'data': [
+
+def blank_graph(msg):
+    nan_line = [np.nan]
+    data = {'data': [
                      {'x': [0.0, 0.0], 'y': [0.0, 0.0], 'name': 'Parent Slope',
-                      'text': ['Invalid Jump Parameters'],
+                      'text': ['Invalid Jump Parameters<br>Error: {}'.format(msg)],
                       'mode': 'markers+text',
                       'textfont': {'size': 24},
                       'textposition': 'top',
@@ -239,6 +242,7 @@ blank_graph = {'data': [
                       'line': {'color': 'black', 'dash': 'dot'}},
                     ],
             'layout': layout}
+    return data
 
 
 @app.callback(Output('my-graph', 'figure'), inputs)
@@ -256,7 +260,7 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
                           fall_height)
     except InvalidJumpError as e:
         logging.error('Graph update error:', exc_info=e)
-        return blank_graph
+        return blank_graph('<br>'.join(textwrap.wrap(str(e), 30)))
 
     slope, approach, takeoff, landing, trans, flight = surfs
 
