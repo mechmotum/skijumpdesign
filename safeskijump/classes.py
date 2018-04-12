@@ -782,7 +782,8 @@ class Skier(object):
 
         return -np.sign(speed) * self.friction_coeff * normal_force
 
-    def fly_to(self, surface, init_pos, init_vel, fine=True):
+    def fly_to(self, surface, init_pos, init_vel, fine=True,
+               logging_type='info'):
         """Returns the flight trajectory of the skier given the initial
         conditions and a surface which the skier contacts at the end of the
         flight trajectory.
@@ -832,9 +833,11 @@ class Skier(object):
         # NOTE: always from above surface, positive to negative crossing
         touch_surface.direction = -1
 
+        logging_call = getattr(logging, logging_type)
+
         # NOTE : For a more accurate event time, the error tolerances on the
         # states need to be lower.
-        logging.info('Integrating skier flight.')
+        logging_call('Integrating skier flight.')
         start_time = time.time()
 
         # integrate to find the final time point
@@ -849,11 +852,12 @@ class Skier(object):
                    'integration aborted.')
             raise InvalidJumpError(msg.format(self.max_flight_time))
 
-        logging.debug('Flight integration terminated at {} s'.format(sol.t[-1]))
-        logging.debug('Flight contact event occurred at {} s'.format(sol.t_events[0]))
-        logging.debug(sol.t[-1] - sol.t_events[0])
-        logging.debug(sol.y[:, -1])
-        logging.debug(touch_surface(sol.t[-1], sol.y[:, -1]))
+
+        logging_call('Flight integration terminated at {} s'.format(sol.t[-1]))
+        logging_call('Flight contact event occurred at {} s'.format(sol.t_events[0]))
+        logging_call(sol.t[-1] - sol.t_events[0])
+        logging_call(sol.y[:, -1])
+        logging_call(touch_surface(sol.t[-1], sol.y[:, -1]))
 
         te = sol.t_events[0]
 
@@ -865,13 +869,12 @@ class Skier(object):
                             t_eval=times, rtol=1e-6, atol=1e-9)
 
         msg = 'Flight integration finished in {} seconds.'
-        logging.info(msg.format(time.time() - start_time))
+        logging_call(msg.format(time.time() - start_time))
 
-        logging.debug(sol.t[-1])
-        logging.debug(sol.t[-1] - te)
-        logging.debug(sol.y[:, -1])
-        logging.debug(touch_surface(sol.t[-1], sol.y[:, -1]))
-
+        logging_call(sol.t[-1])
+        logging_call(sol.t[-1] - te)
+        logging_call(sol.y[:, -1])
+        logging_call(touch_surface(sol.t[-1], sol.y[:, -1]))
 
         return sol.t, sol.y
 
@@ -1037,7 +1040,8 @@ class Skier(object):
 
             times, flight_traj = self.fly_to(surf,
                                              init_pos=takeoff_point,
-                                             init_vel=(vox, voy))
+                                             init_vel=(vox, voy),
+                                             logging_type='debug')
             x_traj = flight_traj[0]
 
             #ax.plot(*flight_traj[:2])
