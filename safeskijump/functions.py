@@ -18,6 +18,32 @@ from .classes import (Surface, FlatSurface, ClothoidCircleSurface,
                       Skier, InvalidJumpError, vel2speed)
 
 
+def snow_budget(parent_slope, takeoff, landing, landing_trans):
+    """Returns the jump's cross sectional snow budget area."""
+
+    # TODO : Make this function more robust, may need to handle jumps that are
+    # above the x axis.
+    if (np.any(takeoff.y > 0.0) or np.any(landing.y > 0.0) or
+        np.any(landing_trans.y > 0.0)):
+
+        logging.warn('Snowbudget invalid since jump about X axis.')
+
+    logging.info(takeoff.start[0])
+    logging.info(landing_trans.end[0])
+
+    A = parent_slope.area_under(x_start=takeoff.start[0],
+                                x_end=landing_trans.end[0])
+    B = takeoff.area_under() + landing.area_under() + landing_trans.area_under()
+
+    logging.info('Parent slope area: {}'.format(A))
+    logging.info('Takeoff area: {}'.format(takeoff.area_under()))
+    logging.info('Landing area: {}'.format(landing.area_under()))
+    logging.info('Landing transition area: {}'.format(landing_trans.area_under()))
+    logging.info('B= {}'.format(B))
+
+    return np.abs(A - B)
+
+
 @clru_cache(maxsize=128)
 def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
               plot=False):
@@ -143,6 +169,10 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
 
     if landing.y[0] < slope.interp_y(landing.x[0]):
         raise InvalidJumpError('Fall height is too large.')
+
+    logging.info('Snow budget: {} m^2'.format(snow_budget(slope, takeoff,
+                                                          landing,
+                                                          landing_trans)))
 
     if plot:
         plot_jump(slope, approach, takeoff, landing, landing_trans, flight)
