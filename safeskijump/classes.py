@@ -38,7 +38,6 @@ def generate_fast_drag_func():
 def gen_fast_distance_from():
     theta, x, y = sm.symbols('theta, x, y')
     expr = (y - sm.tan(theta) * x) * sm.cos(theta)
-
     return autowrap(expr, backend='cython', args=(theta, x, y))
 
 #if 'ONHEROKU' in os.environ:
@@ -64,7 +63,9 @@ def speed2vel(speed, angle):
     Returns
     =======
     vel_x : float
+        X component of velocity in meters per second.
     vel_y : float
+        Y component of velocity in meters per second.
 
     """
     vel_x = speed * np.cos(angle)
@@ -73,21 +74,39 @@ def speed2vel(speed, angle):
 
 
 def vel2speed(hor_vel, ver_vel):
+    """Returns the magnitude and angle of the velocity vector given the
+    horizontal and vertical components.
 
+    Parameters
+    ==========
+    hor_vel : float
+        X component of velocity in meters per second.
+    ver_vel : float
+        Y component of velocity in meters per second.
+
+    Returns
+    =======
+    speed : float
+        Magnitude of the velocity vector in meters per second.
+    angle : float
+        Angle of velocity vector in radians. Clockwise is negative and counter
+        clockwise is positive.
+
+    """
     speed = np.sqrt(hor_vel**2 + ver_vel**2)
-
     slope = ver_vel / hor_vel
-
     angle = np.arctan(slope)
-
     return speed, angle
 
 
 class InvalidJumpError(Exception):
+    """Custom class to signal that a poor combination of parameters have been
+    supplied to the surface building functions."""
     pass
 
 
 class Surface(object):
+    """Base class for a 2D surface tied to a standard xy coordinate system."""
 
     def __init__(self, x, y):
         """Instantiates an arbitrary 2D surface.
@@ -95,11 +114,11 @@ class Surface(object):
         Parameters
         ==========
         x : ndarray, shape(n,)
-            The horizontal, X, coordinates of the slope. x[0] should be the
+            The horizontal, x, coordinates of the slope. x[0] should be the
             left most horizontal position and corresponds to the start of the
             surface.
         y : ndarray, shape(n,)
-            The vertical, Y, coordinates of the slope. y[0] corresponds to the
+            The vertical, y, coordinates of the slope. y[0] corresponds to the
             start of the surface.
 
         """
@@ -119,12 +138,12 @@ class Surface(object):
 
     @property
     def start(self):
-        """Returns the X and Y coordinates at the start of the surface."""
+        """Returns the x and y coordinates at the start of the surface."""
         return self.x[0], self.y[0]
 
     @property
     def end(self):
-        """Returns the X and Y coordinates at the end of the surface."""
+        """Returns the x and y coordinates at the end of the surface."""
         return self.x[-1], self.y[-1]
 
     @property
@@ -138,9 +157,9 @@ class Surface(object):
         Parameters
         ==========
         xp : float
-            The horizontal, X, coordinate of the point.
+            The horizontal, x, coordinate of the point.
         yp : float
-            The vertical, Y, coordinate of the point.
+            The vertical, y, coordinate of the point.
 
         Returns
         =======
@@ -186,10 +205,11 @@ class Surface(object):
         return start_idx, end_idx
 
     def length(self):
-        """Returns the length of the surface in meters."""
-        def arc_length(x):
+        """Returns the length of the surface in meters via a numerical line
+        integral."""
+        def func(x):
             return np.sqrt(1.0 + self.interp_slope(x)**2)
-        return quad(arc_length, self.x[0], self.x[-1])[0]
+        return quad(func, self.x[0], self.x[-1])[0]
 
     def area_under(self, x_start=None, x_end=None):
         """Returns the area under the curve integrating wrt to the x axis."""
@@ -197,7 +217,16 @@ class Surface(object):
         return trapz(self.y[start_idx:end_idx], self.x[start_idx:end_idx])
 
     def plot(self, ax=None, **plot_kwargs):
-        """Creates a matplotlib plot of the surface."""
+        """Returns a matplotlib axes containing a plot of the surface.
+
+        Parameters
+        ==========
+        ax : Axes
+            An existing matplotlib axes to plot to.
+        plot_kwargs : dict
+            Arguments to be passed to Axes.plot().
+
+        """
 
         if ax is None:
             fig, ax = plt.subplots(1, 1)
@@ -210,20 +239,21 @@ class Surface(object):
 
 
 class FlatSurface(Surface):
+    """Class that represents a flat angled surface."""
 
     def __init__(self, angle, length, init_pos=(0.0, 0.0), num_points=100):
-        """Instantiates a flat surface that is oriented at an angle from the X
-        axis.
+        """Instantiates a flat surface that is oriented at a counterclockwise
+        angle from the horizontal.
 
         Parameters
         ==========
         angle : float
-            The angle of the surface in radians. This is the angle about the
-            positive Z axis.
+            The angle of the surface in radians. Counterclockwise (about z) is
+            positive, clockwise is negative.
         length : float
             The distance in meters along the surface from the initial position.
-        init_pos : two tuple of floats
-            The X and Y coordinates in meters that locate the start of the
+        init_pos : 2-tuple of floats
+            The x and y coordinates in meters that locate the start of the
             surface.
 
         """
@@ -242,9 +272,27 @@ class FlatSurface(Surface):
 
     @property
     def angle(self):
+        """Returns the angle wrt to horizontal in radians of the surface."""
         return self._angle
 
     def distance_from(self, xp, yp):
+        """Returns the shortest distance from point (xp, yp) to the surface.
+
+        Parameters
+        ==========
+        xp : float
+            The horizontal, x, coordinate of the point.
+        yp : float
+            The vertical, y, coordinate of the point.
+
+        Returns
+        =======
+        distance : float
+            The shortest distance from the point to the surface. If the point
+            is above the surface a positive distance is returned, else a
+            negative distance.
+
+        """
 
         if compute_dist_from_flat is None:
             m = np.tan(self.angle)
@@ -255,6 +303,8 @@ class FlatSurface(Surface):
 
 
 class ClothoidCircleSurface(Surface):
+    """Class that represents a surface made up of a circle bounded by two
+    clothoids."""
 
     def __init__(self, entry_angle, exit_angle, entry_speed, tolerable_acc,
                  init_pos=(0.0, 0.0), gamma=0.99, num_points=200):
@@ -264,20 +314,25 @@ class ClothoidCircleSurface(Surface):
         Parameters
         ==========
         entry_angle : float
-            The entry angle tangent to the left clothoid in radians
+            The entry angle tangent to the start of the left clothoid in
+            radians.
         exit_angle : float
-            The exit angle tangent to the right clothoid in radians.
+            The exit angle tangent to the end of the right clothoid in radians.
         entry_speed : float
             The magnitude of the skier's velocity in meters per second as they
-            enter the takeoff curve (i.e. approach exit speed).
+            enter the left clothiod.
         tolerable_acc : float
-            The tolerable acceleration of the skier in G's.
+            The tolerable normal acceleration of the skier in G's.
+        init_pos : 2-tuple of floats
+            The x and y coordinates of the start of the left clothoid.
         gamma : float
             Fraction of circular section.
         num_points : integer, optional
-            The n number of points in each section of the curve.
+            The number of points in each of the three sections of the curve.
 
         """
+        # TODO : Break this function into smaller functions.
+
         self.gamma = gamma
         self.entry_angle = entry_angle
         self.exit_angle = exit_angle
@@ -369,9 +424,11 @@ class ClothoidCircleSurface(Surface):
 
 
 class TakeoffSurface(Surface):
+    """Class representing a takeoff surface made up of a
+    clothoid-circle-clothoid-flat."""
 
     def __init__(self, clth_surface, ramp_entry_speed, time_on_ramp):
-        """Returns the X and Y coordinates of the takeoff curve with the flat
+        """Returns the x and y coordinates of the takeoff curve with the flat
         takeoff ramp added to the terminus of the clothoid curve.
 
         Parameters
@@ -380,9 +437,10 @@ class TakeoffSurface(Surface):
             The approach-takeoff transition curve.
         ramp_entry_speed : float
             The magnitude of the skier's speed at the exit of the second
-            clothoid.
+            clothoid (entry to the flat ramp) in meters per second.
         time_on_ramp : float
-            The time in seconds that the skier is on the takeoff ramp.
+            The time in seconds that the skier should be on the takeoff ramp
+            before launch.
 
         """
 
@@ -408,6 +466,8 @@ class TakeoffSurface(Surface):
 
 
 class LandingTransitionSurface(Surface):
+    """Class representing a acceleration limited exponential curve that
+    transitions the skier from the landing surface to the parent slope."""
 
     acc_error_tolerance = 0.001
     max_iterations = 1000
@@ -421,10 +481,18 @@ class LandingTransitionSurface(Surface):
         Parameters
         ==========
         parent_surface : FlatSurface
+            The parent slope in which the landing transition should be tangent
+            to on exit.
         flight_traj : ndarray, shape(4, n)
+            The flight trajectory from the takeoff point to the parent sloped.
+            Rows correspond to [x, y, vx, vy] and columns to time.
         fall_height : float
+            The desired equivalnent fall height for the jump design in meters.
         tolerable_acc : float
+            The maximum normal acceleration the skier should experience in the
+            landing.
         num_points : integer
+            The number of points in the surface.
 
         """
         if fall_height <= 0.0:
@@ -435,11 +503,11 @@ class LandingTransitionSurface(Surface):
         self.flight_traj = flight_traj
         self.tolerable_acc = tolerable_acc
 
-        self.create_flight_interpolator()
+        self._create_flight_interpolator()
 
         trans_x, char_dist = self.find_transition_point()
 
-        x, y = self.create_trans_curve(trans_x, char_dist, num_points)
+        x, y = self._create_trans_curve(trans_x, char_dist, num_points)
 
         super(LandingTransitionSurface, self).__init__(x, y)
 
@@ -449,10 +517,13 @@ class LandingTransitionSurface(Surface):
         provided fall height."""
         return np.sqrt(2 * GRAV_ACC * self.fall_height)
 
-    def create_flight_interpolator(self):
+    def _create_flight_interpolator(self):
         """Creates a method that interpolates the veritcal position, slope,
         magnitude of the velocity, and angle of the velocity of the flight
         trajectory given a horizontal distance."""
+
+        # TODO : This might be nicer to have in a Trajectory class that is
+        # similar to a surface but includes velocity and acceleration.
 
         x = self.flight_traj[0]
         y = self.flight_traj[1]
@@ -470,7 +541,7 @@ class LandingTransitionSurface(Surface):
 
     def interp_flight(self, x):
         """Returns the flight trajectory height, magnitude of the velocity, and
-        the angle of the velocity given a horizontal position.
+        the angle of the velocity given a horizontal position x.
 
         Returns
         =======
@@ -492,7 +563,8 @@ class LandingTransitionSurface(Surface):
 
     def calc_trans_acc(self, x):
         """Returns the acceleration in G's the skier feels at the exit
-        transition occuring at the provided horizontal location, x."""
+        transition occuring if the transition starts at the provided horizontal
+        location, x."""
 
         # TODO : This code seems to be repeated some in the LandingSurface
         # creation code.
@@ -532,7 +604,7 @@ class LandingTransitionSurface(Surface):
 
         return np.abs(trans_acc / GRAV_ACC), char_dist
 
-    def find_dgdx(self, x):
+    def _find_dgdx(self, x):
 
         x_plus = x + self.delta
         x_minus = x - self.delta
@@ -547,7 +619,17 @@ class LandingTransitionSurface(Surface):
         flight path with the beginning of the landing transition. This is the
         last possible transition point, that by definition minimizes the
         transition snow budget, that satisfies the allowable transition
-        acceleration."""
+        acceleration.
+
+        Notes
+        =====
+        This uses Newton's method to find an adequate point but may fail to do
+        so with some combinations of flight trajectories, parent slope
+        geometry, and allowable acceleration. A warning will be emitted if the
+        maximum number of iterations is reached in this search and the curve is
+        likely invalid.
+
+        """
 
         i = 0
         g_error = np.inf
@@ -559,7 +641,7 @@ class LandingTransitionSurface(Surface):
 
             g_error = abs(transition_Gs - self.tolerable_acc)
 
-            dx = -g_error / self.find_dgdx(x)
+            dx = -g_error / self._find_dgdx(x)
 
             x += dx
 
@@ -577,6 +659,10 @@ class LandingTransitionSurface(Surface):
 
         x -= dx  # loop stops after dx is added, so take previous
 
+        # TODO : This should be uncommented, but need to make sure it doesn't
+        # break anything.
+        #transition_Gs, char_dist = self.calc_trans_acc(x)
+
         msg = ("The maximum landing transition acceleration is {} G's and the "
                "tolerable landing transition acceleration is {} G's.")
         logging.info(msg.format(transition_Gs, self.tolerable_acc))
@@ -584,11 +670,17 @@ class LandingTransitionSurface(Surface):
         return x, char_dist
 
     def find_parallel_traj_point(self):
+        """Returns the position of a point on the flight trajectory where its
+        tagent is parallel to the parent slope. This is used as a starting
+        guess for the start of the landing transition point."""
 
         slope_angle = self.parent_surface.angle
 
         flight_traj_slope = self.flight_traj[3] / self.flight_traj[2]
 
+        # TODO : Seems like these two interpolations can be combined into a
+        # single interpolation call by adding the y coordinate to the following
+        # line.
         xpara_interpolator = interp1d(flight_traj_slope, self.flight_traj[0])
 
         xpara = xpara_interpolator(np.tan(slope_angle))
@@ -597,7 +689,7 @@ class LandingTransitionSurface(Surface):
 
         return xpara, ypara
 
-    def create_trans_curve(self, trans_x, char_dist, num_points):
+    def _create_trans_curve(self, trans_x, char_dist, num_points):
 
         # TODO : Mont's code has 3 * char_dist
         xTranOutEnd = trans_x + 4 * char_dist
@@ -620,25 +712,32 @@ class LandingTransitionSurface(Surface):
 
 
 class LandingSurface(Surface):
+    """Class that defines an equivalent fall height landing surface."""
 
     def __init__(self, skier, takeoff_point, takeoff_angle, max_landing_point,
                  fall_height, surf=None):
-        """
-        skier : Skier
-            A skier.
-        takeoff_point : 2-tuple of floats
+        """Instantiates a surface that ensures impact velocity is equivalent to
+        that from a vertical fall.
 
+        Parameters
+        ==========
+        skier : Skier
+            A skier instance.
+        takeoff_point : 2-tuple of floats
+            The point at which the skier leaves the takeoff ramp.
         takeoff_angle : float
             The takeoff angle in radians.
         max_landing_point : 2-tuple of floats
-            meters
+            The maximum x position that the landing surface will attain in
+            meters. In the standard design, this is the start of the landing
+            transition point.
         fall_height : float
             The desired equivalent fall height in meters. This should always be
             greater than zero.
         surf : Surface
-            A surface below the full flight trajectory. It is useful if the
-            distance_from method runs very fast, as it is called a lot
-            internally.
+            A surface below the full flight trajectory, the parent slope is a
+            good choice. It is useful if the distance_from() method runs very
+            fast, as it is called a lot internally.
 
         """
         if fall_height <= 0.0:
@@ -664,6 +763,8 @@ class LandingSurface(Surface):
         return np.sqrt(2 * GRAV_ACC * self.fall_height)
 
     def create_safe_surface(self):
+        """Returns the x and y coordinates of the equivalent fall height
+        landing surface."""
 
         def rhs(x, y):
             """Returns the slope of the safe surface that ensures the impact
@@ -754,14 +855,15 @@ class LandingSurface(Surface):
 
 
 class Skier(object):
+    """Class that represents a skier which can slide on surfaces and fly in the
+    air."""
 
     samples_per_sec = 360
     max_flight_time = 30.0  # seconds
-    tolerable_sliding_acc = 1.5  # G
-    tolerable_landing_acc = 3.0  # G
 
     def __init__(self, mass=75.0, area=0.34, drag_coeff=0.821,
-                 friction_coeff=0.03):
+                 friction_coeff=0.03, tolerable_sliding_acc=1.5,
+                 tolerable_landing_acc=3.0):
         """Instantiates a skier with default properties.
 
         Parameters
@@ -774,6 +876,12 @@ class Skier(object):
             The air drag coefficient of the skier.
         friction_coeff : float
             The sliding friction coefficient between the skis and the slope.
+        tolerable_sliding_acc : float
+            The maximum normal acceleration in G's that a skier can withstand
+            while sliding.
+        tolerable_landing_acc : float
+            The maximum normal acceleration in G's that a skier can withstand
+            when landing.
 
         """
 
@@ -781,16 +889,18 @@ class Skier(object):
         self.area = area
         self.drag_coeff = drag_coeff
         self.friction_coeff = friction_coeff
+        self.tolerable_sliding_acc = tolerable_sliding_acc
+        self.tolerable_landing_acc = tolerable_landing_acc
 
-    def drag_force(self, velocity):
-        """Returns the drag force in Newtons opposing the velocity of the
+    def drag_force(self, speed):
+        """Returns the drag force in Newtons opposing the speed of the
         skier."""
 
         if compute_drag is None:
-            return (-np.sign(velocity) / 2 * AIR_DENSITY * self.drag_coeff *
-                    self.area * velocity**2)
+            return (-np.sign(speed) / 2 * AIR_DENSITY * self.drag_coeff *
+                    self.area * speed**2)
         else:
-            return compute_drag(AIR_DENSITY, velocity, self.drag_coeff,
+            return compute_drag(AIR_DENSITY, speed, self.drag_coeff,
                                 self.area)
 
     def friction_force(self, speed, slope=0.0, curvature=0.0):
@@ -825,7 +935,7 @@ class Skier(object):
         ==========
         surface : Surface
             A landing surface. This surface must intersect the flight path.
-        init_pos : two tuple of floats
+        init_pos : 2-tuple of floats
             The X and Y coordinates of the starting point of the flight.
         init_vel : 2-tuple of floats
             The X and Y components of the skier's velocity at the start of the
@@ -834,14 +944,23 @@ class Skier(object):
             If True two integrations occur. The first finds the landing time
             with coarse time steps and the second integrates over a finer
             equally spaced time steps. False will skip the second integration.
+        logging_type : string
+            The logging level desired for the non-debug logging calls in this
+            function. Useful for suppressing too much information since this
+            runs a lot.
 
         Returns
         =======
         times : ndarray, shape(n,)
             The values of time corresponding to each state instance.
         states : ndarray, shape(n, 4)
-            The states: (X, Y, X', Y') for each instance of time. The last
+            The states: (x, y, vx, vy) for each instance of time. The last
             value of the state corresponds to the skier touching the surface.
+
+        Raises
+        ======
+        InvalidJumpError if the skier does not contact a surface within
+        Skier.max_flight_time.
 
         """
 
@@ -881,15 +1000,18 @@ class Skier(object):
                         rtol=1e-6, atol=1e-9)
 
         if isclose(sol.t[-1], self.max_flight_time):
-            msg = ('Flying skier did not contact ground within {} seconds, '
-                   'integration aborted.')
+            msg = ('Flying skier did not contact ground within {:1.3.f} '
+                   'seconds, integration aborted.')
             raise InvalidJumpError(msg.format(self.max_flight_time))
 
-        logging_call('Flight integration terminated at {} s'.format(sol.t[-1]))
-        logging_call('Flight contact event occurred at {} s'.format(sol.t_events[0]))
-        logging_call(sol.t[-1] - sol.t_events[0])
-        logging_call(sol.y[:, -1])
-        logging_call(touch_surface(sol.t[-1], sol.y[:, -1]))
+        msg = 'Flight integration terminated at {:1.3f} s'
+        logging_call(msg.format(sol.t[-1]))
+        msg = 'Flight contact event occurred at {:1.3f} s'
+        logging_call(msg.format(float(sol.t_events[0])))
+
+        logging.debug(sol.t[-1] - sol.t_events[0])
+        logging.debug(sol.y[:, -1])
+        logging.debug(touch_surface(sol.t[-1], sol.y[:, -1]))
 
         te = sol.t_events[0]
 
@@ -900,13 +1022,13 @@ class Skier(object):
             sol = solve_ivp(rhs, (0.0, sol.t[-1]), init_pos + init_vel,
                             t_eval=times, rtol=1e-6, atol=1e-9)
 
-        msg = 'Flight integration finished in {} seconds.'
+        msg = 'Flight integration finished in {:1.3f} seconds.'
         logging_call(msg.format(time.time() - start_time))
 
-        logging_call(sol.t[-1])
-        logging_call(sol.t[-1] - te)
-        logging_call(sol.y[:, -1])
-        logging_call(touch_surface(sol.t[-1], sol.y[:, -1]))
+        logging.debug(sol.t[-1])
+        logging.debug(sol.t[-1] - te)
+        logging.debug(sol.y[:, -1])
+        logging.debug(touch_surface(sol.t[-1], sol.y[:, -1]))
 
         return sol.t, sol.y
 
@@ -924,6 +1046,11 @@ class Skier(object):
             If True two integrations occur. The first finds the exit time with
             coarse time steps and the second integrates over a finer equally
             spaced time steps. False will skip the second integration.
+
+        Raises
+        ======
+        InvalidJumpError if skier can't reach the end of the surface within
+        1000 seconds.
 
         """
 
@@ -978,12 +1105,16 @@ class Skier(object):
         return sol.t, sol.y
 
     def end_speed_on(self, surface, **kwargs):
+        """Returns the ending speed after sliding on the provided surface.
+        Keyword args are passed to Skier.slide_on()."""
 
         _, traj = self.slide_on(surface, **kwargs)
 
         return traj[1, -1]
 
     def end_vel_on(self, surface, **kwargs):
+        """Returns the ending velocity (vx, vy) after sliding on the provided
+        surface.  Keyword args are passed to Skier.slide_on()."""
 
         _, traj = self.slide_on(surface, **kwargs)
         end_angle = np.tan(surface.slope[-1])
@@ -994,7 +1125,7 @@ class Skier(object):
     def speed_to_land_at(self, landing_point, takeoff_point, takeoff_angle,
                          surf=None):
         """Returns the magnitude of the velocity required to land at a specific
-        point.
+        point given launch position and angle.
 
         Parameters
         ==========
@@ -1004,6 +1135,9 @@ class Skier(object):
             The (x, y) coordinates of the takeoff point in meters.
         takeoff_angle : float
             The takeoff angle in radians.
+        surf : Surface
+            This should most likely be the parent slope but needs to be
+            something that ensures the skier flys past the landing point.
 
         Returns
         =======
@@ -1012,7 +1146,6 @@ class Skier(object):
 
         Notes
         =====
-
         This method corresponds to Mont's Matlab function findVoWithDrag.m.
 
         """
