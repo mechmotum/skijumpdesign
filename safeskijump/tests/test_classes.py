@@ -40,8 +40,9 @@ def test_flat_surface():
     assert isclose(fsurf.y[0], 5.0)
     assert isclose(np.mean(np.arctan(fsurf.slope)), -np.deg2rad(10))
 
-    fsurf = FlatSurface(np.deg2rad(45.0), np.sqrt(10**2 + 10**2),
-                        num_points=100000)
+    length = np.sqrt(10**2 + 10**2)
+
+    fsurf = FlatSurface(np.deg2rad(45.0), length, num_points=100000)
 
     assert isclose(10.0 * 10.0 / 2.0, fsurf.area_under(), abs_tol=1e-2)
     assert isclose(5.0 * 5.0 / 2.0, fsurf.area_under(x_end=5.0), abs_tol=1e-2)
@@ -49,6 +50,8 @@ def test_flat_surface():
     assert isclose(2.5 * 5.0 + 2.5**2 / 2, fsurf.area_under(x_start=5.0,
                                                             x_end=7.5),
                    abs_tol=1e-2)
+
+    assert isclose(length, fsurf.length())
 
 
 def test_clothoid_circle_surface(plot=False):

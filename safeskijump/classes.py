@@ -6,7 +6,7 @@ from math import isclose
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.optimize import fsolve
-from scipy.integrate import solve_ivp, trapz
+from scipy.integrate import solve_ivp, trapz, quad
 import sympy as sm
 from sympy.utilities.autowrap import autowrap
 
@@ -163,24 +163,37 @@ class Surface(object):
 
         return np.sign(yp - self.interp_y(x)) * np.sqrt(distance_squared(x))
 
-    def area_under(self, x_start=None, x_end=None):
-        """Returns the area under the curve integrating wrt to the x axis."""
-        start_idx = 0
-        end_idx = -1
+    def _limits(self, x_start=None, x_end=None):
 
         if x_start is not None:
             if x_start < self.start[0] or x_start > self.end[0]:
                 raise ValueError('x_start has to be between start and end.')
             start_idx = np.argmin(np.abs(x_start - self.x))
+        else:
+            start_idx = 0
 
         if x_end is not None:
             if x_end < self.start[0] or x_end > self.end[0]:
-                raise ValueError('x_end has to be between end and end.')
+                raise ValueError('x_end has to be between start and end.')
             end_idx = np.argmin(np.abs(x_end - self.x))
+        else:
+            end_idx = -1
 
+        # TODO : make sure end_idx < start_idx
         #if end_idx <= start_idx:
             #raise ValueError('x_end has to be greater than x_start.')
 
+        return start_idx, end_idx
+
+    def length(self):
+        """Returns the length of the surface in meters."""
+        def arc_length(x):
+            return np.sqrt(1.0 + self.interp_slope(x)**2)
+        return quad(arc_length, self.x[0], self.x[-1])[0]
+
+    def area_under(self, x_start=None, x_end=None):
+        """Returns the area under the curve integrating wrt to the x axis."""
+        start_idx, end_idx = self._limits(x_start, x_end)
         return trapz(self.y[start_idx:end_idx], self.x[start_idx:end_idx])
 
     def plot(self, ax=None, **plot_kwargs):
@@ -872,7 +885,6 @@ class Skier(object):
                    'integration aborted.')
             raise InvalidJumpError(msg.format(self.max_flight_time))
 
-
         logging_call('Flight integration terminated at {} s'.format(sol.t[-1]))
         logging_call('Flight contact event occurred at {} s'.format(sol.t_events[0]))
         logging_call(sol.t[-1] - sol.t_events[0])
@@ -943,7 +955,7 @@ class Skier(object):
         start_time = time.time()
 
         sol = solve_ivp(rhs,
-                        (0.0, np.inf),  # time span
+                        (0.0, 1000.0),  # time span
                         (surface.x[0], init_speed),  # initial conditions
                         events=(reach_end, ))
 
@@ -956,9 +968,11 @@ class Skier(object):
         msg = 'Sliding integration finished in {} seconds.'
         logging.info(msg.format(time.time() - start_time))
 
+        logging.info('Skier slid for {} seconds.'.format(sol.t[-1]))
+
         if np.any(sol.y[1] < 0.0):  # if tangential velocity is ever negative
-            msg = ('Skier does not have a high enough velocity to make it over '
-                   'the ramp. Decrease the takeoff angle.')
+            msg = ('Skier does not have a high enough velocity to make it to '
+                   'the end of the surface.')
             raise InvalidJumpError(msg)
 
         return sol.t, sol.y
@@ -971,14 +985,10 @@ class Skier(object):
 
     def end_vel_on(self, surface, **kwargs):
 
-        _, traj = self.slide_on(surface, **kwargs)
-
+        speed = self.end_speed_on(surface, **kwargs)
         end_angle = np.tan(surface.slope[-1])
 
-        speed_x = traj[1, -1] * np.cos(end_angle)
-        speed_y = traj[1, -1] * np.sin(end_angle)
-
-        return speed_x, speed_y
+        return speed2vel(speed, end_angle)
 
     def speed_to_land_at(self, landing_point, takeoff_point, takeoff_angle,
                          surf=None):
