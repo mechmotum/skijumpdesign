@@ -985,10 +985,11 @@ class Skier(object):
 
     def end_vel_on(self, surface, **kwargs):
 
-        speed = self.end_speed_on(surface, **kwargs)
+        _, traj = self.slide_on(surface, **kwargs)
         end_angle = np.tan(surface.slope[-1])
-
-        return speed2vel(speed, end_angle)
+        speed_x = traj[1, -1] * np.cos(end_angle)
+        speed_y = traj[1, -1] * np.sin(end_angle)
+        return speed_x, speed_y
 
     def speed_to_land_at(self, landing_point, takeoff_point, takeoff_angle,
                          surf=None):
