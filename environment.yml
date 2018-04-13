@@ -15,6 +15,7 @@ dependencies:
   - cython
   - fastcache
   - pytest
+  - sphinx
   - nbformat  # plotly dep, oddly not included in conda dep
   - jupyter_core  # plotly dep, oddly not included in conda dep
   - plotly
