@@ -230,6 +230,8 @@ class Surface(object):
 
         if ax is None:
             fig, ax = plt.subplots(1, 1)
+            ax.set_ylabel('Vertical Position [m]')
+            ax.set_xlabel('Horizontal Position [m]')
 
         ax.plot(self.x, self.y, **plot_kwargs)
 
@@ -1046,6 +1048,13 @@ class Skier(object):
             If True two integrations occur. The first finds the exit time with
             coarse time steps and the second integrates over a finer equally
             spaced time steps. False will skip the second integration.
+
+        Returns
+        =======
+        times : ndarray(n,)
+            The time values from the simulation.
+        states : ndarray(n, 4)
+            The [x, y, vx, vy] states.
 
         Raises
         ======
