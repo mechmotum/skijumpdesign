@@ -69,7 +69,7 @@ def speed2vel(speed, angle):
 
     """
     vel_x = speed * np.cos(angle)
-    vel_y = -speed * np.sin(angle)
+    vel_y = speed * np.sin(angle)
     return vel_x, vel_y
 
 
