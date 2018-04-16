@@ -67,15 +67,15 @@ def test_clothoid_circle_surface(plot=False):
 
 def test_takeoff_surface(plot=False):
 
+    skier = Skier()
+
     fsurf = FlatSurface(-np.deg2rad(10.0), 2.0)
-    csurf = ClothoidCircleSurface(fsurf.angle, np.deg2rad(10), 5.0, 1.5,
-                                  init_pos=fsurf.end)
-    tsurf = TakeoffSurface(csurf, 1.0, 0.2)
+    tsurf = TakeoffSurface(skier, fsurf.angle, np.deg2rad(10), 5.0,
+                           init_pos=fsurf.end)
 
     if plot:
         ax = fsurf.plot()
         ax = tsurf.plot(ax=ax)
-        ax = csurf.plot(ax=ax)
         plt.show()
 
 

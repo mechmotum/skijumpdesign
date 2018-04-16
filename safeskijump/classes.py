@@ -333,11 +333,20 @@ class ClothoidCircleSurface(Surface):
             The number of points in each of the three sections of the curve.
 
         """
-        # TODO : Break this function into smaller functions.
-
-        self.gamma = gamma
         self.entry_angle = entry_angle
         self.exit_angle = exit_angle
+        self.entry_speed = entry_speed
+        self.tolerable_acc = tolerable_acc
+        self.init_pos = init_pos
+        self.gamma = gamma
+        self.num_points = num_points
+
+        X, Y = self._create_surface()
+
+        super(ClothoidCircleSurface, self).__init__(X, Y)
+
+    def _create_surface(self):
+        # TODO : Break this function into smaller functions.
 
         lam = -self.entry_angle
         beta = self.exit_angle
@@ -351,13 +360,13 @@ class ClothoidCircleSurface(Surface):
         # as this will ensure the g - force felt by the skier is always less
         # than a desired value. This code ASSUMES that the velocity at the
         # minimum radius is equal to the velocity at the end of the approach.
-        radius_min = entry_speed**2 / (tolerable_acc * GRAV_ACC)
+        radius_min = self.entry_speed**2 / (self.tolerable_acc * GRAV_ACC)
 
         #  x,y data for circle
         thetaCir = 0.5 * self.gamma * (lam + beta)
         xCirBound = radius_min * np.sin(thetaCir)
         xCirSt = -radius_min * np.sin(thetaCir)
-        xCir = np.linspace(xCirSt, xCirBound, num=num_points)
+        xCir = np.linspace(xCirSt, xCirBound, num=self.num_points)
 
         # x,y data for one clothoid
         A_squared = radius_min**2 * (1 - self.gamma) * (lam + beta)
@@ -365,7 +374,7 @@ class ClothoidCircleSurface(Surface):
         clothoid_length = A * np.sqrt((1 - self.gamma) * (lam + beta))
 
         # generates arc length points for one clothoid
-        s = np.linspace(clothoid_length, 0, num=num_points)
+        s = np.linspace(clothoid_length, 0, num=self.num_points)
 
         X1 = s - (s**5) / (40*A**4) + (s**9) / (3456*A**8)
         Y1 = (s**3) / (6*A**2) - (s**7) / (336*A**6) + (s**11) / (42240*A**10)
@@ -419,49 +428,79 @@ class ClothoidCircleSurface(Surface):
         # Shift the entry point of the curve to be at the end of the flat
         # surface.
 
-        X += init_pos[0]
-        Y += init_pos[1]
+        X += self.init_pos[0]
+        Y += self.init_pos[1]
 
-        super(ClothoidCircleSurface, self).__init__(X, Y)
+        return X, Y
 
 
 class TakeoffSurface(Surface):
-    """Class representing a takeoff surface made up of a
-    clothoid-circle-clothoid-flat."""
+    """Class that represents a surface made up of a circle bounded by two
+    clothoids."""
 
-    def __init__(self, clth_surface, ramp_entry_speed, time_on_ramp):
-        """Returns the x and y coordinates of the takeoff curve with the flat
-        takeoff ramp added to the terminus of the clothoid curve.
+    def __init__(self, skier, entry_angle, exit_angle, entry_speed,
+                 time_on_ramp=0.2, gamma=0.99, init_pos=(0.0, 0.0),
+                 num_points=200):
+        """Instantiates the takeoff curve with the flat takeoff ramp added to
+        the terminus of the clothoid-circle-clothoid curve.
 
         Parameters
         ==========
-        clth_surface : ClothoidCircleSurface
-            The approach-takeoff transition curve.
-        ramp_entry_speed : float
-            The magnitude of the skier's speed at the exit of the second
-            clothoid (entry to the flat ramp) in meters per second.
+        skier : Skier
+            A skier instance.
+        entry_angle : float
+            The entry angle tangent to the start of the left clothoid in
+            radians.
+        exit_angle : float
+            The exit angle tangent to the end of the right clothoid in radians.
+        entry_speed : float
+            The magnitude of the skier's velocity in meters per second as they
+            enter the left clothiod.
         time_on_ramp : float
             The time in seconds that the skier should be on the takeoff ramp
             before launch.
+        gamma : float
+            Fraction of circular section.
+        init_pos : 2-tuple of floats
+            The x and y coordinates of the start of the left clothoid.
+        num_points : integer, optional
+            The number of points in each of the three sections of the curve.
 
         """
+        self.skier = skier
+        self.entry_angle = entry_angle
+        self.exit_angle = exit_angle
+        self.entry_speed = entry_speed
+        self.time_on_ramp = time_on_ramp
+        self.gamma = gamma
+        self.init_pos = init_pos
+        self.num_points = num_points
+
+        clt_cir_clt = ClothoidCircleSurface(entry_angle, exit_angle,
+                                            entry_speed,
+                                            skier.tolerable_sliding_acc,
+                                            init_pos=init_pos, gamma=gamma,
+                                            num_points=num_points)
+
+        ramp_entry_speed = skier.end_speed_on(clt_cir_clt,
+                                              init_speed=self.entry_speed)
 
         ramp_len = time_on_ramp * ramp_entry_speed  # meters
 
-        start_x = clth_surface.x[-1]
-        start_y = clth_surface.y[-1]
+        start_x = clt_cir_clt.x[-1]
+        start_y = clt_cir_clt.y[-1]
 
-        points_per_meter = len(clth_surface.x) / (start_x - clth_surface.x[0])
+        points_per_meter = len(clt_cir_clt.x) / (start_x - clt_cir_clt.x[0])
 
-        stop_x = start_x + ramp_len * np.cos(clth_surface.exit_angle)
+        stop_x = start_x + ramp_len * np.cos(clt_cir_clt.exit_angle)
         ramp_x = np.linspace(start_x, stop_x,
                              num=int(points_per_meter * stop_x - start_x))
 
-        stop_y = start_y + ramp_len * np.sin(clth_surface.exit_angle)
+        stop_y = start_y + ramp_len * np.sin(clt_cir_clt.exit_angle)
         ramp_y = np.linspace(start_y, stop_y, num=len(ramp_x))
 
-        ext_takeoff_curve_x = np.hstack((clth_surface.x[:-1], ramp_x))
-        ext_takeoff_curve_y = np.hstack((clth_surface.y[:-1], ramp_y))
+        ext_takeoff_curve_x = np.hstack((clt_cir_clt.x[:-1], ramp_x))
+        ext_takeoff_curve_y = np.hstack((clt_cir_clt.y[:-1], ramp_y))
 
         super(TakeoffSurface, self).__init__(ext_takeoff_curve_x,
                                              ext_takeoff_curve_y)
@@ -1002,7 +1041,7 @@ class Skier(object):
                         rtol=1e-6, atol=1e-9)
 
         if isclose(sol.t[-1], self.max_flight_time):
-            msg = ('Flying skier did not contact ground within {:1.3.f} '
+            msg = ('Flying skier did not contact ground within {:1.3f} '
                    'seconds, integration aborted.')
             raise InvalidJumpError(msg.format(self.max_flight_time))
 

@@ -59,17 +59,8 @@ degrees.
 
    takeoff_ang = np.deg2rad(15)
 
-   takeoff_entry = ClothoidCircleSurface(approach_ang,
-       takeoff_ang, takeoff_entry_speed,
-       skier.tolerable_sliding_acc, init_pos=approach.end)
-
-   ramp_entry_speed = skier.end_speed_on(takeoff_entry,
-       init_speed=takeoff_entry_speed)
-
-   time_on_ramp = 0.2
-
-   takeoff = TakeoffSurface(takeoff_entry, ramp_entry_speed,
-                            time_on_ramp)
+   takeoff = TakeoffSurface(skier, approach_ang, takeoff_ang,
+                            takeoff_entry_speed, init_pos=approach.end)
 
    ax = approach.plot()
    takeoff.plot(ax=ax)

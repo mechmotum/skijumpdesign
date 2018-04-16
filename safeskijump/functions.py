@@ -88,9 +88,6 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     logging.info('Calling make_jump({}, {}, {}, {}, {})'.format(
         slope_angle, start_pos, approach_len, takeoff_angle, fall_height))
 
-    # TODO : Move these to skier?
-    time_on_ramp = 0.2  # seconds
-
     skier = Skier()
 
     if takeoff_angle >= 90.0 or takeoff_angle <= slope_angle:
@@ -107,28 +104,13 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
 
     approach = FlatSurface(slope_angle, approach_len, init_pos=init_pos)
 
-    # The takeoff entry surface is the first portion of the ramp that the skier
-    # encounters that does not include the flat final portion of the takeoff
-    # surface.
-    # TODO : It is possible with too little mass, too much friction, and/or to
-    # little slope that the skier stops before reaching the takeoff. Need to
-    # raise and error if so.
-    takeoff_entry_speed = skier.end_speed_on(approach)
-
-    takeoff_entry = ClothoidCircleSurface(slope_angle,
-                                          takeoff_angle,
-                                          takeoff_entry_speed,
-                                          skier.tolerable_sliding_acc,
-                                          init_pos=approach.end)
-
     # The takeoff surface is the combined circle-clothoid-circle-flat.
     # TODO : If there is not enough speed, then this method will run forever
     # because the skier can't make the jump. Need to raise an error if this is
     # the case.
-    ramp_entry_speed = skier.end_speed_on(takeoff_entry,
-                                          init_speed=takeoff_entry_speed)
-
-    takeoff = TakeoffSurface(takeoff_entry, ramp_entry_speed, time_on_ramp)
+    takeoff_entry_speed = skier.end_speed_on(approach)
+    takeoff = TakeoffSurface(skier, slope_angle, takeoff_angle,
+                             takeoff_entry_speed, init_pos=approach.end)
 
     # The skier becomes airborne after the takeoff surface and the trajectory
     # is computed until the skier contacts the parent slope.
