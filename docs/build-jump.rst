@@ -2,8 +2,8 @@
 Example EFH Jump Design
 =======================
 
-Here we describe how to construct a typical equivalent fall height ski jump
-using the ``safeskijump`` API.
+The following page describes how to construct a typical equivalent fall height
+ski jump using the ``safeskijump`` API.
 
 Start by creating a 20 meter length of an approach surface (also called the
 in-run) which is flat and has a downward slope angle of 20 degrees. The
@@ -16,8 +16,8 @@ resulting surface can be visualized with the ``FlatSurface.plot()`` method.
 
    from safeskijump.classes import FlatSurface
 
-   approach_ang = -np.deg2rad(20)
-   approach_len = 20.0
+   approach_ang = -np.deg2rad(20)  # radians
+   approach_len = 20.0  # meters
 
    approach = FlatSurface(approach_ang, approach_len)
 
