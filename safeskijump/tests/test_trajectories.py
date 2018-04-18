@@ -1,7 +1,7 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 from ..classes import Surface, Skier
-from ..trajectories import Trajectory
 
 
 def test_trajectory():
@@ -12,8 +12,7 @@ def test_trajectory():
 
     surf = Surface(np.linspace(0.0, 10.0, num=10), np.zeros(10))
 
-    times, flight_traj = skier.fly_to(surf, takeoff_pos, takeoff_vel)
+    traj = skier.fly_to(surf, takeoff_pos, takeoff_vel)
 
-    traj = Trajectory(times, flight_traj[:2].T, vel=flight_traj[2:].T)
-
-    traj.plot_path()
+    traj.plot_time_series()
+    plt.show()

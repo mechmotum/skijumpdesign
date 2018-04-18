@@ -10,6 +10,8 @@ from scipy.integrate import solve_ivp, trapz, quad
 import sympy as sm
 from sympy.utilities.autowrap import autowrap
 
+from .trajectories import Trajectory
+
 
 if 'ONHEROKU' in os.environ:
     plt = None
@@ -544,8 +546,6 @@ class LandingTransitionSurface(Surface):
         self.flight_traj = flight_traj
         self.tolerable_acc = tolerable_acc
 
-        self._create_flight_interpolator()
-
         trans_x, char_dist = self.find_transition_point()
 
         x, y = self._create_trans_curve(trans_x, char_dist, num_points)
@@ -612,7 +612,10 @@ class LandingTransitionSurface(Surface):
 
         # NOTE : "slope" means dy/dx here
 
-        flight_y, _, flight_speed, flight_angle = self.interp_flight(x)
+        #flight_y, _, flight_speed, flight_angle = self.interp_flight(x)
+
+        flight_y, flight_speed, flight_angle = \
+            self.flight_traj.interp_wrt_x(x)[[2, 11, 10]]
 
         # NOTE : Not sure if setting this to pi/2 if the flight speed is
         # greater than the allowable impact speed is a correct thing to do but
@@ -686,8 +689,8 @@ class LandingTransitionSurface(Surface):
 
             x += dx
 
-            if x >= self.flight_traj[0, -1]:
-                x = self.flight_traj[0, -1] - 2 * self.delta
+            if x >= self.flight_traj.pos[-1, 0]:
+                x = self.flight_traj.pos[-1, 0] - 2 * self.delta
 
             if i > self.max_iterations:
                 msg = 'Landing transition while loop ran more than {} times.'
@@ -717,16 +720,17 @@ class LandingTransitionSurface(Surface):
 
         slope_angle = self.parent_surface.angle
 
-        flight_traj_slope = self.flight_traj[3] / self.flight_traj[2]
+        flight_traj_slope = self.flight_traj.slope
 
         # TODO : Seems like these two interpolations can be combined into a
         # single interpolation call by adding the y coordinate to the following
         # line.
-        xpara_interpolator = interp1d(flight_traj_slope, self.flight_traj[0])
+        xpara_interpolator = interp1d(flight_traj_slope,
+                                      self.flight_traj.pos[:, 0])
 
         xpara = xpara_interpolator(np.tan(slope_angle))
 
-        ypara, _, _, _ = self.interp_flight(xpara)
+        ypara = self.flight_traj.interp_wrt_x(xpara)[2]
 
         return xpara, ypara
 
@@ -744,7 +748,7 @@ class LandingTransitionSurface(Surface):
 
         xTranOut = np.linspace(trans_x, xTranOutEnd, num_points)
 
-        dy = (self.interp_flight(trans_x)[0] -
+        dy = (self.flight_traj.interp_wrt_x(trans_x)[2] -
               self.parent_surface.interp_y(trans_x))
 
         yTranOut = yParent + dy * np.exp(-1*(xTranOut - trans_x) / char_dist)
@@ -992,6 +996,7 @@ class Skier(object):
 
         Returns
         =======
+        trajectory : Trajectory
         times : ndarray, shape(n,)
             The values of time corresponding to each state instance.
         states : ndarray, shape(n, 4)
@@ -1071,7 +1076,7 @@ class Skier(object):
         logging.debug(sol.y[:, -1])
         logging.debug(touch_surface(sol.t[-1], sol.y[:, -1]))
 
-        return sol.t, sol.y
+        return Trajectory(sol.t, sol.y[:2].T, vel=sol.y[2:].T)
 
     def slide_on(self, surface, init_speed=0.0, fine=True):
         """Returns the trajectory of the skier sliding over a surface.
@@ -1250,19 +1255,15 @@ class Skier(object):
             vox = vo*cto
             voy = vo*sto
 
-            times, flight_traj = self.fly_to(surf,
-                                             init_pos=takeoff_point,
-                                             init_vel=(vox, voy),
-                                             logging_type='debug')
-            x_traj = flight_traj[0]
+            flight_traj = self.fly_to(surf, init_pos=takeoff_point,
+                                      init_vel=(vox, voy),
+                                      logging_type='debug')
 
             #ax.plot(*flight_traj[:2])
 
-            interpolator = interp1d(x_traj, flight_traj[1:], fill_value='extrapolate')
+            traj_at_impact = flight_traj.interp_wrt_x(x)
 
-            traj_at_impact = interpolator(x)
-
-            ypred = traj_at_impact[0]
+            ypred = traj_at_impact[2]
             logging.debug('ypred = {}'.format(ypred))
 
             deltay = ypred - y
@@ -1282,6 +1283,6 @@ class Skier(object):
 
         takeoff_speed = vo
 
-        impact_vel = (traj_at_impact[1], traj_at_impact[2])
+        impact_vel = (traj_at_impact[3], traj_at_impact[4])
 
         return takeoff_speed, impact_vel

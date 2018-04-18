@@ -121,12 +121,11 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
 
     slope = FlatSurface(slope_angle, 100 * approach_len)
 
-    _, flight_traj = skier.fly_to(slope, init_pos=takeoff.end,
-                                  init_vel=takeoff_vel)
+    flight = skier.fly_to(slope, init_pos=takeoff.end, init_vel=takeoff_vel)
 
     # The landing transition curve transfers the max velocity skier from their
     # landing point smoothly to the parent slope.
-    landing_trans = LandingTransitionSurface(slope, flight_traj, fall_height,
+    landing_trans = LandingTransitionSurface(slope, flight, fall_height,
                                              skier.tolerable_landing_acc)
 
     slope = FlatSurface(slope_angle, np.sqrt(landing_trans.end[0]**2 +
@@ -135,14 +134,10 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     land_trans_contact = Surface(np.linspace(0.0, landing_trans.end[0]),
                                  np.ones(50) * landing_trans.start[1])
 
-    flight_time, flight_traj = skier.fly_to(land_trans_contact,
-                                            init_pos=takeoff.end,
-                                            init_vel=takeoff_vel)
+    flight = skier.fly_to(land_trans_contact, init_pos=takeoff.end,
+                          init_vel=takeoff_vel)
 
-    logging.info('Flight time: {:1.3f} [s]'.format(flight_time[-1]))
-
-    # TODO : Truncate the flight surface and flight time.
-    flight = Surface(x=flight_traj[0], y=flight_traj[1])
+    logging.info('Flight time: {:1.3f} [s]'.format(flight.duration))
 
     # The landing surface ensures an equivalent fall height for any skiers that
     # do not reach maximum velocity.

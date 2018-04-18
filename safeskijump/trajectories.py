@@ -47,14 +47,14 @@ class Trajectory(object):
 
         self.jer = jer
 
-        self._traj = np.hstack((self.t,     # 0
-                                self.pos,   # 1, 2
-                                self.vel,   # 3, 4
-                                self.acc,   # 5, 6
-                                self.jer,   # 7, 8
-                                self.slope, # 9
-                                self.angle, # 10
-                                self.speed, # 11
+        self._traj = np.hstack((np.atleast_2d(self.t).T,  # 0
+                                self.pos,  # 1, 2
+                                self.vel,  # 3, 4
+                                self.acc,  # 5, 6
+                                self.jer,  # 7, 8
+                                np.atleast_2d(self.slope).T,  # 9
+                                np.atleast_2d(self.angle).T,  # 10
+                                np.atleast_2d(self.speed).T,  # 11
                                 ))
 
         interp_kwargs = {'fill_value': 'extrapolate', 'axis': 0}
@@ -66,13 +66,37 @@ class Trajectory(object):
         self.interp_acc_wrt_t = interp1d(t, self.acc, **interp_kwargs)
         self.interp_jer_wrt_t = interp1d(t, self.jer, **interp_kwargs)
 
-        self.interp_wrt_x = interp1d(self.pos[:, 0], self.traj,
+        self.interp_wrt_x = interp1d(self.pos[:, 0], self._traj,
                                      **interp_kwargs)
 
+    @property
     def duration(self):
+        """Returns the duration of the trajectory in seconds."""
         return self.t[-1] - self.t[0]
 
-    def plot_path(self, ax=None, **plot_kwargs):
+    def plot_time_series(self):
+        labels = ['Horizontal Position [m]',
+                  'Vertical Position [m]',
+                  'Horizontal Velocity [m/s]',
+                  'Vertical Velocity [m/s]',
+                  'Horizontal Acceleration [m/s/s]',
+                  'Vertical Acceleration [m/s/s]',
+                  'Horizontal Jerk [m/s/s/s]',
+                  'Vertical Jerk [m/s/s/s]',
+                  'Slope []',
+                  'Angle [rad]',
+                  'Magnitude of Velocity [m/s]']
+
+        fig, axes = plt.subplots(6, 2, sharex=True)
+        for traj, ax, lab in zip(self._traj[:, 1:].T, axes.flatten(), labels):
+            ax.plot(self.t, traj)
+            ax.set_ylabel(lab)
+        ax.set_xlabel('Time [s]')
+        plt.tight_layout()
+
+        return axes
+
+    def plot(self, ax=None, **plot_kwargs):
         """Returns a matplotlib axes containing a plot of the surface.
 
         Parameters

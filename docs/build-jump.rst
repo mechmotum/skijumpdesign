@@ -89,18 +89,10 @@ Once the skier leaves the takeoff ramp they will be in flight. The
 
    takeoff_vel = skier.end_vel_on(takeoff, init_speed=takeoff_entry_speed)
 
-   times, flight_traj = skier.fly_to(approach, init_pos=takeoff.end,
-                                     init_vel=takeoff_vel)
+   flight = skier.fly_to(approach, init_pos=takeoff.end,
+                         init_vel=takeoff_vel)
 
-   fig, axes = plt.subplots(4, 1, sharex=True)
-   labels = ['x Positions [m]',
-             'y Positions [m]',
-             'x Speeds [m/s]',
-             'y Speeds [m/s]']
-   for traj, ax, lab in zip(flight_traj, axes, labels):
-      ax.plot(times, traj)
-      ax.set_ylabel(lab)
-   ax.set_xlabel('Time [s]')
+   flight.plot_time_series()
 
 The flight trajectory can be plotted alongside the surfaces.
 
@@ -109,13 +101,9 @@ The flight trajectory can be plotted alongside the surfaces.
    :context: close-figs
    :width: 600px
 
-   from safeskijump.classes import Surface
-
-   flight = Surface(x=flight_traj[0], y=flight_traj[1])
    ax = approach.plot()
    ax = takeoff.plot(ax=ax)
    flight.plot(ax=ax)
-   plt.tight_layout()
 
 The next step is to determine a landing transition curve.
 
@@ -129,7 +117,7 @@ The next step is to determine a landing transition curve.
    fall_height = 0.5
 
    landing_trans = LandingTransitionSurface(approach,
-       flight_traj, fall_height, skier.tolerable_landing_acc)
+       flight, fall_height, skier.tolerable_landing_acc)
 
    ax = approach.plot()
    ax = takeoff.plot(ax=ax)
