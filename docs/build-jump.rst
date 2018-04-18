@@ -36,12 +36,12 @@ skiing simulation trajectory.
 
    skier = Skier()
 
-   times, approach_traj = skier.slide_on(approach)
+   approach_traj = skier.slide_on(approach)
 
    fig, ax = plt.subplots()
-   ax.plot(approach_traj[0], approach_traj[1])
+   ax.plot(approach_traj.pos[:, 0], approach_traj.speed)
    ax.set_xlabel('Horizontal Position [m]')
-   ax.set_ylabel('Horizontal Speed [m/s]')
+   ax.set_ylabel('Speed [m/s]')
 
 The takeoff ramp is constructed with a clothoid-circle-clothoid-flat surface to
 transition from the approach to the desired takeoff angle, in this case 15
@@ -72,12 +72,9 @@ The trajectory of the skier on the takeoff can be examined also.
    :context: close-figs
    :width: 600px
 
-   times, takeoff_traj = skier.slide_on(takeoff, takeoff_entry_speed)
+   takeoff_traj = skier.slide_on(takeoff, takeoff_entry_speed)
 
-   fig, ax = plt.subplots()
-   ax.plot(takeoff_traj[0], takeoff_traj[1])
-   ax.set_xlabel('Horizontal Position [m]')
-   ax.set_ylabel('Horizontal Speed [m/s]')
+   takeoff_traj.plot_time_series()
 
 Once the skier leaves the takeoff ramp they will be in flight. The
 ``Skier.fly_to()`` method can be used to simulate the flight trajectory.
