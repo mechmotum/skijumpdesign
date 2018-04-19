@@ -80,24 +80,33 @@ class Trajectory(object):
         return self.t[-1] - self.t[0]
 
     def plot_time_series(self):
+        fig, axes = plt.subplots(2, 2)
+
+        idxs = [1, 2, 9, 10]
         labels = ['Horizontal Position [m]',
                   'Vertical Position [m]',
-                  'Horizontal Velocity [m/s]',
-                  'Vertical Velocity [m/s]',
-                  'Horizontal Acceleration [m/s/s]',
-                  'Vertical Acceleration [m/s/s]',
-                  'Horizontal Jerk [m/s/s/s]',
-                  'Vertical Jerk [m/s/s/s]',
-                  'Slope []',
-                  'Angle [rad]',
-                  'Magnitude of Velocity [m/s]']
-
-        fig, axes = plt.subplots(6, 2, sharex=True)
-        for traj, ax, lab in zip(self._traj[:, 1:].T, axes.flatten(), labels):
+                  'Slope [m/m]',
+                  'Angle [rad]']
+        for traj, ax, lab in zip(self._traj[:, idxs].T, axes.flatten(), labels):
             ax.plot(self.t, traj)
             ax.set_ylabel(lab)
         ax.set_xlabel('Time [s]')
         plt.tight_layout()
+
+        def make_plot(data, word, unit):
+            fig, axes = plt.subplots(2, 1, sharex=True)
+            axes[0].set_title(f'{word} Plots')
+            axes[0].plot(self.t, data)
+            axes[0].set_ylabel(f'{word} [{unit}]')
+            axes[0].legend([fr'${word[0].lower()}_x$',
+                            fr'${word[0].lower()}_y$'])
+            axes[1].plot(self.t, np.sqrt(np.sum(data**2, axis=1)))
+            axes[1].set_ylabel(f'Magnitude of {word} [{unit}]')
+            axes[1].set_xlabel('Time [s]')
+
+        make_plot(self.vel, 'Velocity', 'm/s')
+        make_plot(self.acc, 'Acceleration', 'm/s/s')
+        make_plot(self.jer, 'Jerk', 'm/s/s/s')
 
         return axes
 
