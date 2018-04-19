@@ -13,9 +13,9 @@ if 'ONHEROKU' in os.environ:
 else:
     import matplotlib.pyplot as plt
 
-from .classes import (Surface, FlatSurface, ClothoidCircleSurface,
-                      TakeoffSurface, LandingTransitionSurface, LandingSurface,
-                      Skier, InvalidJumpError, vel2speed)
+from .classes import (Surface, FlatSurface, TakeoffSurface,
+                      LandingTransitionSurface, LandingSurface, Skier)
+from .utils import InvalidJumpError, vel2speed
 
 
 def snow_budget(parent_slope, takeoff, landing, landing_trans):
