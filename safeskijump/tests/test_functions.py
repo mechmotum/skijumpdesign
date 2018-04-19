@@ -1,7 +1,7 @@
 import pytest
 
 from ..functions import make_jump
-from ..classes import InvalidJumpError
+from ..utils import InvalidJumpError
 
 
 @pytest.mark.xfail(strict=True)

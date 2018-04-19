@@ -13,8 +13,9 @@ if 'ONHEROKU' in os.environ:
 else:
     import matplotlib.pyplot as plt
 
+from .skiers import Skier
 from .classes import (Surface, FlatSurface, TakeoffSurface,
-                      LandingTransitionSurface, LandingSurface, Skier)
+                      LandingTransitionSurface, LandingSurface)
 from .utils import InvalidJumpError, vel2speed
 
 

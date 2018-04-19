@@ -3,7 +3,8 @@ from math import isclose
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ..classes import Surface, Skier
+from ..skiers import Skier
+from ..classes import Surface
 from ..trajectories import Trajectory
 
 
