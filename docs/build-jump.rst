@@ -14,7 +14,7 @@ resulting surface can be visualized with the ``FlatSurface.plot()`` method.
    :context:
    :width: 600px
 
-   from safeskijump.surfaces import FlatSurface
+   from safeskijump import FlatSurface
 
    approach_ang = -np.deg2rad(20)  # radians
    approach_len = 20.0  # meters
@@ -32,7 +32,7 @@ skiing simulation trajectory.
    :context: close-figs
    :width: 600px
 
-   from safeskijump.skiers import Skier
+   from safeskijump import Skier
 
    skier = Skier()
 
@@ -52,8 +52,7 @@ degrees.
    :context: close-figs
    :width: 600px
 
-   from safeskijump.surfaces import (ClothoidCircleSurface,
-                                    TakeoffSurface)
+   from safeskijump import TakeoffSurface
 
    takeoff_entry_speed = skier.end_speed_on(approach)
 
@@ -112,7 +111,7 @@ The next step is to determine a landing transition curve.
    :context: close-figs
    :width: 600px
 
-   from safeskijump.surfaces import LandingTransitionSurface
+   from safeskijump import LandingTransitionSurface
 
    fall_height = 0.5
 
@@ -132,7 +131,7 @@ accommodate all takeoff speeds below the maximum takeoff speed above.
    :context: close-figs
    :width: 600px
 
-   from safeskijump.surfaces import LandingSurface
+   from safeskijump import LandingSurface
 
    slope = FlatSurface(approach_ang, np.sqrt(landing_trans.end[0]**2 +
                                              landing_trans.end[1]**2) + 1.0)
@@ -155,6 +154,6 @@ There is a convenience function for plotting the jump:
    :context: close-figs
    :width: 600px
 
-   from safeskijump.functions import plot_jump
+   from safeskijump import plot_jump
 
    plot_jump(slope, approach, takeoff, landing, landing_trans, flight)
