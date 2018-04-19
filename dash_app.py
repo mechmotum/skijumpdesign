@@ -275,7 +275,7 @@ def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
                       'line': {'color': 'grey', 'width': 4}},
                      {'x': trans.x, 'y': trans.y, 'name': 'Landing Transition',
                       'line': {'color': 'grey', 'width': 4}},
-                     {'x': flight.x, 'y': flight.y, 'name': 'Flight',
+                     {'x': flight.pos[:, 0], 'y': flight.pos[: , 1], 'name': 'Flight',
                       'line': {'color': 'black', 'dash': 'dot'}},
                     ],
             'layout': layout}
