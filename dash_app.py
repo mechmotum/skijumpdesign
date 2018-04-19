@@ -10,7 +10,7 @@ import dash_html_components as html
 import plotly.graph_objs as go
 
 from safeskijump.functions import make_jump
-from safeskijump.classes import InvalidJumpError
+from safeskijump.utils import InvalidJumpError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

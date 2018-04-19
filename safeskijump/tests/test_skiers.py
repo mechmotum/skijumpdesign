@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from ..skiers import Skier
+from ..surfaces import Surface
 from ..utils import vel2speed
-from ..classes import Surface
 
 
 def test_skier(plot=False):

@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from ..skiers import Skier
-from ..classes import Surface
+from ..surfaces import Surface
 from ..trajectories import Trajectory
 
 
