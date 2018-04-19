@@ -1,8 +1,8 @@
 Introduction
 ============
 
-An equivalent fall height ski jump design tool based on the work presented in
-[1]_. Includes a library for 2D skiing simulations and a graphical web
+A ski jump design tool for equivalent fall height based on the work presented
+in [1]_. Includes a library for 2D skiing simulations and a graphical web
 application for designing ski jumps. It is written in Python backed by NumPy,
 SciPy, SymPy, Cython, matplotlib, Plotly, and Dash.
 

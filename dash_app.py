@@ -104,7 +104,7 @@ graph_widget = html.Div([dcc.Graph(id='my-graph',
                                    figure=go.Figure(layout=layout))],
                         className='col-md-12')
 
-row1 = html.Div([html.H1('Equivalent Fall Height Ski Jump Design Tool',
+row1 = html.Div([html.H1('Ski Jump Design Tool For Equivalent Fall Height',
                          style={'text-align': 'center',
                                 'padding-top': '20px',
                                 'color': 'white'})],
