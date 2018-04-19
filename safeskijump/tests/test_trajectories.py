@@ -18,7 +18,6 @@ def test_trajectory():
     traj = skier.fly_to(surf, takeoff_pos, takeoff_vel)
 
     traj.plot_time_series()
-    plt.show()
 
 
 def test_interp():
@@ -43,6 +42,15 @@ def test_interp():
                        [-np.sin(5.7), np.cos(5.7)], rtol=1e-4)
     assert np.allclose(traj.interp_acc_wrt_t(5.7),
                        [-np.cos(5.7), -np.sin(5.7)], rtol=1e-4)
+
+    np.testing.assert_allclose(vy / vx, traj.slope)
+    np.testing.assert_allclose(np.arctan(vy / vx), traj.angle)
+
+    # if vel isn't supplied then numerical differentiation is used which gives
+    # less accuracy
+    traj = Trajectory(t, np.vstack((x, y)).T)
+    np.testing.assert_allclose(vy / vx, traj.slope, rtol=1e-5)
+    np.testing.assert_allclose(np.arctan(vy / vx), traj.angle, rtol=1e-5)
 
 
 def test_interp_wrt_x():
