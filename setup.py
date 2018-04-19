@@ -2,14 +2,14 @@
 
 from setuptools import setup, find_packages
 
-exec(open('safeskijump/version.py').read())
+exec(open('skijumpdesign/version.py').read())
 
 setup(
-    name='safeskjump',
+    name='skijumpdesign',
     version=__version__,
     author='Jason K. Moore',
     author_email='moorepants@gmail.com',
-    url="https://gitlab.com/moorepants/safeskijump/",
+    url="https://gitlab.com/moorepants/skijumpdesign/",
     description='Ski Jump Design Tool For Equivalent Fall Height',
     long_description=open('README.rst').read(),
     keywords="engineering sports physics",

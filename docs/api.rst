@@ -2,41 +2,41 @@
 API
 ===
 
-safeskijump/functions.py
-========================
+skijumpdesign/functions.py
+==========================
 
-.. automodule:: safeskijump.functions
+.. automodule:: skijumpdesign.functions
    :members:
    :undoc-members:
 
-safeskijump/skiers.py
-=====================
-
-.. automodule:: safeskijump.skiers
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-safeskijump/surfaces.py
+skijumpdesign/skiers.py
 =======================
 
-.. automodule:: safeskijump.surfaces
+.. automodule:: skijumpdesign.skiers
    :members:
    :undoc-members:
    :show-inheritance:
 
-safeskijump/trajectories.py
-===========================
+skijumpdesign/surfaces.py
+=========================
 
-.. automodule:: safeskijump.trajectories
+.. automodule:: skijumpdesign.surfaces
    :members:
    :undoc-members:
    :show-inheritance:
 
-safeskijump/utils.py
-====================
+skijumpdesign/trajectories.py
+=============================
 
-.. automodule:: safeskijump.utils
+.. automodule:: skijumpdesign.trajectories
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+skijumpdesign/utils.py
+======================
+
+.. automodule:: skijumpdesign.utils
     :members:
     :undoc-members:
     :show-inheritance:

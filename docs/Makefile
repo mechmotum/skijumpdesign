@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
-SPHINXPROJ    = safeskijump
+SPHINXPROJ    = skijumpdesign
 SOURCEDIR     = .
 BUILDDIR      = _build
 

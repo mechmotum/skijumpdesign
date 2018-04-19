@@ -3,7 +3,7 @@ Example EFH Jump Design
 =======================
 
 The following page describes how to construct a typical equivalent fall height
-ski jump using the ``safeskijump`` API.
+ski jump using the ``skijumpdesign`` API.
 
 Start by creating a 20 meter length of an approach surface (also called the
 in-run) which is flat and has a downward slope angle of 20 degrees. The
@@ -14,7 +14,7 @@ resulting surface can be visualized with the ``FlatSurface.plot()`` method.
    :context:
    :width: 600px
 
-   from safeskijump import FlatSurface
+   from skijumpdesign import FlatSurface
 
    approach_ang = -np.deg2rad(20)  # radians
    approach_len = 20.0  # meters
@@ -32,7 +32,7 @@ skiing simulation trajectory.
    :context: close-figs
    :width: 600px
 
-   from safeskijump import Skier
+   from skijumpdesign import Skier
 
    skier = Skier()
 
@@ -52,7 +52,7 @@ degrees.
    :context: close-figs
    :width: 600px
 
-   from safeskijump import TakeoffSurface
+   from skijumpdesign import TakeoffSurface
 
    takeoff_entry_speed = skier.end_speed_on(approach)
 
@@ -111,7 +111,7 @@ The next step is to determine a landing transition curve.
    :context: close-figs
    :width: 600px
 
-   from safeskijump import LandingTransitionSurface
+   from skijumpdesign import LandingTransitionSurface
 
    fall_height = 0.5
 
@@ -131,7 +131,7 @@ accommodate all takeoff speeds below the maximum takeoff speed above.
    :context: close-figs
    :width: 600px
 
-   from safeskijump import LandingSurface
+   from skijumpdesign import LandingSurface
 
    slope = FlatSurface(approach_ang, np.sqrt(landing_trans.end[0]**2 +
                                              landing_trans.end[1]**2) + 1.0)
@@ -154,6 +154,6 @@ There is a convenience function for plotting the jump:
    :context: close-figs
    :width: 600px
 
-   from safeskijump import plot_jump
+   from skijumpdesign import plot_jump
 
    plot_jump(slope, approach, takeoff, landing, landing_trans, flight)

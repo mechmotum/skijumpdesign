@@ -1,4 +1,4 @@
-name: safeskijump
+name: skijumpdesign
 channels:
   - conda-forge
   - defaults

@@ -33,7 +33,7 @@ Running the Web Application
 In Spyder
 ---------
 
-Open Anaconda Navigator, switch to the ``safeskijump`` environment, and then
+Open Anaconda Navigator, switch to the ``skijumpdesign`` environment, and then
 launch Spyder.
 
 Set the working directory to the ``safe-ski-jump`` directory.
@@ -60,11 +60,11 @@ Navigate to the ``safe-ski-jump`` directory::
 
 Activate the custom Conda environment with::
 
-   $ source activate safeskijump
+   $ source activate skijumpdesign
 
 Now run the application with::
 
-   (safeskijump)$ python dash_app.py
+   (skijumpdesign)$ python dash_app.py
 
 You should see something like::
 
@@ -79,16 +79,16 @@ Using the Library
 In Spyder
 ---------
 
-Open Anaconda Navigator, switch to the ``safeskijump`` environment, and then
+Open Anaconda Navigator, switch to the ``skijumpdesign`` environment, and then
 launch Spyder.
 
 In Spyder, set the working directory to the ``safe-ski-jump`` directory.
 
 In the IPython console execute::
 
-   In [1]: from safeskijump.functions import *
+   In [1]: from skijumpdesign.functions import *
 
-This will import all of the functions defined in ``safeskijump/functions.py``.
+This will import all of the functions defined in ``skijumpdesign/functions.py``.
 For example you can now use the ``make_jump()`` function::
 
    In [2]: surfaces = make_jump(-30.0, 0.0, 60.0, 10.0, 1.0)

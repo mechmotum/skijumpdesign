@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'safeskijump'
+project = 'skijumpdesign'
 copyright = '2018, Jason K. Moore, Mont Hubbard'
 author = 'Jason K. Moore, Mont Hubbard'
 
@@ -111,7 +111,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'safeskijumpdoc'
+htmlhelp_basename = 'skijumpdesigndoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -138,7 +138,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'safeskijump.tex', 'safeskijump Documentation',
+    (master_doc, 'skijumpdesign.tex', 'skijumpdesign Documentation',
      'Jason K. Moore, Mont Hubbard', 'manual'),
 ]
 
@@ -148,7 +148,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'safeskijump', 'safeskijump Documentation',
+    (master_doc, 'skijumpdesign', 'skijumpdesign Documentation',
      [author], 1)
 ]
 
@@ -159,8 +159,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'safeskijump', 'safeskijump Documentation',
-     author, 'safeskijump', 'One line description of project.',
+    (master_doc, 'skijumpdesign', 'skijumpdesign Documentation',
+     author, 'skijumpdesign', 'One line description of project.',
      'Miscellaneous'),
 ]
 

@@ -9,8 +9,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 
-from safeskijump.functions import make_jump
-from safeskijump.utils import InvalidJumpError
+from skijumpdesign.functions import make_jump
+from skijumpdesign.utils import InvalidJumpError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
