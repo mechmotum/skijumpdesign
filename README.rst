@@ -14,11 +14,11 @@ SciPy, SymPy, Cython, matplotlib, Plotly, and Dash.
 Installation
 ============
 
-Download the source code to a local directory, e.g. ``/path/to/safe-ski-jump``.
+Download the source code to a local directory, e.g. ``/path/to/skijumpdesign``.
 
-Open a terminal. Navigate to the ``safe-ski-jump`` directory::
+Open a terminal. Navigate to the ``skijumpdesign`` directory::
 
-   $ cd /path/to/safe-ski-jump
+   $ cd /path/to/skijumpdesign
 
 The application must be run in a custom Conda environment to ensure it has all
 of the correct software dependencies. To create the environment type::
@@ -36,7 +36,7 @@ In Spyder
 Open Anaconda Navigator, switch to the ``skijumpdesign`` environment, and then
 launch Spyder.
 
-Set the working directory to the ``safe-ski-jump`` directory.
+Set the working directory to the ``skijumpdesign`` directory.
 
 In the IPython console execute::
 
@@ -54,9 +54,9 @@ and execute ``<CTRL>+C`` to shutdown the web server.
 In a terminal
 -------------
 
-Navigate to the ``safe-ski-jump`` directory::
+Navigate to the ``skijumpdesign`` directory::
 
-   $ cd /path/to/safe-ski-jump
+   $ cd /path/to/skijumpdesign
 
 Activate the custom Conda environment with::
 
@@ -82,7 +82,7 @@ In Spyder
 Open Anaconda Navigator, switch to the ``skijumpdesign`` environment, and then
 launch Spyder.
 
-In Spyder, set the working directory to the ``safe-ski-jump`` directory.
+In Spyder, set the working directory to the ``skijumpdesign`` directory.
 
 In the IPython console execute::
 
