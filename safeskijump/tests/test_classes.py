@@ -107,14 +107,14 @@ def test_skier(plot=False):
 
     surf = Surface(np.linspace(0.0, 10.0, num=10), np.zeros(10))
 
-    times, flight_traj = skier.fly_to(surf, takeoff_pos, takeoff_vel)
+    flight_traj = skier.fly_to(surf, takeoff_pos, takeoff_vel)
 
     if plot:
         ax = surf.plot()
-        ax.plot(flight_traj[0], flight_traj[1])
+        flight_traj.plot(ax=ax)
 
-    landing_pos = flight_traj[0, -1], flight_traj[1, -1]
-    landing_vel = flight_traj[2, -1], flight_traj[3, -1]
+    landing_pos = tuple(flight_traj.pos[-1])
+    landing_vel = tuple(flight_traj.vel[-1])
 
     takeoff_speed, takeoff_angle = vel2speed(*takeoff_vel)
 
