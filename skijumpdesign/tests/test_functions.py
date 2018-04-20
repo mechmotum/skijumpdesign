@@ -14,7 +14,7 @@ def test_make_jump_expected_to_fail():
     # Invalid value in sqrt, these hang after the sqrt warning, no errors.
     #make_jump(-10.0, 0.0, 30.0, 23.0, 0.2)
     #make_jump(-10.0, 0.0, 30.0, 20.0, 0.1)
-
+    #make_jump(-11.2, 0.0, 40.0, 10.2, 0.54)
 
 def test_invalid_fall_height():
 
