@@ -93,6 +93,7 @@ takeoff_angle_widget = html.Div([
 layout = go.Layout(autosize=False,
                    width=1000,
                    height=600,
+                   hovermode='closest',
                    paper_bgcolor='rgba(96, 164, 255, 0.0)',
                    plot_bgcolor='rgba(255, 255, 255, 0.5)',
                    xaxis={'title': 'Distance [m]', 'zeroline': False},
