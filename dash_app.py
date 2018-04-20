@@ -12,6 +12,18 @@ import plotly.graph_objs as go
 from skijumpdesign.functions import make_jump
 from skijumpdesign.utils import InvalidJumpError
 
+"""
+Color Palette
+https://mycolor.space/?hex=%2360A4FF&sub=1
+
+#60a4ff rgb(96,164,255) : light blue
+#404756 rgb(64,71,86) : dark blue grey
+#a4abbd rgb(164,171,189) : light grey
+#c89b43 : light yellow brown
+#8e690a : brown
+
+"""
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -26,7 +38,9 @@ if 'ONHEROKU' in os.environ:
     auth = dash_auth.BasicAuth(app, [['skiteam', 'howhigh']])
 
 approach_len_widget = html.Div([
-    html.H3('Maximum Approach Length: 40 [m]', id='approach-len-text'),
+    html.H3('Maximum Approach Length: 40 [m]',
+            id='approach-len-text',
+            style={'color': '#404756'}),
     dcc.Slider(
         id='approach_len',
         min=0,
@@ -42,7 +56,9 @@ approach_len_widget = html.Div([
     ])
 
 fall_height_widget = html.Div([
-    html.H3('Fall Height: 0.5 [m]', id='fall-height-text'),
+    html.H3('Fall Height: 0.5 [m]',
+            id='fall-height-text',
+            style={'color': '#404756'}),
     dcc.Slider(
         id='fall_height',
         min=0.1,
@@ -58,7 +74,9 @@ fall_height_widget = html.Div([
     ])
 
 slope_angle_widget = html.Div([
-    html.H3('Parent Slope Angle: 15 degrees', id='slope-text'),
+    html.H3('Parent Slope Angle: 15 degrees',
+            id='slope-text',
+            style={'color': '#404756'}),
     dcc.Slider(
         id='slope_angle',
         min=5,
@@ -75,7 +93,9 @@ slope_angle_widget = html.Div([
     ])
 
 takeoff_angle_widget = html.Div([
-    html.H3('Takeoff Angle: 25 degrees', id='takeoff-text'),
+    html.H3('Takeoff Angle: 25 degrees',
+            id='takeoff-text',
+            style={'color': '#404756'}),
     dcc.Slider(
         id='takeoff_angle',
         min=0,
@@ -94,8 +114,8 @@ layout = go.Layout(autosize=False,
                    width=1000,
                    height=600,
                    hovermode='closest',
-                   paper_bgcolor='rgba(96, 164, 255, 0.0)',
-                   plot_bgcolor='rgba(255, 255, 255, 0.5)',
+                   paper_bgcolor='rgba(96, 164, 255, 0.0)',  # transparent
+                   plot_bgcolor='rgba(255, 255, 255, 0.5)',  # white
                    xaxis={'title': 'Distance [m]', 'zeroline': False},
                    yaxis={'scaleanchor': 'x',  # equal aspect ratio
                           'title': 'Height [m]', 'zeroline': False})
@@ -110,10 +130,11 @@ row1 = html.Div([html.H1('Ski Jump Design Tool For Equivalent Fall Height',
                                 'padding-top': '20px',
                                 'color': 'white'})],
                 className='page-header',
-                style={'height': '100px',
+                style={
+                       'height': '100px',
                        'margin-top': '-20px',
-                       'background': 'rgba(128, 128, 128, 0.75)',
-                       'border-bottom': '4px solid #eee'})
+                       'background': 'rgb(64, 71, 86)',
+                      })
 
 row2 = html.Div([graph_widget], className='row')
 
@@ -191,12 +212,12 @@ Sports Engineering 18, no. 4 (December 2015): 227–39.
 
 row6 = html.Div([dcc.Markdown(markdown_text)],
                 className='row',
-                style={'background-color': 'rgba(128, 128, 128, 0.9)',
+                style={'background-color': 'rgb(64,71,86, 0.9)',
                        'color': 'white',
                        'padding-right': '20px',
                        'padding-left': '20px',
                        'margin-top': '40px',
-                       'text-shadow': '1px 1px black'})
+                       })
 
 app.layout = html.Div([row1, html.Div([row2, row3, row4, row5, row6],
                       className='container')])
@@ -248,13 +269,13 @@ def blank_graph(msg):
                       'textposition': 'top',
                       'line': {'color': 'black', 'dash': 'dash'}},
                      {'x': nan_line, 'y': nan_line, 'name': 'Approach',
-                      'line': {'color': 'black', 'width': 4}},
+                      'line': {'color': '#404756', 'width': 4}},
                      {'x': nan_line, 'y': nan_line, 'name': 'Takeoff',
-                      'line': {'color': 'black', 'width': 4}},
+                      'line': {'color': '#a4abbd', 'width': 4}},
                      {'x': nan_line, 'y': nan_line, 'name': 'Landing',
-                      'line': {'color': 'grey', 'width': 4}},
+                      'line': {'color': '#c89b43', 'width': 4}},
                      {'x': nan_line, 'y': nan_line, 'name': 'Landing Transition',
-                      'line': {'color': 'grey', 'width': 4}},
+                      'line': {'color': '#8e690a', 'width': 4}},
                      {'x': nan_line, 'y': nan_line, 'name': 'Flight',
                       'line': {'color': 'black', 'dash': 'dot'}},
                     ],
@@ -283,13 +304,13 @@ def update_graph(slope_angle, approach_len, takeoff_angle, fall_height):
                      {'x': slope.x, 'y': slope.y, 'name': 'Parent Slope',
                       'line': {'color': 'black', 'dash': 'dash'}},
                      {'x': approach.x, 'y': approach.y, 'name': 'Approach',
-                      'line': {'color': 'black', 'width': 4}},
+                      'line': {'color': '#a4abbd', 'width': 4}},
                      {'x': takeoff.x, 'y': takeoff.y, 'name': 'Takeoff',
-                      'line': {'color': 'black', 'width': 4}},
+                      'line': {'color': '#8e690a', 'width': 4}},
                      {'x': landing.x, 'y': landing.y, 'name': 'Landing',
-                      'line': {'color': 'grey', 'width': 4}},
+                      'line': {'color': '#404756', 'width': 4}},
                      {'x': trans.x, 'y': trans.y, 'name': 'Landing Transition',
-                      'line': {'color': 'grey', 'width': 4}},
+                      'line': {'color': '#c89b43', 'width': 4}},
                      {'x': flight.pos[:, 0], 'y': flight.pos[: , 1], 'name': 'Flight',
                       'line': {'color': 'black', 'dash': 'dot'}},
                     ],
