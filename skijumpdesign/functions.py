@@ -86,6 +86,11 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
         A "surface" that encodes the maximum velocity flight trajectory.
 
     """
+
+    outputs = {'Takeoff Speed': None,
+               'Flight Time': None,
+               'Snow Budget': None}
+
     logging.info('Calling make_jump({}, {}, {}, {}, {})'.format(
         slope_angle, start_pos, approach_len, takeoff_angle, fall_height))
 
@@ -118,7 +123,9 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     takeoff_vel = skier.end_vel_on(takeoff, init_speed=takeoff_entry_speed)
 
     msg = 'Takeoff speed: {:1.3f} [m/s]'
-    logging.info(msg.format(vel2speed(*takeoff_vel)[0]))
+    takeoff_speed = vel2speed(*takeoff_vel)[0]
+    outputs['Takeoff Speed'] = takeoff_speed
+    logging.info(msg.format(takeoff_speed))
 
     slope = FlatSurface(slope_angle, 100 * approach_len)
 
@@ -138,6 +145,7 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     flight = skier.fly_to(land_trans_contact, init_pos=takeoff.end,
                           init_vel=takeoff_vel)
 
+    outputs['Flight Time'] = flight.duration
     logging.info('Flight time: {:1.3f} [s]'.format(flight.duration))
 
     # The landing surface ensures an equivalent fall height for any skiers that
@@ -148,15 +156,15 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     if landing.y[0] < slope.interp_y(landing.x[0]):
         raise InvalidJumpError('Fall height is too large.')
 
-    logging.info('Snow budget: {} m^2'.format(snow_budget(slope, takeoff,
-                                                          landing,
-                                                          landing_trans)))
+    budget = snow_budget(slope, takeoff, landing, landing_trans)
+    outputs['Snow Budget'] = budget
+    logging.info('Snow budget: {} m^2'.format(budget))
 
     if plot:
         plot_jump(slope, approach, takeoff, landing, landing_trans, flight)
         plt.show()
 
-    return slope, approach, takeoff, landing, landing_trans, flight
+    return slope, approach, takeoff, landing, landing_trans, flight, outputs
 
 
 def plot_jump(slope, approach, takeoff, landing, landing_trans, flight):

@@ -118,7 +118,9 @@ layout = go.Layout(autosize=False,
                    plot_bgcolor='rgba(255, 255, 255, 0.5)',  # white
                    xaxis={'title': 'Distance [m]', 'zeroline': False},
                    yaxis={'scaleanchor': 'x',  # equal aspect ratio
-                          'title': 'Height [m]', 'zeroline': False})
+                          'title': 'Height [m]', 'zeroline': False},
+                   legend={'orientation': "h",
+                           'y': 1.1})
 
 # TODO : See if the className can be added to Graph instead of Div.
 graph_widget = html.Div([dcc.Graph(id='my-graph',
@@ -138,7 +140,25 @@ row1 = html.Div([html.H1('Ski Jump Design Tool For Equivalent Fall Height',
 
 row2 = html.Div([graph_widget], className='row')
 
-row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')], id='error-bar',
+table = html.Div([
+    html.Div([], className='col-md-4'),
+    html.Div([
+    html.Table([
+        html.Thead([
+            html.Tr([html.Th('Output'), html.Th('Value'), html.Th('Unit')])
+        ]),
+        html.Tbody([
+            html.Tr([html.Td('Takeoff Speed'), html.Td(''), html.Td('m/s')]),
+            html.Tr([html.Td('Flight Time'), html.Td(''), html.Td('s')]),
+            html.Tr([html.Td('Snow Budget'), html.Td(''), html.Td('m^2')])
+        ]),
+    ], className='table table-hover'),
+], className='col-md-4'),
+    html.Div([], className='col-md-4'),
+], className='row')
+
+row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
+                id='error-bar',
                 className='alert alert-warning',
                 style={'display': 'none'}
                 )
@@ -304,8 +324,8 @@ def update_graph(slope_angle, approach_len, takeoff_angle, fall_height):
     fall_height = float(fall_height)
 
     try:
-        surfs = make_jump(slope_angle, 0.0, approach_len, takeoff_angle,
-                          fall_height)
+        *surfs, outputs = make_jump(slope_angle, 0.0, approach_len,
+                                    takeoff_angle, fall_height)
     except InvalidJumpError as e:
         logging.error('Graph update error:', exc_info=e)
         return blank_graph('<br>'.join(textwrap.wrap(str(e), 30)))
