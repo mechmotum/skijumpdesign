@@ -217,6 +217,7 @@ row6 = html.Div([dcc.Markdown(markdown_text)],
                        'padding-right': '20px',
                        'padding-left': '20px',
                        'margin-top': '40px',
+                       'text-shadow': '1px 1px black',
                        })
 
 app.layout = html.Div([row1, html.Div([row2, row3, row4, row5, row6],
