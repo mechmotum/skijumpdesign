@@ -25,68 +25,68 @@ if 'ONHEROKU' in os.environ:
     import dash_auth
     auth = dash_auth.BasicAuth(app, [['skiteam', 'howhigh']])
 
-start_pos_widget = html.Div([
-    html.H3('Start Position [m]'),
-    dcc.Input(id='start_pos',
-              placeholder='Start Position [meters]',
-              inputmode='numeric',
-              type='number',
-              value=0.0,
-              min=0.0,
-              step=5.0)
-    ])
-
 approach_len_widget = html.Div([
-    html.H3('Approach Length [m]'),
-    dcc.Input(id='approach_len',
-              placeholder='Approach Length [meters]',
-              inputmode='numeric',
-              type='number',
-              value=30.0,
-              min=10.0,
-              step=5.0)
+    html.H3('Maximum Approach Length: 40 [m]', id='approach-len-text'),
+    dcc.Slider(
+        id='approach_len',
+        min=0,
+        max=200,
+        step=1,
+        value=40,
+        marks={0: '0 [m]',
+               50: '50 [m]',
+               100: '100 [m]',
+               150: '150 [m]',
+               200: '200 [m]'},
+        )
     ])
 
 fall_height_widget = html.Div([
-    html.H3('Fall Height [m]'),
-    dcc.Input(id='fall_height',
-              placeholder='Fall Height [meters]',
-              inputmode='numeric',
-              type='number',
-              value=0.2,
-              max=3.0,
-              min=0.1,
-              step=0.1,
-              )
+    html.H3('Fall Height: 0.5 [m]', id='fall-height-text'),
+    dcc.Slider(
+        id='fall_height',
+        min=0.1,
+        max=1.5,
+        step=0.01,
+        value=0.5,
+        marks={0.10: '0.10 [m]',
+               0.45: '0.45 [m]',
+               0.80: '0.80 [m]',
+               1.15: '1.15 [m]',
+               1.5: '1.5 [m]'},
+        )
     ])
 
 slope_angle_widget = html.Div([
-    html.H3('Slope Angle: 10 degrees', id='slope-text'),
+    html.H3('Parent Slope Angle: 15 degrees', id='slope-text'),
     dcc.Slider(
         id='slope_angle',
-        min=0,
-        max=45,
-        step=1,
-        value=10,
-        marks={0: '0 [deg]',
-               15: '15 [deg]',
-               30: '30 [deg]',
-               45: '45 [deg]'},
+        min=5,
+        max=40,
+        step=0.1,
+        value=15,
+        marks={5: '5 [deg]',
+               12: '12 [deg]',
+               19: '19 [deg]',
+               25: '26 [deg]',
+               32: '33 [deg]',
+               40: '40 [deg]'},
         )
     ])
 
 takeoff_angle_widget = html.Div([
-    html.H3('Takeoff Angle: 10 degrees', id='takeoff-text'),
+    html.H3('Takeoff Angle: 25 degrees', id='takeoff-text'),
     dcc.Slider(
         id='takeoff_angle',
         min=0,
-        max=45,
-        step=1,
-        value=20,
+        max=40,
+        step=0.1,
+        value=25,
         marks={0: '0 [deg]',
-               15: '15 [deg]',
+               10: '10 [deg]',
+               20: '20 [deg]',
                30: '30 [deg]',
-               45: '45 [deg]'},
+               40: '40 [deg]'},
         )
     ])
 
@@ -121,14 +121,16 @@ row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')], id='error-
                 style={'display': 'none'}
                 )
 
-row4 = html.Div([html.Div([start_pos_widget], className='col-md-4'),
-                 html.Div([approach_len_widget], className='col-md-4'),
-                 html.Div([fall_height_widget], className='col-md-4'),
-                 ], className='row')
-
-row5 = html.Div([html.Div([slope_angle_widget], className='col-md-5'),
+row4 = html.Div([
+                 html.Div([slope_angle_widget], className='col-md-5'),
                  html.Div([], className='col-md-2'),
+                 html.Div([approach_len_widget], className='col-md-5'),
+                 ], className='row', style={'margin-top': 15})
+
+row5 = html.Div([
                  html.Div([takeoff_angle_widget], className='col-md-5'),
+                 html.Div([], className='col-md-2'),
+                 html.Div([fall_height_widget], className='col-md-5'),
                  ], className='row', style={'margin-top': 15})
 
 markdown_text = """\
@@ -203,22 +205,36 @@ app.layout = html.Div([row1, html.Div([row2, row3, row4, row5, row6],
               [Input('slope_angle', 'value')])
 def update_slope_text(slope_angle):
     slope_angle = float(slope_angle)
-    return 'Slope Angle: {:0.0f} degrees'.format(slope_angle)
+    return 'Parent Slope Angle: {:0.1f} [deg]'.format(slope_angle)
+
+
+@app.callback(Output('approach-len-text', 'children'),
+              [Input('approach_len', 'value')])
+def update_approach_len_text(approach_len):
+    approach_len = float(approach_len)
+    return 'Maximum Approach Length: {:0.0f} [m]'.format(approach_len)
 
 
 @app.callback(Output('takeoff-text', 'children'),
               [Input('takeoff_angle', 'value')])
 def update_takeoff_text(takeoff_angle):
     takeoff_angle = float(takeoff_angle)
-    return 'Takeoff Angle: {:0.0f} degrees'.format(takeoff_angle)
+    return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle)
 
 
-inputs = [Input('slope_angle', 'value'),
-          Input('start_pos', 'value'),
+@app.callback(Output('fall-height-text', 'children'),
+              [Input('fall_height', 'value')])
+def update_fall_height_text(fall_height):
+    fall_height = float(fall_height)
+    return 'Fall Height: {:0.2f} [m]'.format(fall_height)
+
+
+inputs = [
+          Input('slope_angle', 'value'),
           Input('approach_len', 'value'),
           Input('takeoff_angle', 'value'),
-          Input('fall_height', 'value')
-          ]
+          Input('fall_height', 'value'),
+         ]
 
 
 def blank_graph(msg):
@@ -246,17 +262,15 @@ def blank_graph(msg):
 
 
 @app.callback(Output('my-graph', 'figure'), inputs)
-def update_graph(slope_angle, start_pos, approach_len, takeoff_angle,
-                 fall_height):
+def update_graph(slope_angle, approach_len, takeoff_angle, fall_height):
 
     slope_angle = -float(slope_angle)
-    start_pos = float(start_pos)
     approach_len = float(approach_len)
     takeoff_angle = float(takeoff_angle)
     fall_height = float(fall_height)
 
     try:
-        surfs = make_jump(slope_angle, start_pos, approach_len, takeoff_angle,
+        surfs = make_jump(slope_angle, 0.0, approach_len, takeoff_angle,
                           fall_height)
     except InvalidJumpError as e:
         logging.error('Graph update error:', exc_info=e)
