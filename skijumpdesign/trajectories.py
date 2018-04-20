@@ -95,13 +95,13 @@ class Trajectory(object):
 
         def make_plot(data, word, unit):
             fig, axes = plt.subplots(2, 1, sharex=True)
-            axes[0].set_title(f'{word} Plots')
+            axes[0].set_title('{} Plots'.format(word))
             axes[0].plot(self.t, data)
-            axes[0].set_ylabel(f'{word} [{unit}]')
-            axes[0].legend([fr'${word[0].lower()}_x$',
-                            fr'${word[0].lower()}_y$'])
+            axes[0].set_ylabel('{} [{}]'.format(word, unit))
+            axes[0].legend([r'${}_x$'.format(word[0].lower()),
+                            r'${}_y$'.format(word[0].lower())])
             axes[1].plot(self.t, np.sqrt(np.sum(data**2, axis=1)))
-            axes[1].set_ylabel(f'Magnitude of {word} [{unit}]')
+            axes[1].set_ylabel('Magnitude of {} [{}]'.format(word, unit))
             axes[1].set_xlabel('Time [s]')
 
         make_plot(self.vel, 'Velocity', 'm/s')
