@@ -1,3 +1,7 @@
+.. image:: https://readthedocs.org/projects/skijumpdesign/badge/?version=latest
+   :target: http://skijumpdesign.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+
 Introduction
 ============
 
