@@ -1,6 +1,7 @@
 import os
 import logging
 import textwrap
+import json
 
 import numpy as np
 import dash
@@ -122,7 +123,6 @@ layout = go.Layout(autosize=False,
                    legend={'orientation': "h",
                            'y': 1.1})
 
-# TODO : See if the className can be added to Graph instead of Div.
 graph_widget = html.Div([dcc.Graph(id='my-graph',
                                    figure=go.Figure(layout=layout))],
                         className='col-md-12')
@@ -143,17 +143,24 @@ row2 = html.Div([graph_widget], className='row')
 table = html.Div([
     html.Div([], className='col-md-4'),
     html.Div([
-    html.Table([
-        html.Thead([
-            html.Tr([html.Th('Output'), html.Th('Value'), html.Th('Unit')])
-        ]),
-        html.Tbody([
-            html.Tr([html.Td('Takeoff Speed'), html.Td(''), html.Td('m/s')]),
-            html.Tr([html.Td('Flight Time'), html.Td(''), html.Td('s')]),
-            html.Tr([html.Td('Snow Budget'), html.Td(''), html.Td('m^2')])
-        ]),
-    ], className='table table-hover'),
-], className='col-md-4'),
+        html.Table([
+            html.Thead([
+                html.Tr([html.Th('Output'),
+                         html.Th('Value'),
+                         html.Th('Unit')])]),
+            html.Tbody([
+                html.Tr([html.Td('Takeoff Speed'),
+                         html.Td('', id='takeoff-speed-text'),
+                         html.Td('m/s')]),
+                html.Tr([html.Td('Flight Time'),
+                         html.Td('', id='flight-time-text'),
+                         html.Td('s')]),
+                html.Tr([html.Td('Snow Budget'),
+                         html.Td('', id='snow-budget-text'),
+                         html.Td(['m', html.Sup('2')])])
+            ]),
+        ], className='table table-hover'),
+    ], className='col-md-4'),
     html.Div([], className='col-md-4'),
 ], className='row')
 
@@ -251,8 +258,11 @@ row6 = html.Div([dcc.Markdown(markdown_text)],
                        'text-shadow': '1px 1px black',
                        })
 
-app.layout = html.Div([row1, html.Div([row2, row3, row4, row5, row6],
-                      className='container')])
+row7 = html.Div(id='data-store', style={'display': 'none'})
+
+app.layout = html.Div([row1,
+                       html.Div([row2, table, row3, row4, row5, row6, row7],
+                                className='container')])
 
 
 @app.callback(Output('slope-text', 'children'),
@@ -295,18 +305,22 @@ def blank_graph(msg):
     nan_line = [np.nan]
     data = {'data': [
                      {'x': [0.0, 0.0], 'y': [0.0, 0.0], 'name': 'Parent Slope',
-                      'text': ['Invalid Jump Parameters<br>Error: {}'.format(msg)],
+                      'text': ['Invalid Parameters<br>Error: {}'.format(msg)],
                       'mode': 'markers+text',
                       'textfont': {'size': 24},
                       'textposition': 'top',
                       'line': {'color': 'black', 'dash': 'dash'}},
-                     {'x': nan_line, 'y': nan_line, 'name': 'Approach',
+                     {'x': nan_line, 'y': nan_line,
+                      'name': 'Approach',
                       'line': {'color': '#404756', 'width': 4}},
-                     {'x': nan_line, 'y': nan_line, 'name': 'Takeoff',
+                     {'x': nan_line, 'y': nan_line,
+                      'name': 'Takeoff',
                       'line': {'color': '#a4abbd', 'width': 4}},
-                     {'x': nan_line, 'y': nan_line, 'name': 'Landing',
+                     {'x': nan_line, 'y': nan_line,
+                      'name': 'Landing',
                       'line': {'color': '#c89b43', 'width': 4}},
-                     {'x': nan_line, 'y': nan_line, 'name': 'Landing Transition',
+                     {'x': nan_line, 'y': nan_line,
+                      'name': 'Landing Transition',
                       'line': {'color': '#8e690a', 'width': 4}},
                      {'x': nan_line, 'y': nan_line, 'name': 'Flight',
                       'line': {'color': 'black', 'dash': 'dot'}},
@@ -315,9 +329,36 @@ def blank_graph(msg):
     return data
 
 
-@app.callback(Output('my-graph', 'figure'), inputs)
-def update_graph(slope_angle, approach_len, takeoff_angle, fall_height):
+def populated_graph(surfs):
 
+    slope, approach, takeoff, landing, trans, flight = surfs
+
+    return {'data': [
+                     {'x': slope.x.tolist(), 'y': slope.y.tolist(),
+                      'name': 'Parent Slope',
+                      'line': {'color': 'black', 'dash': 'dash'}},
+                     {'x': approach.x.tolist(), 'y': approach.y.tolist(),
+                      'name': 'Approach',
+                      'line': {'color': '#a4abbd', 'width': 4}},
+                     {'x': takeoff.x.tolist(), 'y': takeoff.y.tolist(),
+                      'name': 'Takeoff',
+                      'line': {'color': '#8e690a', 'width': 4}},
+                     {'x': landing.x.tolist(), 'y': landing.y.tolist(),
+                      'name': 'Landing',
+                      'line': {'color': '#404756', 'width': 4}},
+                     {'x': trans.x.tolist(), 'y': trans.y.tolist(),
+                      'name': 'Landing Transition',
+                      'line': {'color': '#c89b43', 'width': 4}},
+                     {'x': flight.pos[:, 0].tolist(),
+                      'y': flight.pos[:, 1].tolist(),
+                      'name': 'Flight',
+                      'line': {'color': 'black', 'dash': 'dot'}},
+                    ],
+            'layout': layout}
+
+
+@app.callback(Output('data-store', 'children'), inputs)
+def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
     slope_angle = -float(slope_angle)
     approach_len = float(approach_len)
     takeoff_angle = float(takeoff_angle)
@@ -328,25 +369,42 @@ def update_graph(slope_angle, approach_len, takeoff_angle, fall_height):
                                     takeoff_angle, fall_height)
     except InvalidJumpError as e:
         logging.error('Graph update error:', exc_info=e)
-        return blank_graph('<br>'.join(textwrap.wrap(str(e), 30)))
+        dic = blank_graph('<br>'.join(textwrap.wrap(str(e), 30)))
+    else:
+        dic = populated_graph(surfs)
 
-    slope, approach, takeoff, landing, trans, flight = surfs
+    dic['outputs'] = outputs
 
-    return {'data': [
-                     {'x': slope.x, 'y': slope.y, 'name': 'Parent Slope',
-                      'line': {'color': 'black', 'dash': 'dash'}},
-                     {'x': approach.x, 'y': approach.y, 'name': 'Approach',
-                      'line': {'color': '#a4abbd', 'width': 4}},
-                     {'x': takeoff.x, 'y': takeoff.y, 'name': 'Takeoff',
-                      'line': {'color': '#8e690a', 'width': 4}},
-                     {'x': landing.x, 'y': landing.y, 'name': 'Landing',
-                      'line': {'color': '#404756', 'width': 4}},
-                     {'x': trans.x, 'y': trans.y, 'name': 'Landing Transition',
-                      'line': {'color': '#c89b43', 'width': 4}},
-                     {'x': flight.pos[:, 0], 'y': flight.pos[: , 1], 'name': 'Flight',
-                      'line': {'color': 'black', 'dash': 'dot'}},
-                    ],
-            'layout': layout}
+    return json.dumps(dic)
+
+
+@app.callback(Output('my-graph', 'figure'), [Input('data-store', 'children')])
+def update_graph(json_data):
+    dic = json.loads(json_data)
+    del dic['outputs']
+    return dic
+
+
+@app.callback(Output('takeoff-speed-text', 'children'),
+              [Input('data-store', 'children')])
+def update_takeoff_speed(json_data):
+    dic = json.loads(json_data)
+    return '{:1.1f}'.format(dic['outputs']['Takeoff Speed'])
+
+
+@app.callback(Output('snow-budget-text', 'children'),
+              [Input('data-store', 'children')])
+def update_snow_budget(json_data):
+    dic = json.loads(json_data)
+    return '{:1.0f}'.format(dic['outputs']['Snow Budget'])
+
+
+@app.callback(Output('flight-time-text', 'children'),
+              [Input('data-store', 'children')])
+def update_flight_time(json_data):
+    dic = json.loads(json_data)
+    return '{:1.2f}'.format(dic['outputs']['Flight Time'])
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
