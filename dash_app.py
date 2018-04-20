@@ -205,10 +205,21 @@ would if dropped vertically from a desired fall height onto a flat surface.
 This website was designed by Jason K. Moore and Mont Hubbard and based based on
 the work detailed in:
 
-Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A Design
+> Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A Design
 Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall Height."
 Sports Engineering 18, no. 4 (December 2015): 227–39.
-[https://doi.org/10.1007/s12283-015-0182-6](https://doi.org/10.1007/s12283-015-0182-6)."""
+[https://doi.org/10.1007/s12283-015-0182-6](https://doi.org/10.1007/s12283-015-0182-6).
+
+The software that powers the website is open source and information on it can
+be found here:
+
+- Documentation: [http://skijumpdesign.readthedocs.io]()
+- Issue reports: [https://gitlab.com/moorepants/skijumpdesign/issues]()
+- Source code repository: [http://gitlab.com/moorepants/skijumpdesign]()
+
+Contributions and issue reports are welcome!
+
+"""
 
 row6 = html.Div([dcc.Markdown(markdown_text)],
                 className='row',

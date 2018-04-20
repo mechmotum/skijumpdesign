@@ -3,6 +3,14 @@ body {
      background-repeat: no-repeat;
 }
 
+a {
+    color: #60a4ff;
+}
+
+a:focus, a:hover {
+    color: #c89b43;
+}
+
 .svg-container {
     margin: auto !important;
 }
