@@ -71,6 +71,11 @@ class Trajectory(object):
         self.interp_acc_wrt_t = interp1d(t, self.acc, **interp_kwargs)
         self.interp_jer_wrt_t = interp1d(t, self.jer, **interp_kwargs)
 
+        self.interp_pos_wrt_x = interp1d(self.pos[:, 0], self.pos,
+                                         **interp_kwargs)
+        self.interp_pos_wrt_slope = interp1d(self.slope, self.pos,
+                                             **interp_kwargs)
+
         self.interp_wrt_x = interp1d(self.pos[:, 0], self._traj,
                                      **interp_kwargs)
 

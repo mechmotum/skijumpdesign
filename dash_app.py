@@ -155,6 +155,12 @@ table = html.Div([
                 html.Tr([html.Td('Flight Time'),
                          html.Td('', id='flight-time-text'),
                          html.Td('s')]),
+                html.Tr([html.Td('Flight Distance'),
+                         html.Td('', id='flight-dist-text'),
+                         html.Td('m')]),
+                html.Tr([html.Td('Flight Height'),
+                         html.Td('', id='flight-height-text'),
+                         html.Td('m')]),
                 html.Tr([html.Td('Snow Budget'),
                          html.Td('', id='snow-budget-text'),
                          html.Td(['m', html.Sup('2')])])
@@ -405,6 +411,19 @@ def update_flight_time(json_data):
     dic = json.loads(json_data)
     return '{:1.2f}'.format(dic['outputs']['Flight Time'])
 
+
+@app.callback(Output('flight-dist-text', 'children'),
+              [Input('data-store', 'children')])
+def update_flight_dist(json_data):
+    dic = json.loads(json_data)
+    return '{:1.1f}'.format(dic['outputs']['Flight Distance'])
+
+
+@app.callback(Output('flight-height-text', 'children'),
+              [Input('data-store', 'children')])
+def update_flight_height(json_data):
+    dic = json.loads(json_data)
+    return '{:1.1f}'.format(dic['outputs']['Flight Height'])
 
 if __name__ == '__main__':
     app.run_server(debug=True)
