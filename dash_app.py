@@ -45,7 +45,11 @@ if 'ONHEROKU' in os.environ:
 
 @app.server.route('/static/<resource>')
 def serve_static(resource):
-    return flask.send_from_directory(STATIC_PATH, resource)
+    _, ext = os.path.splitext(resource)
+    if ext not in ['.css', '.js', '.png', 'svg']:
+        return 'Invalid File Extension'
+    else:
+        return flask.send_from_directory(STATIC_PATH, resource)
 
 approach_len_widget = html.Div([
     html.H3('Maximum Approach Length: 40 [m]',
