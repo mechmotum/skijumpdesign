@@ -4,6 +4,7 @@ import textwrap
 import json
 
 import numpy as np
+import flask
 import dash
 from dash.dependencies import Input, Output
 import dash_core_components as dcc
@@ -25,11 +26,14 @@ https://mycolor.space/?hex=%2360A4FF&sub=1
 
 """
 
+STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 CUS_URL = 'https://moorepants.info/misc/skijump.css'
+CUS_URL = '/static/skijump.css'
 
 app = dash.Dash(__name__)
 app.css.append_css({'external_url': [BS_URL, CUS_URL]})
@@ -37,6 +41,11 @@ server = app.server
 if 'ONHEROKU' in os.environ:
     import dash_auth
     auth = dash_auth.BasicAuth(app, [['skiteam', 'howhigh']])
+
+
+@app.server.route('/static/<resource>')
+def serve_static(resource):
+    return flask.send_from_directory(STATIC_PATH, resource)
 
 approach_len_widget = html.Div([
     html.H3('Maximum Approach Length: 40 [m]',
