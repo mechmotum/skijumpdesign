@@ -390,6 +390,10 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
         logging.error('Graph update error:', exc_info=e)
         dic = blank_graph('<br>'.join(textwrap.wrap(str(e), 30)))
     else:
+        # NOTE : Move origin to start of takeoff.
+        new_origin = surfs[2].start
+        for surface in surfs:
+            surface.shift_coordinates(-new_origin[0], -new_origin[1])
         dic = populated_graph(surfs)
 
     dic['outputs'] = outputs
