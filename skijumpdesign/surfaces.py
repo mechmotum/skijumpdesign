@@ -43,15 +43,25 @@ class Surface(object):
         self.x = x
         self.y = y
 
-        self.slope = np.gradient(y, x, edge_order=2)
+        self._initialize_surface()
 
-        slope_deriv = np.gradient(self.slope, x, edge_order=2)
+    def _initialize_surface(self):
+
+        self._initialize_gradients()
+        self._initialize_interpolators()
+
+    def _initialize_gradients(self):
+
+        self.slope = np.gradient(self.y, self.x, edge_order=2)
+        slope_deriv = np.gradient(self.slope, self.x, edge_order=2)
         self.curvature = slope_deriv / (1 + self.slope**2)**1.5
 
-        interp_kwargs = {'fill_value': 'extrapolate'}
-        self.interp_y = interp1d(x, y, **interp_kwargs)
-        self.interp_slope = interp1d(x, self.slope, **interp_kwargs)
-        self.interp_curvature = interp1d(x, self.curvature, **interp_kwargs)
+    def _initialize_interpolators(self):
+
+        kwargs = {'fill_value': 'extrapolate'}
+        self.interp_y = interp1d(self.x, self.y, **kwargs)
+        self.interp_slope = interp1d(self.x, self.slope, **kwargs)
+        self.interp_curvature = interp1d(self.x, self.curvature, **kwargs)
 
     @property
     def start(self):
@@ -67,6 +77,16 @@ class Surface(object):
     def xy(self):
         """Returns a tuple of the x and y coordinates."""
         return self.x, self.y
+
+    def shift_coordinates(self, delx, dely):
+        """Shifts the x and y coordinates by delx and dely respectively. This
+        modifies the surface in place."""
+        self.x += delx
+        self.y += dely
+        # NOTE : Only the interpolators have to be reinitialized, the gradients
+        # don't have to be computed again. For now, this method is here for
+        # consistency among *Surface classes.
+        self._initialize_surface()
 
     def distance_from(self, xp, yp):
         """Returns the shortest distance from point (xp, yp) to the surface.

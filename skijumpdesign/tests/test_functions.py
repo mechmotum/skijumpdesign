@@ -1,16 +1,18 @@
 import pytest
 import matplotlib.pyplot as plt
 
-from ..functions import make_jump, shift_surface_origin, plot_jump
+from ..functions import make_jump, plot_jump
 from ..utils import InvalidJumpError
 
 
-def test_shift_surface_origin():
-    new_origin = (5.0, 6.0)
-    *surfs, flight, output = make_jump(-15.0, 0.0, 30.0, 10.0, 0.5)
-    new_surfaces = shift_surface_origin(new_origin, *surfs)
-    plot_jump(*new_surfaces, flight)
-    plt.show()
+def test_shift_surface_origin(plot=False):
+    *surfs, outputs = make_jump(-15.0, 0.0, 30.0, 10.0, 0.5)
+    new_origin = surfs[2].start
+    for surface in surfs:
+        surface.shift_coordinates(-new_origin[0], -new_origin[1])
+    if plot:
+        plot_jump(*surfs)
+        plt.show()
 
 
 @pytest.mark.xfail(strict=True)
@@ -24,6 +26,7 @@ def test_make_jump_expected_to_fail():
     #make_jump(-10.0, 0.0, 30.0, 23.0, 0.2)
     #make_jump(-10.0, 0.0, 30.0, 20.0, 0.1)
     #make_jump(-11.2, 0.0, 40.0, 10.2, 0.54)
+
 
 def test_invalid_fall_height():
 

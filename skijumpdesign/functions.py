@@ -19,32 +19,6 @@ from .surfaces import (Surface, FlatSurface, TakeoffSurface,
 from .utils import InvalidJumpError, vel2speed
 
 
-def shift_surface_origin(new_origin, *surfaces):
-    """Returns the surfaces passed in with the origin shifted to a new
-    location. The surfaces are modified in place.
-
-    Parameters
-    ==========
-    new_origin : two-typle of floats
-        The x and y coordinates of the desired new origin.
-    *surfaces : Surface
-        The surfaces you'd like to modify. The surfaces should have their
-        origin at (0, 0).
-
-    Returns
-    =======
-    new_surfaces : n-tuple of Surface
-        Newly constructed simple surfaces using the adjusted origin.
-
-    """
-    new_surfaces = []
-    for surface in surfaces:
-        x = surface.x - new_origin[0]
-        y = surface.y - new_origin[1]
-        new_surfaces.append(Surface(x, y))
-    return new_surfaces
-
-
 def snow_budget(parent_slope, takeoff, landing, landing_trans):
     """Returns the jump's cross sectional snow budget area."""
 

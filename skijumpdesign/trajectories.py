@@ -52,6 +52,15 @@ class Trajectory(object):
 
         self.jer = jer
 
+        self._initialize_trajectory()
+
+    def _initialize_trajectory(self):
+
+        self._construct_traj()
+        self._initialize_interpolators()
+
+    def _construct_traj(self):
+
         self._traj = np.hstack((np.atleast_2d(self.t).T,  # 0
                                 self.pos,  # 1, 2
                                 self.vel,  # 3, 4
@@ -62,27 +71,34 @@ class Trajectory(object):
                                 np.atleast_2d(self.speed).T,  # 11
                                 ))
 
-        interp_kwargs = {'fill_value': 'extrapolate', 'axis': 0}
-        self.interp_wrt_t = interp1d(self.t, self._traj, **interp_kwargs)
-        self.interp_pos_wrt_t = interp1d(t, self.pos, **interp_kwargs)
-        self.interp_slope_wrt_t = interp1d(t, self.slope, **interp_kwargs)
-        self.interp_angle_wrt_t = interp1d(t, self.angle, **interp_kwargs)
-        self.interp_vel_wrt_t = interp1d(t, self.vel, **interp_kwargs)
-        self.interp_acc_wrt_t = interp1d(t, self.acc, **interp_kwargs)
-        self.interp_jer_wrt_t = interp1d(t, self.jer, **interp_kwargs)
+    def _initialize_interpolators(self):
 
-        self.interp_pos_wrt_x = interp1d(self.pos[:, 0], self.pos,
-                                         **interp_kwargs)
-        self.interp_pos_wrt_slope = interp1d(self.slope, self.pos,
-                                             **interp_kwargs)
+        kwargs = {'fill_value': 'extrapolate', 'axis': 0}
 
-        self.interp_wrt_x = interp1d(self.pos[:, 0], self._traj,
-                                     **interp_kwargs)
+        self.interp_wrt_t = interp1d(self.t, self._traj, **kwargs)
+        self.interp_pos_wrt_t = interp1d(self.t, self.pos, **kwargs)
+        self.interp_vel_wrt_t = interp1d(self.t, self.vel, **kwargs)
+        self.interp_acc_wrt_t = interp1d(self.t, self.acc, **kwargs)
+        self.interp_jer_wrt_t = interp1d(self.t, self.jer, **kwargs)
+        self.interp_slope_wrt_t = interp1d(self.t, self.slope, **kwargs)
+        self.interp_angle_wrt_t = interp1d(self.t, self.angle, **kwargs)
+
+        self.interp_pos_wrt_x = interp1d(self.pos[:, 0], self.pos, **kwargs)
+        self.interp_wrt_x = interp1d(self.pos[:, 0], self._traj, **kwargs)
+
+        self.interp_pos_wrt_slope = interp1d(self.slope, self.pos, **kwargs)
 
     @property
     def duration(self):
         """Returns the duration of the trajectory in seconds."""
         return self.t[-1] - self.t[0]
+
+    def shift_coordinates(self, delx, dely):
+        """Shifts the x and y coordinates by delx and dely respectively. This
+        modifies the surface in place."""
+        self.pos[:, 0] += delx
+        self.pos[:, 1] += dely
+        self._initialize_trajectory()
 
     def plot_time_series(self):
         fig, axes = plt.subplots(2, 2)

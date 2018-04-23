@@ -31,6 +31,10 @@ def test_surface():
     assert isclose(surface.distance_from(-10.0, 1.0), np.sqrt(10**2 + 2**2),
                    abs_tol=1E-10)
 
+    surface.shift_coordinates(3.0, 5.0)
+    assert isclose(surface.start[0], 3.0)
+    assert isclose(surface.start[1], 4.0)
+
 
 def test_flat_surface():
 
