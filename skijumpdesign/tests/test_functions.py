@@ -1,7 +1,16 @@
 import pytest
+import matplotlib.pyplot as plt
 
-from ..functions import make_jump
+from ..functions import make_jump, shift_surface_origin, plot_jump
 from ..utils import InvalidJumpError
+
+
+def test_shift_surface_origin():
+    new_origin = (5.0, 6.0)
+    *surfs, flight, output = make_jump(-15.0, 0.0, 30.0, 10.0, 0.5)
+    new_surfaces = shift_surface_origin(new_origin, *surfs)
+    plot_jump(*new_surfaces, flight)
+    plt.show()
 
 
 @pytest.mark.xfail(strict=True)
