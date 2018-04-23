@@ -31,6 +31,11 @@ def shift_surface_origin(new_origin, *surfaces):
         The surfaces you'd like to modify. The surfaces should have their
         origin at (0, 0).
 
+    Returns
+    =======
+    new_surfaces : n-tuple of Surface
+        Newly constructed simple surfaces using the adjusted origin.
+
     """
     new_surfaces = []
     for surface in surfaces:
@@ -46,8 +51,7 @@ def snow_budget(parent_slope, takeoff, landing, landing_trans):
     # TODO : Make this function more robust, may need to handle jumps that are
     # above the x axis.
     if (np.any(takeoff.y > 0.0) or np.any(landing.y > 0.0) or
-        np.any(landing_trans.y > 0.0)):
-
+            np.any(landing_trans.y > 0.0)):
         logging.warn('Snowbudget invalid since jump about X axis.')
 
     logging.info(takeoff.start[0])
@@ -60,7 +64,8 @@ def snow_budget(parent_slope, takeoff, landing, landing_trans):
     logging.info('Parent slope area: {}'.format(A))
     logging.info('Takeoff area: {}'.format(takeoff.area_under()))
     logging.info('Landing area: {}'.format(landing.area_under()))
-    logging.info('Landing transition area: {}'.format(landing_trans.area_under()))
+    logging.info('Landing transition area: {}'.format(
+        landing_trans.area_under()))
     logging.info('B= {}'.format(B))
 
     return np.abs(A - B)
