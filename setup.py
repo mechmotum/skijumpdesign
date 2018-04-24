@@ -14,7 +14,13 @@ setup(
     long_description=open('README.rst').read(),
     keywords="engineering sports physics",
     license='MIT',
+    py_modules=['dash_app'],
     packages=find_packages(),
+    include_package_data=True,  # includes things in MANIFEST.in
+    data_files=[('static', ['static/skijump.css'])],
+    zip_safe=False,
+    entry_points={'console_scripts':
+                  ['skijumpdesign = dash_app:app.run_server']},
     install_requires=['numpy',
                       'scipy>=1.0',
                       'matplotlib',
@@ -24,9 +30,10 @@ setup(
                       ],
     extras_require={'app': ['plotly', 'dash', 'dash-renderer',
                             'dash-html-components', 'dash-core-components'],
-                    'dev': ['pytest', 'sphinx']},
+                    'dev': ['pytest', 'sphinx', 'coverage']},
     classifiers=[
         'Development Status :: 3 - Alpha',
+        'License :: OSI Approved :: MIT License',
         'Intended Audience :: Science/Research',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.5',
