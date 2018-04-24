@@ -1,3 +1,4 @@
+README.rst
 LICENSE
 recursive-include static *
 include docs/*.rst
