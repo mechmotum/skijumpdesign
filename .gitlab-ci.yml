@@ -1,0 +1,30 @@
+image: continuumio/miniconda3:latest
+
+stages:
+  - install
+  - test
+  - docs
+
+before_script:
+  - conda config --set always_yes yes
+  - conda update -q conda
+  - conda env create -f environment.yaml
+  - source activate skijumpdesign
+  - conda info
+  - conda list
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
+
+install:
+  script:
+    - python setup.py install
+
+test:
+  script:
+    - py.test --cov=skijumpdesign
+
+docs:
+  script:
+    - cd docs/
+    - make html
