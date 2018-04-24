@@ -3,7 +3,11 @@ Example EFH Jump Design
 =======================
 
 The following page describes how to construct a typical equivalent fall height
-ski jump using the ``skijumpdesign`` API.
+ski jump using the ``skijumpdesign`` API. Make sure to :ref:`install` the
+library first.
+
+Approach
+========
 
 Start by creating a 20 meter length of an approach surface (also called the
 in-run) which is flat and has a downward slope angle of 20 degrees. The
@@ -43,6 +47,9 @@ skiing simulation trajectory.
    ax.set_xlabel('Horizontal Position [m]')
    ax.set_ylabel('Horizontal Speed [m/s]')
 
+Takeoff
+=======
+
 The takeoff ramp is constructed with a clothoid-circle-clothoid-flat surface to
 transition from the approach to the desired takeoff angle, in this case 15
 degrees.
@@ -78,6 +85,9 @@ The trajectory of the skier on the takeoff can be examined also.
    ax.set_xlabel('Horizontal Position [m]')
    ax.set_ylabel('Horizontal Speed [m/s]')
 
+Flight
+======
+
 Once the skier leaves the takeoff ramp they will be in flight. The
 ``Skier.fly_to()`` method can be used to simulate the flight trajectory.
 
@@ -104,6 +114,9 @@ The flight trajectory can be plotted alongside the surfaces.
    ax = takeoff.plot(ax=ax)
    flight.plot(ax=ax)
 
+Landing Transition
+==================
+
 The next step is to determine a landing transition curve.
 
 .. plot::
@@ -122,6 +135,9 @@ The next step is to determine a landing transition curve.
    ax = takeoff.plot(ax=ax)
    ax = flight.plot(ax=ax)
    landing_trans.plot(ax=ax)
+
+Landing
+=======
 
 Finally, the equivalent fall height landing surface can be generated to
 accommodate all takeoff speeds below the maximum takeoff speed above.
@@ -146,6 +162,9 @@ accommodate all takeoff speeds below the maximum takeoff speed above.
    ax = flight.plot(ax=ax)
    ax = landing_trans.plot(ax=ax)
    landing.plot(ax=ax)
+
+Entire Jump
+===========
 
 There is a convenience function for plotting the jump:
 
