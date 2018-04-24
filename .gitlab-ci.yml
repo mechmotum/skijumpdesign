@@ -6,6 +6,8 @@ stages:
   - docs
 
 before_script:
+  - apt-get update -q -y
+  - apt install -y libgl1-mesa-glx
   - conda config --set always_yes yes
   - conda update -q conda
   - conda env create -f environment.yml
