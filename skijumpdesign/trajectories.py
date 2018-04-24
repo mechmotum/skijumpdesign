@@ -14,14 +14,18 @@ class Trajectory(object):
     def __init__(self, t, pos, vel=None, acc=None, jer=None):
         """
 
+        Parameters
+        ==========
         t : array_like, shape(n,)
+            The time values of the trajectory.
         pos : array_like, shape(n, 2)
             The x and y coordinates of the position.
-        vel : array_like, shape(n, 2)
-        acc : array_like, shape(n, 2)
-        jer : array_like, shape(n, 2)
-
-        traj is [pos, vel, acc, jer] shape(n, 8)
+        vel : array_like, shape(n, 2), optional
+            The x and y components of velocity.
+        acc : array_like, shape(n, 2), optional
+            The x and y components of acceleration.
+        jer : array_like, shape(n, 2), optional
+            The x and y components of jerk.
 
         """
 

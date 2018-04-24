@@ -76,8 +76,15 @@ pygments_style = 'sphinx'
 
 # -- Options for matplotlib.sphinxext.plot_directive -------------------------
 
+# Ensures that there isn't wasted vertical space around the equal aspect ratio
+# plots.
 plot_rcparams = {'savefig.bbox': 'tight'}
 plot_apply_rcparams = True
+
+# -- Options for sphinx.ext.autodoc ------------------------------------------
+
+# Ensure __init__ docstring shows up.
+autoclass_content = 'both'
 
 # -- Options for HTML output -------------------------------------------------
 
