@@ -364,9 +364,13 @@ def populated_graph(surfs):
                       'line': {'color': '#8e690a', 'width': 4}},
                      {'x': landing.x.tolist(), 'y': landing.y.tolist(),
                       'name': 'Landing',
+                      'text': ['Height above parent: {:1.1f} m'.format(v) for v
+                               in landing.height_above(slope)],
                       'line': {'color': '#404756', 'width': 4}},
                      {'x': trans.x.tolist(), 'y': trans.y.tolist(),
                       'name': 'Landing Transition',
+                      'text': ['Height above parent: {:1.1f} m'.format(v) for v
+                               in trans.height_above(slope)],
                       'line': {'color': '#c89b43', 'width': 4}},
                      {'x': flight.pos[:, 0].tolist(),
                       'y': flight.pos[:, 1].tolist(),
