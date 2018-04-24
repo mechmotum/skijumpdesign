@@ -1,3 +1,7 @@
+.. image:: http://heroku-badge.herokuapp.com/?app=skijumpdesign&svg=1
+   :target: https://skijumpdesign.herokuapp.com/
+   :alt: Heroku Application
+
 .. image:: https://readthedocs.org/projects/skijumpdesign/badge/?version=latest
    :target: http://skijumpdesign.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
@@ -13,6 +17,10 @@ A ski jump design tool for equivalent fall height based on the work presented
 in [1]_. Includes a library for 2D skiing simulations and a graphical web
 application for designing ski jumps. It is written in Python backed by NumPy,
 SciPy, SymPy, Cython, matplotlib, Plotly, and Dash.
+
+The design tool web application can be accessed via our Heroku deployment at:
+
+https://skijumpdesign.herokuapp.com/
 
 License
 =======
