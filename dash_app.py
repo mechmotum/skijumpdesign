@@ -40,6 +40,7 @@ CUS_URL = '/static/skijump.css'
 
 app = dash.Dash(__name__)
 app.css.append_css({'external_url': [BS_URL, CUS_URL]})
+app.title = 'Ski Jump Design Tool For Equivalent Fall Height'
 server = app.server
 
 
