@@ -41,9 +41,6 @@ CUS_URL = '/static/skijump.css'
 app = dash.Dash(__name__)
 app.css.append_css({'external_url': [BS_URL, CUS_URL]})
 server = app.server
-if 'ONHEROKU' in os.environ:
-    import dash_auth
-    auth = dash_auth.BasicAuth(app, [['skiteam', 'howhigh']])
 
 
 @app.server.route('/static/<resource>')
