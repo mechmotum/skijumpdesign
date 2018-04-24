@@ -8,7 +8,7 @@ from ..surfaces import Surface
 from ..trajectories import Trajectory
 
 
-def test_trajectory():
+def test_trajectory(plot=False):
     skier = Skier()
 
     takeoff_pos = (4.0, 3.0)  # x, y
@@ -18,7 +18,9 @@ def test_trajectory():
 
     traj = skier.fly_to(surf, takeoff_pos, takeoff_vel)
 
-    traj.plot_time_series()
+    if plot:
+        traj.plot_time_series()
+        plt.plot()
 
 
 def test_interp():
