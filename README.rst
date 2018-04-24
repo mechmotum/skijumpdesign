@@ -10,22 +10,25 @@ in [1]_. Includes a library for 2D skiing simulations and a graphical web
 application for designing ski jumps. It is written in Python backed by NumPy,
 SciPy, SymPy, Cython, matplotlib, Plotly, and Dash.
 
-.. [1] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. “A
-   Design Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall
-   Height.” Sports Engineering 18, no. 4 (December 2015): 227–39.
-   https://doi.org/10.1007/s12283-015-0182-6.
+License
+=======
+
+The skijumpdesign source code is released under the MIT license. If you make
+use of the software we ask that you cite the relevant papers or the software
+itself.
 
 Installation
 ============
 
-Download the source code to a local directory, e.g. ``/path/to/skijumpdesign``.
+Download and unpack the source code or git clone to a local directory, e.g.
+``/path/to/skijumpdesign``.
 
 Open a terminal. Navigate to the ``skijumpdesign`` directory::
 
    $ cd /path/to/skijumpdesign
 
-The application must be run in a custom Conda environment to ensure it has all
-of the correct software dependencies. To create the environment type::
+Setup the custom development Conda environment to ensure it has all of the
+correct software dependencies. To create the environment type::
 
    $ conda env create -f environment.yml
 
@@ -42,7 +45,7 @@ launch Spyder.
 
 Set the working directory to the ``skijumpdesign`` directory.
 
-In the IPython console execute::
+In the Spyder IPython console execute::
 
    In [1]: run dash_app.py
 
@@ -90,9 +93,18 @@ In Spyder, set the working directory to the ``skijumpdesign`` directory.
 
 In the IPython console execute::
 
-   In [1]: from skijumpdesign.functions import *
+   In [1]: from skijumpdesign import *
 
-This will import all of the functions defined in ``skijumpdesign/functions.py``.
-For example you can now use the ``make_jump()`` function::
+This will import all of the main functions and classes in the library.  For
+example you can now use the ``make_jump()`` function::
 
-   In [2]: surfaces = make_jump(-30.0, 0.0, 60.0, 10.0, 1.0)
+   In [2]: surfaces = make_jump(-30.0, 0.0, 60.0, 10.0, 1.0, plot=True)
+
+References
+==========
+
+.. [1] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. “A
+   Design Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall
+   Height.” Sports Engineering 18, no. 4 (December 2015): 227–39.
+   https://doi.org/10.1007/s12283-015-0182-6.
+
