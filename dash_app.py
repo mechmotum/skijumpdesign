@@ -361,6 +361,8 @@ def populated_graph(surfs):
                       'line': {'color': '#a4abbd', 'width': 4}},
                      {'x': takeoff.x.tolist(), 'y': takeoff.y.tolist(),
                       'name': 'Takeoff',
+                      'text': ['Height above parent: {:1.1f} m'.format(v) for v
+                               in takeoff.height_above(slope)],
                       'line': {'color': '#8e690a', 'width': 4}},
                      {'x': landing.x.tolist(), 'y': landing.y.tolist(),
                       'name': 'Landing',
