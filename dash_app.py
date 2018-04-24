@@ -2,8 +2,11 @@ import os
 import logging
 import textwrap
 import json
+import urllib
+from io import StringIO
 
 import numpy as np
+from scipy.interpolate import interp1d
 import flask
 import dash
 from dash.dependencies import Input, Output
@@ -153,8 +156,15 @@ row1 = html.Div([html.H1('Ski Jump Design Tool For Equivalent Fall Height',
 
 row2 = html.Div([graph_widget], className='row')
 
-table = html.Div([
-    html.Div([], className='col-md-4'),
+button = html.A('Download Profile',
+                id='download-button',
+                href='',
+                className='btn btn-primary',
+                target='_blank',
+                download='profile.csv')
+
+row3 = html.Div([
+    html.Div([], className='col-md-3'),
     html.Div([
         html.Table([
             html.Thead([
@@ -180,22 +190,23 @@ table = html.Div([
             ]),
         ], className='table table-hover'),
     ], className='col-md-4'),
-    html.Div([], className='col-md-4'),
+    html.Div([button], className='col-md-2'),
+    html.Div([], className='col-md-3'),
 ], className='row')
 
-row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
+row4 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
                 id='error-bar',
                 className='alert alert-warning',
                 style={'display': 'none'}
                 )
 
-row4 = html.Div([
+row5 = html.Div([
                  html.Div([slope_angle_widget], className='col-md-5'),
                  html.Div([], className='col-md-2'),
                  html.Div([approach_len_widget], className='col-md-5'),
                  ], className='row', style={'margin-top': 15})
 
-row5 = html.Div([
+row6 = html.Div([
                  html.Div([takeoff_angle_widget], className='col-md-5'),
                  html.Div([], className='col-md-2'),
                  html.Div([fall_height_widget], className='col-md-5'),
@@ -267,7 +278,7 @@ Contributions and issue reports are welcome!
 
 """
 
-row6 = html.Div([dcc.Markdown(markdown_text)],
+row7 = html.Div([dcc.Markdown(markdown_text)],
                 className='row',
                 style={'background-color': 'rgb(64,71,86, 0.9)',
                        'color': 'white',
@@ -277,10 +288,10 @@ row6 = html.Div([dcc.Markdown(markdown_text)],
                        'text-shadow': '1px 1px black',
                        })
 
-row7 = html.Div(id='data-store', style={'display': 'none'})
+row8 = html.Div(id='data-store', style={'display': 'none'})
 
 app.layout = html.Div([row1,
-                       html.Div([row2, table, row3, row4, row5, row6, row7],
+                       html.Div([row2, row3, row4, row5, row6, row7, row8],
                                 className='container')])
 
 
@@ -382,6 +393,19 @@ def populated_graph(surfs):
             'layout': layout}
 
 
+def generate_csv_data(surfs):
+    slope, approach, takeoff, landing, trans, flight = surfs
+    x = np.hstack((takeoff.x, landing.x, trans.x))
+    y = np.hstack((takeoff.y, landing.y, trans.y))
+    f = interp1d(x, y, fill_value='extrapolate')
+    x_one_meter = np.arange(takeoff.start[0], trans.end[0])
+    h = f(x_one_meter) - slope.interp_y(x_one_meter)
+    data = np.vstack((x_one_meter, h)).T
+    s = StringIO()
+    np.savetxt(s, data, fmt='%.2f', delimiter=',', newline="\n")
+    return 'Horizontal Distance,Height Above Slope\n' + s.getvalue()
+
+
 @app.callback(Output('data-store', 'children'), inputs)
 def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
     slope_angle = -float(slope_angle)
@@ -402,8 +426,9 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
             surface.shift_coordinates(-new_origin[0], -new_origin[1])
         dic = populated_graph(surfs)
 
-    dic['outputs'] = outputs
+    outputs['download'] = generate_csv_data(surfs)
 
+    dic['outputs'] = outputs
     return json.dumps(dic)
 
 
@@ -447,6 +472,15 @@ def update_flight_dist(json_data):
 def update_flight_height(json_data):
     dic = json.loads(json_data)
     return '{:1.1f}'.format(dic['outputs']['Flight Height'])
+
+
+@app.callback(Output('download-button', 'href'),
+              [Input('data-store', 'children')])
+def update_download_link(json_data):
+    dic = json.loads(json_data)
+    csv_string = dic['outputs']['download']
+    csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
+    return csv_string
 
 if __name__ == '__main__':
     app.run_server(debug=True)

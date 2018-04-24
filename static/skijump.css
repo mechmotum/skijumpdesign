@@ -11,6 +11,16 @@ a:focus, a:hover {
     color: #c89b43;
 }
 
+.btn-primary {
+    background-color: #404756;
+    border-color: #404756;
+}
+
+.btn-primary:hover {
+    background-color: #60a4ff;
+    border-color: #60a4ff;
+}
+
 .svg-container {
     margin: auto !important;
 }
