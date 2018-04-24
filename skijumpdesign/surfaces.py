@@ -643,10 +643,6 @@ class LandingTransitionSurface(Surface):
 
         x -= dx  # loop stops after dx is added, so take previous
 
-        # TODO : This should be uncommented, but need to make sure it doesn't
-        # break anything.
-        #transition_Gs, char_dist = self.calc_trans_acc(x)
-
         msg = ("The maximum landing transition acceleration is {} G's and the "
                "tolerable landing transition acceleration is {} G's.")
         logging.info(msg.format(transition_Gs, self.tolerable_acc))
