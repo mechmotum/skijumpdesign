@@ -153,6 +153,11 @@ class Surface(object):
         start_idx, end_idx = self._limits(x_start, x_end)
         return trapz(self.y[start_idx:end_idx], self.x[start_idx:end_idx])
 
+    def height_above(self, surface):
+        """Returns an array of values giving the height each point in thsi
+        surface is above the provided surface."""
+        return self.y - surface.interp_y(self.x)
+
     def plot(self, ax=None, **plot_kwargs):
         """Returns a matplotlib axes containing a plot of the surface.
 
