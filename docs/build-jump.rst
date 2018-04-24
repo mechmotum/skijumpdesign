@@ -3,8 +3,8 @@ Example EFH Jump Design
 =======================
 
 The following page describes how to construct a typical equivalent fall height
-ski jump using the ``skijumpdesign`` API. Make sure to :ref:`install` the
-library first.
+ski jump using the ``skijumpdesign`` API. Make sure to :ref:`install <install>`
+the library first.
 
 Approach
 ========
