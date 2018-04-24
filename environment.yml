@@ -16,6 +16,7 @@ dependencies:
   - fastcache
   - pytest
   - coverage
+  - pytest-cov
   - pyinstrument
   - sphinx
   - nbformat  # plotly dep, oddly not included in conda dep
