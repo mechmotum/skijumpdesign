@@ -168,7 +168,25 @@ button = html.A('Download Profile',
                 target='_blank',
                 download='profile.csv')
 
-row3 = html.Div([
+row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
+                id='error-bar',
+                className='alert alert-warning',
+                style={'display': 'none'}
+                )
+
+row4 = html.Div([
+                 html.Div([slope_angle_widget], className='col-md-5'),
+                 html.Div([], className='col-md-2'),
+                 html.Div([approach_len_widget], className='col-md-5'),
+                 ], className='row', style={'margin-top': 15})
+
+row5 = html.Div([
+                 html.Div([takeoff_angle_widget], className='col-md-5'),
+                 html.Div([], className='col-md-2'),
+                 html.Div([fall_height_widget], className='col-md-5'),
+                 ], className='row', style={'margin-top': 15})
+
+row6 = html.Div([
     html.Div([], className='col-md-3'),
     html.Div([
         html.Table([
@@ -198,24 +216,6 @@ row3 = html.Div([
     html.Div([button], className='col-md-2'),
     html.Div([], className='col-md-3'),
 ], className='row')
-
-row4 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
-                id='error-bar',
-                className='alert alert-warning',
-                style={'display': 'none'}
-                )
-
-row5 = html.Div([
-                 html.Div([slope_angle_widget], className='col-md-5'),
-                 html.Div([], className='col-md-2'),
-                 html.Div([approach_len_widget], className='col-md-5'),
-                 ], className='row', style={'margin-top': 15})
-
-row6 = html.Div([
-                 html.Div([takeoff_angle_widget], className='col-md-5'),
-                 html.Div([], className='col-md-2'),
-                 html.Div([fall_height_widget], className='col-md-5'),
-                 ], className='row', style={'margin-top': 15})
 
 markdown_text = """\
 # Instructions
