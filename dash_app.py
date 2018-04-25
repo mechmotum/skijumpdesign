@@ -29,6 +29,8 @@ https://mycolor.space/?hex=%2360A4FF&sub=1
 
 """
 
+TITLE = "Ski Jump Design Tool for Specified Equivalent Fall Height"
+
 STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 
 logger = logging.getLogger()
@@ -40,7 +42,7 @@ CUS_URL = '/static/skijump.css'
 
 app = dash.Dash(__name__)
 app.css.append_css({'external_url': [BS_URL, CUS_URL]})
-app.title = 'Ski Jump Design Tool For Equivalent Fall Height'
+app.title = TITLE
 server = app.server
 
 
@@ -148,7 +150,7 @@ graph_widget = html.Div([dcc.Graph(id='my-graph',
                                    figure=go.Figure(layout=layout))],
                         className='col-md-12')
 
-row1 = html.Div([html.H1('Ski Jump Design Tool For Equivalent Fall Height',
+row1 = html.Div([html.H1(TITLE,
                          style={'text-align': 'center',
                                 'padding-top': '20px',
                                 'color': 'white'})],
@@ -215,71 +217,97 @@ row6 = html.Div([
     ], className='col-md-4'),
     html.Div([button], className='col-md-2'),
     html.Div([], className='col-md-3'),
-], className='row')
+], className='row', style={'padding-top': '40px'})
 
 markdown_text = """\
 # Instructions
 
-- Select a parent slope angle to match the grade you plan to build the ski jump
-  on.
-- Set the length of the approach to be the maximum distance along the slope
-  before the jump that a skier can traverse when starting from a stop.
-- Set the desired takeoff angle of the ramp exit.
-- Choose a desired equivalent fall height.
-- Inspect and view the graph of the resulting jump design using the menu bar.
+- Select a parent slope angle to match or closely approximate the location
+  where the jump is planned. The shape of the jump surface above this line is
+  calculated.
+- Set the length of approach to be the maximum distance along the parent slope
+  from above the jump (measured from the top of the takeoff transition curve)
+  that the jumper can descend when starting from rest. This distance determines
+  the design (maximum) takeoff speed.
+- Set the desired takeoff (TO) angle of the ramp at the takeoff point. This is
+  a free design parameter but rarely are takeoff angles greater than 30 deg
+  used.
+- Choose the desired equivalent fall height (efh), a measure of impact on
+  landing (see [1]). The landing surface shape calculated in the design
+  provides the same efh for all speeds up to and including the design speed and
+  consequently for all starting points up to and including the maximum start
+  position.
+- Inspect and view the graph of the resulting jump design using the menu bar
+  and iterate design parameters. The third button allows zoom.
 
 # Explanation
 
-This tool allows you to design a ski jump for takeoff speeds up to a maximum
-that ensures no the jumper will always impact the slope at the same speed one
-would if dropped vertically from a desired fall height onto a flat surface.
+This tool allows the design of a ski jump that limits landing impact (measured
+by a specified equivalent fall height[1]), for all takeoff speeds up to the
+design speed. The calculated landing surface shape ensures that the jumper
+always impacts the landing surface at the same perpendicular impact speed as if
+dropped vertically from the specified equivalent fall height onto a horizontal
+surface.
 
 ## Inputs
 
-- **Slope Angle**: The downward angle of the parent slope you wish to build
-  the jump on.
-- **Start Position**:  Distance down the slope where the skier starts skiing
-  from. The skier starts skiing at 0 m/s from this location.
-- **Approach Length**: The distance along the slope that the skier slides on
-  to build up speed. The skier reaches a theoretical maximum speed at the end
-  of the approach and the jump shape is designed around this maximum achievable
-  speed.
-- **Takeoff Angle**: The upward angle, relative to horizontal, that the end of
-  the takeoff ramp is set to.
-- **Fall Height**: The desired equivalent fall height for the jump design.
+- **Parent Slope Angle**: The measured downward angle of the parent slope where
+  the jump is desired. The designed jump shape is measured from this line.
+- **Maximum Approach Length**: The maximum distance along the slope above the
+  jump that the jumper can slide to build up speed. The jumper reaches a
+  theoretical maximum speed at the end of this approach and the landing surface
+  shape provides the same impact efh for all speeds up to and including this
+  maximum achievable (design) speed.
+- **Takeoff Angle**: The upward angle, relative to horizontal, at the end of
+  the takeoff ramp, a free design parameter.
+- **Fall Height**: The desired equivalent fall height that characterizes
+  landing impact everywhere on this jump.
 
 ## Outputs
 
-- **Takeoff Surface**: This curve is designed to give a smooth, constant
-  acceleration transition from the parent slope to the takeoff ramp. The skier
-  catches air at the end of the takeoff ramp.
-- **Landing Surface**: This curve ensures that skiers launching at any speeds
-  from 0 m/s to the maximum achievable speed at the end of the approach always
-  impacts the landing surface with a speed no greater than the impact speed
-  from and equivalent vertical fall height.
-- **Landing Transition Surface**: This surface ensures a smooth transition from
-  the landing surface back to the parent surface.
-- **Flight Trajectory**: This shows the flight path from the maximum achievable
-  takeoff speed.
+*(all curves specified as x,y coordinates in a system with origin at the TO
+point). All outputs are 2D curves. The complete jump shape consists of three;
+the takeoff, landing and landing transition surfaces.*
+
+- **Takeoff Surface**: This transition curve is designed to give a smoothly
+  varying acceleration transition from the parent slope to the takeoff point
+  where the jumper begins flight.
+- **Landing Surface**: This curve ensures that jumpers, launching at any speed
+  from 0 m/s up to the maximum achievable (design) speed at the end of the
+  approach, always impact the landing surface with a perpendicular speed no
+  greater than the impact speed after falling from the equivalent vertical fall
+  height onto a horizontal surface.
+- **Landing Transition Surface**: This surface ensures a smooth and limited
+  acceleration transition from  the landing surface back to the parent surface.
+- **Flight Trajectory**: This is the jumper flight path corresponding to the
+  design takeoff speed.
 
 # Colophon
 
-This website was designed by Jason K. Moore and Mont Hubbard and based based on
-the work detailed in:
-
-> Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A Design
-Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall Height."
-Sports Engineering 18, no. 4 (December 2015): 227–39.
-[https://doi.org/10.1007/s12283-015-0182-6](https://doi.org/10.1007/s12283-015-0182-6).
+This website was designed by Jason K. Moore and Mont Hubbard based on
+theoretical and computational work detailed in [1]. A description of actual
+fabrication of such a jump is contained in [2].
 
 The software that powers the website is open source and information on it can
 be found here:
 
-- Documentation: [http://skijumpdesign.readthedocs.io]()
-- Issue reports: [https://gitlab.com/moorepants/skijumpdesign/issues]()
-- Source code repository: [http://gitlab.com/moorepants/skijumpdesign]()
+- Documentation: [http://skijumpdesign.readthedocs.io](http://skijumpdesign.readthedocs.io)
+- Issue reports: [https://gitlab.com/moorepants/skijumpdesign/issues](https://gitlab.com/moorepants/skijumpdesign/issues)
+- Source code repository: [http://gitlab.com/moorepants/skijumpdesign](http://gitlab.com/moorepants/skijumpdesign)
 
 Contributions and issue reports are welcome!
+
+# References
+
+[1] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A Design
+Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall Height."
+Sports Engineering 18, no. 4 (December 2015): 227–39.
+[https://doi.org/10.1007/s12283-015-0182-6](https://doi.org/10.1007/s12283-015-0182-6)
+
+[2] Petrone, N., Cognolato, M., McNeil, J.A., Hubbard, M. “Designing, building,
+measuring and testing a constant equivalent fall height terrain park jump"
+Sports Engineering 20, no. 4 (December 2017): 283-92.
+[https://doi.org/10.1007/s12283-017-0253-y](https://doi.org/10.1007/s12283-017-0253-y)
 
 """
 
