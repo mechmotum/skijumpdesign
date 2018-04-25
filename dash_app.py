@@ -173,20 +173,20 @@ row3 = html.Div([
     html.Div([
         html.Table([
             html.Thead([
-                html.Tr([html.Th('Output'),
+                html.Tr([html.Th('Outputs'),
                          html.Th('Value'),
                          html.Th('Unit')])]),
             html.Tbody([
-                html.Tr([html.Td('Takeoff Speed'),
+                html.Tr([html.Td('Max Takeoff Speed'),
                          html.Td('', id='takeoff-speed-text'),
                          html.Td('m/s')]),
-                html.Tr([html.Td('Flight Time'),
+                html.Tr([html.Td('Max Flight Time'),
                          html.Td('', id='flight-time-text'),
                          html.Td('s')]),
-                html.Tr([html.Td('Flight Distance'),
+                html.Tr([html.Td('Max Flight Distance'),
                          html.Td('', id='flight-dist-text'),
                          html.Td('m')]),
-                html.Tr([html.Td('Flight Height'),
+                html.Tr([html.Td('Max Flight Height Above Parent'),
                          html.Td('', id='flight-height-text'),
                          html.Td('m')]),
                 html.Tr([html.Td('Snow Budget'),
