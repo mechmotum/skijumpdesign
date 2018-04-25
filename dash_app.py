@@ -125,19 +125,26 @@ takeoff_angle_widget = html.Div([
         )
     ])
 
-layout = go.Layout(autosize=False,
-                   width=1000,
-                   height=600,
+layout = go.Layout(autosize=True,
                    hovermode='closest',
                    paper_bgcolor='rgba(96, 164, 255, 0.0)',  # transparent
                    plot_bgcolor='rgba(255, 255, 255, 0.5)',  # white
                    xaxis={'title': 'Distance [m]', 'zeroline': False},
                    yaxis={'scaleanchor': 'x',  # equal aspect ratio
+                          'scaleratio': 1.0,  # equal aspect ratio
                           'title': 'Height [m]', 'zeroline': False},
                    legend={'orientation': "h",
-                           'y': 1.1})
+                           'y': 1.2})
 
 graph_widget = html.Div([dcc.Graph(id='my-graph',
+                                   # following is a trick to get height to
+                                   # scale with width using padding-bottom
+                                   style={'width': '100%',
+                                          'height': '0',
+                                          # NOTE : If less that 75% graphs may
+                                          # not have any height on a phone.
+                                          'padding-bottom': '75%'
+                                          },
                                    figure=go.Figure(layout=layout))],
                         className='col-md-12')
 
@@ -147,7 +154,7 @@ row1 = html.Div([html.H1('Ski Jump Design Tool For Equivalent Fall Height',
                                 'color': 'white'})],
                 className='page-header',
                 style={
-                       'height': '100px',
+                       'height': 'auto',
                        'margin-top': '-20px',
                        'background': 'rgb(64, 71, 86)',
                       })
