@@ -78,18 +78,8 @@ class Trajectory(object):
     def _initialize_interpolators(self):
 
         kwargs = {'fill_value': 'extrapolate', 'axis': 0}
-
-        self.interp_wrt_t = interp1d(self.t, self._traj, **kwargs)
-        self.interp_pos_wrt_t = interp1d(self.t, self.pos, **kwargs)
-        self.interp_vel_wrt_t = interp1d(self.t, self.vel, **kwargs)
-        self.interp_acc_wrt_t = interp1d(self.t, self.acc, **kwargs)
-        self.interp_jer_wrt_t = interp1d(self.t, self.jer, **kwargs)
-        self.interp_slope_wrt_t = interp1d(self.t, self.slope, **kwargs)
-        self.interp_angle_wrt_t = interp1d(self.t, self.angle, **kwargs)
-
         self.interp_pos_wrt_x = interp1d(self.pos[:, 0], self.pos, **kwargs)
         self.interp_wrt_x = interp1d(self.pos[:, 0], self._traj, **kwargs)
-
         self.interp_pos_wrt_slope = interp1d(self.slope, self.pos, **kwargs)
 
     @property
