@@ -288,7 +288,7 @@ class Skier(object):
         return speed_x, speed_y
 
     def speed_to_land_at(self, landing_point, takeoff_point, takeoff_angle,
-                         surf=None):
+                         surf):
         """Returns the magnitude of the velocity required to land at a specific
         point given launch position and angle.
 
@@ -348,16 +348,6 @@ class Skier(object):
         dvody = (np.sqrt(GRAV_ACC*(delx)**2/((delx)*np.sin(2*theta) -
                                              2*(dely)*cto**2))*cto**2 /
                  ((delx)*np.sin(2*theta) - 2*(dely)*cto**2))
-
-        # TODO : Make this should take in the parent slope and use it.
-        # creates a flat landing surface that starts at the landing point x
-        # position and 1 meter below the y position, this ensures we get a
-        # flight trajectory that passes through a horizontal line through the
-        # landing position
-        if surf is None:
-            #surf = FlatSurface(np.deg2rad(45.0), 10.0, init_pos=(x + 6, y),
-                            #num_points=100)
-            surf = FlatSurface(np.deg2rad(-20.0), 40.0)
 
         deltay = np.inf
 

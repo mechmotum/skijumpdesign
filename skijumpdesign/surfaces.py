@@ -775,7 +775,7 @@ class LandingSurface(Surface):
             logging.debug('x = {}, y = {}'.format(x, y))
 
             takeoff_speed, impact_vel = self.skier.speed_to_land_at(
-                (x, y), self.takeoff_point, self.takeoff_angle, surf=self.surf)
+                (x, y), self.takeoff_point, self.takeoff_angle, self.surf)
 
             if takeoff_speed > 0.0:
                 impact_speed, impact_angle = vel2speed(*impact_vel)
