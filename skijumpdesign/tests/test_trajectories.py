@@ -62,4 +62,4 @@ def test_interp_wrt_x():
 
     assert isclose(res[1], 2.33)  # x
     assert isclose(res[2], 5.0 * 2.33 + 2.0)  # y
-    assert isclose(res[9], 5.0)  # slope
+    assert isclose(res[7], 5.0)  # slope

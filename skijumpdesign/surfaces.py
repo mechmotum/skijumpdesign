@@ -555,7 +555,7 @@ class LandingTransitionSurface(Surface):
         #flight_y, _, flight_speed, flight_angle = self.interp_flight(x)
 
         flight_y, flight_speed, flight_angle = \
-            self.flight_traj.interp_wrt_x(x)[[2, 11, 10]]
+            self.flight_traj.interp_wrt_x(x)[[2, 9, 8]]
 
         # NOTE : Not sure if setting this to pi/2 if the flight speed is
         # greater than the allowable impact speed is a correct thing to do but

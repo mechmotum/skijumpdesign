@@ -11,7 +11,7 @@ else:
 class Trajectory(object):
     """Class that describes a 2D trajectory."""
 
-    def __init__(self, t, pos, vel=None, acc=None, jer=None):
+    def __init__(self, t, pos, vel=None, acc=None):
         """
 
         Parameters
@@ -24,8 +24,6 @@ class Trajectory(object):
             The x and y components of velocity.
         acc : array_like, shape(n, 2), optional
             The x and y components of acceleration.
-        jer : array_like, shape(n, 2), optional
-            The x and y components of jerk.
 
         """
 
@@ -51,11 +49,6 @@ class Trajectory(object):
 
         self.acc = acc
 
-        if jer is None:
-            jer = np.gradient(self.acc, t, axis=0, edge_order=2)
-
-        self.jer = jer
-
         self._initialize_trajectory()
 
     def _initialize_trajectory(self):
@@ -69,10 +62,9 @@ class Trajectory(object):
                                 self.pos,  # 1, 2
                                 self.vel,  # 3, 4
                                 self.acc,  # 5, 6
-                                self.jer,  # 7, 8
-                                np.atleast_2d(self.slope).T,  # 9
-                                np.atleast_2d(self.angle).T,  # 10
-                                np.atleast_2d(self.speed).T,  # 11
+                                np.atleast_2d(self.slope).T,  # 7
+                                np.atleast_2d(self.angle).T,  # 8
+                                np.atleast_2d(self.speed).T,  # 9
                                 ))
 
     def _initialize_interpolators(self):
@@ -121,7 +113,6 @@ class Trajectory(object):
 
         make_plot(self.vel, 'Velocity', 'm/s')
         make_plot(self.acc, 'Acceleration', 'm/s/s')
-        make_plot(self.jer, 'Jerk', 'm/s/s/s')
 
         return axes
 
