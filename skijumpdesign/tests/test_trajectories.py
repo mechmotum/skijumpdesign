@@ -23,7 +23,7 @@ def test_trajectory(plot=False):
         plt.plot()
 
 
-def test_interp():
+def test_gradients():
 
     t = np.linspace(4.0, 16.0, num=1000)
     x = np.cos(t)
@@ -38,13 +38,6 @@ def test_interp():
                       acc=np.vstack((ax, ay)).T)
 
     assert isclose(traj.duration, 12.0)
-
-    assert np.allclose(traj.interp_pos_wrt_t(5.7),
-                       [np.cos(5.7), np.sin(5.7)], rtol=1e-4)
-    assert np.allclose(traj.interp_vel_wrt_t(5.7),
-                       [-np.sin(5.7), np.cos(5.7)], rtol=1e-4)
-    assert np.allclose(traj.interp_acc_wrt_t(5.7),
-                       [-np.cos(5.7), -np.sin(5.7)], rtol=1e-4)
 
     np.testing.assert_allclose(vy / vx, traj.slope)
     np.testing.assert_allclose(np.arctan(vy / vx), traj.angle)
