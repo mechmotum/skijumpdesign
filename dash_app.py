@@ -310,7 +310,7 @@ the jump (start of the takeoff curve) at every meter and corresponding values
 of the height above the parent slope in the second column.  Both columns are in
 meters. This data is primarily useful in building the actual jump, see [2].
 
-# Assumptions
+## Assumptions
 
 The design calculations in this application depend on the ratios of aerodynamic
 drag and snow friction resistive forces to inertial forces for the jumper, and
