@@ -1,6 +1,7 @@
 from math import isclose
 
 import numpy as np
+import sympy as sm
 import matplotlib.pyplot as plt
 
 from ..skiers import Skier
@@ -81,3 +82,28 @@ def test_takeoff_surface(plot=False):
         ax = fsurf.plot()
         ax = tsurf.plot(ax=ax)
         plt.show()
+
+
+def test_area_under():
+
+    x = sm.symbols('x')
+    y = 2.3 * x**3 + x/2 * sm.cos(x**2)
+    y_func = sm.lambdify(x, y)
+
+    x0, xf = 0.0, 15.0
+
+    x_vals = np.linspace(x0, xf, num=1000000)
+    y_vals = y_func(x_vals)
+
+    expected_area = float(sm.integrate(y, (x, x0, xf)).evalf())
+
+    surf = Surface(x_vals, y_vals)
+
+    assert isclose(surf.area_under(), expected_area, rel_tol=1e-5)
+
+    x0, xf = 0.34, 10.24
+
+    expected_area = float(sm.integrate(y, (x, x0, xf)).evalf())
+
+    assert isclose(surf.area_under(x_start=x0, x_end=xf), expected_area,
+                   rel_tol=1e-5)
