@@ -21,6 +21,8 @@ from skijumpdesign.utils import InvalidJumpError
 Color Palette
 https://mycolor.space/?hex=%2360A4FF&sub=1
 
+This was setup to match the color blue of the sky in the background image.
+
 #60a4ff rgb(96,164,255) : light blue
 #404756 rgb(64,71,86) : dark blue grey
 #a4abbd rgb(164,171,189) : light grey
@@ -305,10 +307,11 @@ The table provides a set of outputs about the currently visible jump design:
 ### Profile
 
 The **Download Profile** button returns a comma separated value text file with
-two columns. The first column provides the horizontal distance from the top of
-the jump (start of the takeoff curve) at every meter and corresponding values
-of the height above the parent slope in the second column.  Both columns are in
-meters. This data is primarily useful in building the actual jump, see [2].
+two columns. The first column provides the distance from the top of the jump
+(start of the takeoff curve) at every meter along the slope and corresponding
+values of the height above the parent slope in the second column. Both columns
+are in meters. This data is primarily useful in building the actual jump, see
+[2].
 
 ## Assumptions
 
@@ -527,16 +530,27 @@ def populated_graph(surfs):
 
 
 def generate_csv_data(surfs):
+    """Returns a csv string containing the height above the parent slope of the
+    jump at one meter intervals along the slope from the top of the jump."""
     slope, approach, takeoff, landing, trans, flight = surfs
+
     x = np.hstack((takeoff.x, landing.x, trans.x))
     y = np.hstack((takeoff.y, landing.y, trans.y))
+
     f = interp1d(x, y, fill_value='extrapolate')
-    x_one_meter = np.arange(takeoff.start[0], trans.end[0])
-    h = f(x_one_meter) - slope.interp_y(x_one_meter)
-    data = np.vstack((x_one_meter, h)).T
+
+    # One meter intervals along the slope.
+    hyp_one_meter = np.arange(0.0, (trans.end[0] - takeoff.start[0]) /
+                              np.cos(slope.angle))
+    # Corresponding x values for the one meter intervals along slope
+    x_one_meter = takeoff.start[0] + hyp_one_meter * np.cos(slope.angle)
+
+    height = f(x_one_meter) - slope.interp_y(x_one_meter)
+
+    data = np.vstack((hyp_one_meter, height)).T
     s = StringIO()
     np.savetxt(s, data, fmt='%.2f', delimiter=',', newline="\n")
-    return 'Horizontal Distance,Height Above Slope\n' + s.getvalue()
+    return 'Distance Along Slope [m],Height Above Slope [m]\n' + s.getvalue()
 
 
 @app.callback(Output('data-store', 'children'), inputs)
