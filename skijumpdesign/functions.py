@@ -144,10 +144,6 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
 
     flight = skier.fly_to(land_trans_contact, init_pos=takeoff.end,
                           init_vel=takeoff_vel)
-    x_at_highest = flight.interp_pos_wrt_slope(0.0)[0]
-    y_at_highest = flight.interp_pos_wrt_x(x_at_highest)[1]
-    outputs['Flight Height'] = y_at_highest - slope.interp_y(x_at_highest)
-
     outputs['Flight Time'] = flight.duration
     outputs['Flight Distance'] = flight.pos[-1, 0] - flight.pos[0, 0]
     logging.info('Flight time: {:1.3f} [s]'.format(flight.duration))
@@ -159,6 +155,10 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
 
     if landing.y[0] < slope.interp_y(landing.x[0]):
         raise InvalidJumpError('Fall height is too large.')
+
+    x_at_highest = flight.interp_pos_wrt_slope(0.0)[0]
+    y_at_highest = flight.interp_pos_wrt_x(x_at_highest)[1]
+    outputs['Flight Height'] = y_at_highest - landing.interp_y(x_at_highest)
 
     budget = snow_budget(slope, takeoff, landing, landing_trans)
     outputs['Snow Budget'] = budget

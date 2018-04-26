@@ -206,7 +206,7 @@ row6 = html.Div([
                 html.Tr([html.Td('Max Flight Distance'),
                          html.Td('', id='flight-dist-text'),
                          html.Td('m')]),
-                html.Tr([html.Td('Max Flight Height Above Parent'),
+                html.Tr([html.Td('Max Flight Height Above Snow'),
                          html.Td('', id='flight-height-text'),
                          html.Td('m')]),
                 html.Tr([html.Td('Snow Budget'),
