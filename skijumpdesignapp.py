@@ -419,6 +419,8 @@ inputs = [
 
 def blank_graph(msg):
     nan_line = [np.nan]
+    if layout['annotations']:
+        del layout['annotations']
     data = {'data': [
                      {'x': [0.0, 0.0], 'y': [0.0, 0.0], 'name': 'Parent Slope',
                       'text': ['Invalid Parameters<br>Error: {}'.format(msg)],
@@ -566,7 +568,12 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
     except InvalidJumpError as e:
         logging.error('Graph update error:', exc_info=e)
         dic = blank_graph('<br>'.join(textwrap.wrap(str(e), 30)))
-        dic['outputs'] = {'download': '#'}
+        dic['outputs'] = {'download': '#',
+                          'Takeoff Speed': 0.0,
+                          'Snow Budget': 0.0,
+                          'Flight Time': 0.0,
+                          'Flight Distance': 0.0,
+                          'Flight Height': 0.0}
     else:
         # NOTE : Move origin to start of takeoff.
         new_origin = surfs[2].start
