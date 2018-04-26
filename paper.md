@@ -1,5 +1,5 @@
 ---
-title: 'skijumpdesign: A Ski Jump Design Tool for Equivalent Fall Height'
+title: 'skijumpdesign: A Ski Jump Design Tool for Specified Equivalent Fall Height'
 tags:
   - python
   - engineering
@@ -12,7 +12,7 @@ authors:
     orcid: 0000-0002-8698-6143
     affiliation: 1
   - name: Mont Hubbard
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0001-8321-6576
     affiliation: 1
 affiliations:
  - name: University of California, Davis
