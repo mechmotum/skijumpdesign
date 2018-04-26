@@ -310,6 +310,26 @@ the jump (start of the takeoff curve) at every meter and corresponding values
 of the height above the parent slope in the second column.  Both columns are in
 meters. This data is primarily useful in building the actual jump, see [2].
 
+# Assumptions
+
+The design calculations in this application depend on the ratios of aerodynamic
+drag and snow friction resistive forces to inertial forces for the jumper, and
+on estimates for reasonable turning accelerations (and their rates) able to be
+borne by the jumper in the transitions (see reference [1]). A list of related
+assumed parameters with definitions and a set of nominal values for these
+parameters is provided here:
+
+- skier mass: 75.0 kg
+- skier cross sectional area: 0.34 meters squared
+- skier drag coefficient: 0.821
+- snow/ski Coulomb friction coefficient: 0.03
+- tolerable normal acceleration in approach-takeoff transition: 1.5 g's
+- tolerable normal acceleration in landing transition: 3.0  g's
+- fraction of the approach turning angle subtended by the circular section:
+  0.99
+- equilibration time the jumper should have on the straight ramp just before
+  takeoff: 0.2 sec
+
 # Colophon
 
 This website was designed by Jason K. Moore and Mont Hubbard based on
