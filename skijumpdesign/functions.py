@@ -153,6 +153,8 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     landing = LandingSurface(skier, takeoff.end, takeoff_angle,
                              landing_trans.start, fall_height, surf=slope)
 
+    logging.info("Num points in landing surface: {}".format(len(landing.x)))
+
     if landing.y[0] < slope.interp_y(landing.x[0]):
         raise InvalidJumpError('Fall height is too large.')
 
