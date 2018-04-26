@@ -328,7 +328,7 @@ parameters is provided here:
 - fraction of the approach turning angle subtended by the circular section:
   0.99
 - equilibration time the jumper should have on the straight ramp just before
-  takeoff: 0.2 sec
+  takeoff: 0.25 sec
 
 # Colophon
 

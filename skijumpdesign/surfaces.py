@@ -371,7 +371,7 @@ class TakeoffSurface(Surface):
     clothoids."""
 
     def __init__(self, skier, entry_angle, exit_angle, entry_speed,
-                 time_on_ramp=0.2, gamma=0.99, init_pos=(0.0, 0.0),
+                 time_on_ramp=0.25, gamma=0.99, init_pos=(0.0, 0.0),
                  num_points=200):
         """Instantiates the takeoff curve with the flat takeoff ramp added to
         the terminus of the clothoid-circle-clothoid curve.
