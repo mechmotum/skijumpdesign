@@ -269,6 +269,8 @@ surface.
 point). All outputs are 2D curves. The complete jump shape consists of three;
 the takeoff, landing and landing transition surfaces.*
 
+### Graph
+
 - **Takeoff Surface**: This transition curve is designed to give a smoothly
   varying acceleration transition from the parent slope to the takeoff point
   where the jumper begins flight.
@@ -281,6 +283,31 @@ the takeoff, landing and landing transition surfaces.*
   acceleration transition from  the landing surface back to the parent surface.
 - **Flight Trajectory**: This is the jumper flight path corresponding to the
   design takeoff speed.
+
+### Table
+
+The table provides a set of outputs about the currently visible jump design:
+
+- **Max Takeoff Speed**: This is the maximum speed the jumper can reach at the
+  takeoff point when beginning from the top of the approach at a standstill.
+  This speed dictates the maximum flight trajectory.
+- **Max Flight Time**: The maximum time the jumper can be in the air given the
+  maximum takeoff speed.
+- **Max Flight Distance**: The maximum distance the jumper can jump given the
+  maximum takeoff speed.
+- **Max Flight Height Above Snow**: The maximum height the jumper can obtain
+  above the landing surface snow given the maximum takeoff speed.
+- **Snow Budget**: The cross sectional area of the snow under the takeoff and
+  landing surfaces. Multiply this value times the width of the jump to obtain
+  the volume of snow in the jump design.
+
+### Profile
+
+The **Download Profile** button returns a comma separated value text file with
+two columns. The first column provides the horizontal distance from the top of
+the jump (start of the takeoff curve) at every meter and corresponding values
+of the height above the parent slope in the second column.  Both columns are in
+meters. This data is primarily useful in building the actual jump, see [2].
 
 # Colophon
 
