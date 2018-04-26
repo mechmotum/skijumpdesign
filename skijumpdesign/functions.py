@@ -33,6 +33,10 @@ def snow_budget(parent_slope, takeoff, landing, landing_trans):
 
     A = parent_slope.area_under(x_start=takeoff.start[0],
                                 x_end=landing_trans.end[0])
+    delx = landing_trans.end[0] - takeoff.start[0]
+    A_exp = -delx * takeoff.start[0] + np.tan(parent_slope.angle) * delx * delx / 2
+    from math import isclose
+    assert isclose(A, A_exp)
     B = takeoff.area_under() + landing.area_under() + landing_trans.area_under()
 
     logging.info('Parent slope area: {}'.format(A))
