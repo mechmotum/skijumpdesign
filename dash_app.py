@@ -291,6 +291,8 @@ fabrication of such a jump is contained in [2].
 The software that powers the website is open source and information on it can
 be found here:
 
+- [Download from PyPi.org](https://pypi.org/project/skijumpdesign)
+- [Download from Anaconda.org](https://anaconda.org/conda-forge/skijumpdesign)
 - Documentation: [http://skijumpdesign.readthedocs.io](http://skijumpdesign.readthedocs.io)
 - Issue reports: [https://gitlab.com/moorepants/skijumpdesign/issues](https://gitlab.com/moorepants/skijumpdesign/issues)
 - Source code repository: [http://gitlab.com/moorepants/skijumpdesign](http://gitlab.com/moorepants/skijumpdesign)
