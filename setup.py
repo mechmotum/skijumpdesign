@@ -14,13 +14,13 @@ setup(
     long_description=open('README.rst').read(),
     keywords="engineering sports physics",
     license='MIT',
-    py_modules=['dash_app'],
+    py_modules=['skijumpdesignapp'],
     packages=find_packages(),
     include_package_data=True,  # includes things in MANIFEST.in
     data_files=[('static', ['static/skijump.css'])],
     zip_safe=False,
     entry_points={'console_scripts':
-                  ['skijumpdesign = dash_app:app.run_server']},
+                  ['skijumpdesign = skijumpdesignapp:app.run_server']},
     install_requires=['numpy',
                       'scipy>=1.0',
                       'matplotlib',
