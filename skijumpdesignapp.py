@@ -13,9 +13,11 @@ from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
+from pyinstrument import Profiler
 
 from skijumpdesign.functions import make_jump
 from skijumpdesign.utils import InvalidJumpError
+
 
 """
 Color Palette
@@ -557,11 +559,12 @@ def generate_csv_data(surfs):
 
 @app.callback(Output('data-store', 'children'), inputs)
 def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
+    profiler = Profiler()
+    profiler.start()
     slope_angle = -float(slope_angle)
     approach_len = float(approach_len)
     takeoff_angle = float(takeoff_angle)
     fall_height = float(fall_height)
-
     try:
         *surfs, outputs = make_jump(slope_angle, 0.0, approach_len,
                                     takeoff_angle, fall_height)
@@ -582,6 +585,8 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
         dic = populated_graph(surfs)
         outputs['download'] = generate_csv_data(surfs)
         dic['outputs'] = outputs
+    profiler.stop()
+    print(profiler.output_text(unicode=True, color=True))
     return json.dumps(dic)
 
 
