@@ -119,28 +119,6 @@ class Surface(object):
 
         return np.sign(yp - self.interp_y(x)) * np.sqrt(distance_squared(x))
 
-    def _limits(self, x_start=None, x_end=None):
-
-        if x_start is not None:
-            if x_start < self.start[0] or x_start > self.end[0]:
-                raise ValueError('x_start has to be between start and end.')
-            start_idx = np.argmin(np.abs(x_start - self.x))
-        else:
-            start_idx = 0
-
-        if x_end is not None:
-            if x_end < self.start[0] or x_end > self.end[0]:
-                raise ValueError('x_end has to be between start and end.')
-            end_idx = np.argmin(np.abs(x_end - self.x))
-        else:
-            end_idx = -1
-
-        # TODO : make sure end_idx < start_idx
-        #if end_idx <= start_idx:
-            #raise ValueError('x_end has to be greater than x_start.')
-
-        return start_idx, end_idx
-
     def length(self):
         """Returns the length of the surface in meters via a numerical line
         integral."""
@@ -148,10 +126,22 @@ class Surface(object):
             return np.sqrt(1.0 + self.interp_slope(x)**2)
         return quad(func, self.x[0], self.x[-1])[0]
 
-    def area_under(self, x_start=None, x_end=None):
-        """Returns the area under the curve integrating wrt to the x axis."""
-        start_idx, end_idx = self._limits(x_start, x_end)
-        return trapz(self.y[start_idx:end_idx], self.x[start_idx:end_idx])
+    def area_under(self, x_start=None, x_end=None, interval=0.05):
+        """Returns the area under the curve integrating wrt to the x axis at
+        0.05 m intervals with the trapezoidal rule."""
+        if x_start is not None:
+            if x_start < self.start[0] or x_start > self.end[0]:
+                raise ValueError('x_start has to be between start and end.')
+        else:
+            x_start = self.start[0]
+        if x_end is not None:
+            if x_end < self.start[0] or x_end > self.end[0]:
+                raise ValueError('x_end has to be between start and end.')
+        else:
+            x_end = self.end[0]
+        x = np.linspace(x_start, x_end, num=(x_end - x_start) / interval)
+        y = self.interp_y(x)
+        return trapz(y, x)
 
     def height_above(self, surface):
         """Returns an array of values giving the height each point in thsi

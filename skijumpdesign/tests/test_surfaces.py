@@ -92,18 +92,18 @@ def test_area_under():
 
     x0, xf = 0.0, 15.0
 
-    x_vals = np.linspace(x0, xf, num=1000000)
+    x_vals = np.linspace(x0, xf, num=1000)
     y_vals = y_func(x_vals)
 
     expected_area = float(sm.integrate(y, (x, x0, xf)).evalf())
 
     surf = Surface(x_vals, y_vals)
 
-    assert isclose(surf.area_under(), expected_area, rel_tol=1e-5)
+    assert isclose(surf.area_under(), expected_area, rel_tol=1e-4)
 
     x0, xf = 0.34, 10.24
 
     expected_area = float(sm.integrate(y, (x, x0, xf)).evalf())
 
     assert isclose(surf.area_under(x_start=x0, x_end=xf), expected_area,
-                   rel_tol=1e-5)
+                   rel_tol=1e-4)
