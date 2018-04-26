@@ -57,11 +57,6 @@ def test_skier_flies_forever():
     with pytest.raises(InvalidJumpError):
         make_jump(-10.0, 0.0, 30.0, 20.0, 1.5)
 
-    with pytest.raises(InvalidJumpError):
-        # Used to be: ValueError: need at least one array to concatenate
-        # Also has: while loop ran more than 1000 times
-        make_jump(-15.0, 0.0, 30.0, 20.0, 2.8)
-
 
 def test_slow_skier():
     # Short approach length such that skier can't get over
@@ -94,3 +89,7 @@ def test_problematic_jump_parameters():
     # the following jump can't find appropriate landing point and generates a
     # unrealistic curve
     make_jump(-30.0, 0.0, 1.0, 15.0, 0.5)
+
+    # Used to be: ValueError: need at least one array to concatenate
+    # Also has: while loop ran more than 1000 times
+    make_jump(-15.0, 0.0, 30.0, 20.0, 2.8)
