@@ -239,6 +239,7 @@ markdown_text = """\
   position.
 - Inspect and view the graph of the resulting jump design using the menu bar
   and iterate design parameters. The third button allows zoom.
+- Download the jump design profile using the **Download Profile** button.
 
 # Explanation
 
@@ -526,16 +527,15 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
     except InvalidJumpError as e:
         logging.error('Graph update error:', exc_info=e)
         dic = blank_graph('<br>'.join(textwrap.wrap(str(e), 30)))
+        dic['outputs'] = {'download': '#'}
     else:
         # NOTE : Move origin to start of takeoff.
         new_origin = surfs[2].start
         for surface in surfs:
             surface.shift_coordinates(-new_origin[0], -new_origin[1])
         dic = populated_graph(surfs)
-
-    outputs['download'] = generate_csv_data(surfs)
-
-    dic['outputs'] = outputs
+        outputs['download'] = generate_csv_data(surfs)
+        dic['outputs'] = outputs
     return json.dumps(dic)
 
 
