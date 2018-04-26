@@ -10,7 +10,7 @@ setup(
     author='Jason K. Moore',
     author_email='moorepants@gmail.com',
     url="https://gitlab.com/moorepants/skijumpdesign/",
-    description='Ski Jump Design Tool For Equivalent Fall Height',
+    description='Ski Jump Design Tool For Specified Equivalent Fall Height',
     long_description=open('README.rst').read(),
     keywords="engineering sports physics",
     license='MIT',
