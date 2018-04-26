@@ -136,7 +136,7 @@ layout = go.Layout(autosize=True,
                           'scaleratio': 1.0,  # equal aspect ratio
                           'title': 'Height [m]', 'zeroline': False},
                    legend={'orientation': "h",
-                           'y': 1.2})
+                           'y': 1.15})
 
 graph_widget = html.Div([dcc.Graph(id='my-graph',
                                    # following is a trick to get height to
@@ -394,11 +394,54 @@ def blank_graph(msg):
     return data
 
 
+def create_arc(x_cen, y_cen, radius, angle):
+    """Returns the x and y coordinates of an arc that starts at the angled
+    slope and ends at horizontal."""
+    x_start = x_cen + radius * np.cos(angle)
+    x_end = x_cen + radius
+    x = np.linspace(x_start, x_end)
+    y = -np.sqrt(radius**2 - (x - x_cen)**2) + y_cen
+    return x, y
+
+
 def populated_graph(surfs):
 
     slope, approach, takeoff, landing, trans, flight = surfs
 
+    leader_len = (approach.x[-1] - approach.x[0]) / 3
+
+    arc_x, arc_y = create_arc(*approach.start, 2 * leader_len / 3, slope.angle)
+
+    layout['annotations'] = [
+        {
+         'x': takeoff.end[0],
+         'y': takeoff.end[1],
+         'xref': 'x',
+         'yref': 'y',
+         'text': 'Takeoff Point',
+        },
+        {
+         'x': arc_x[35],
+         'y': arc_y[35],
+         'xref': 'x',
+         'yref': 'y',
+         'text': 'Parent Slope Angle',
+         'ax': 80,
+         'ay': 0,
+        },
+    ]
+
     return {'data': [
+                     {'x': [approach.x[0], approach.x[0] + leader_len],
+                      'y': [approach.y[0], approach.y[0]],
+                      'line': {'color': 'black', 'dash': 'dash'},
+                      'mode': 'lines',
+                      'showlegend': False},
+                     {'x': arc_x.tolist(),
+                      'y': arc_y.tolist(),
+                      'line': {'color': 'black'},
+                      'mode': 'lines',
+                      'showlegend': False},
                      {'x': slope.x.tolist(), 'y': slope.y.tolist(),
                       'name': 'Parent Slope',
                       'line': {'color': 'black', 'dash': 'dash'}},
