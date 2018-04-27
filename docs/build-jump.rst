@@ -40,12 +40,9 @@ skiing simulation trajectory.
 
    skier = Skier()
 
-   times, approach_traj = skier.slide_on(approach)
+   approach_traj = skier.slide_on(approach)
 
-   fig, ax = plt.subplots()
-   ax.plot(approach_traj[0], approach_traj[1])
-   ax.set_xlabel('Horizontal Position [m]')
-   ax.set_ylabel('Horizontal Speed [m/s]')
+   approach_traj.plot_time_series()
 
 Takeoff
 =======
@@ -78,12 +75,9 @@ The trajectory of the skier on the takeoff can be examined also.
    :context: close-figs
    :width: 600px
 
-   times, takeoff_traj = skier.slide_on(takeoff, takeoff_entry_speed)
+   takeoff_traj = skier.slide_on(takeoff, takeoff_entry_speed)
 
-   fig, ax = plt.subplots()
-   ax.plot(takeoff_traj[0], takeoff_traj[1])
-   ax.set_xlabel('Horizontal Position [m]')
-   ax.set_ylabel('Horizontal Speed [m/s]')
+   takeoff_traj.plot_time_series()
 
 Flight
 ======

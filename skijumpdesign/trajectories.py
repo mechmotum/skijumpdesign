@@ -7,6 +7,8 @@ if 'ONHEROKU' in os.environ:
 else:
     import matplotlib.pyplot as plt
 
+from .utils import EPS
+
 
 class Trajectory(object):
     """Class that describes a 2D trajectory."""
@@ -21,9 +23,14 @@ class Trajectory(object):
         pos : array_like, shape(n, 2)
             The x and y coordinates of the position.
         vel : array_like, shape(n, 2), optional
-            The x and y components of velocity.
+            The x and y components of velocity. If not provided numerical
+            differentiation of position will be used.
         acc : array_like, shape(n, 2), optional
-            The x and y components of acceleration.
+            The x and y components of acceleration. If not provided numerical
+            differentiation of velocity will be used.
+        speed : array_like, shape(n, 2), optional
+            The magnitude of the velocity. If not provided it will be
+            calculated from the velocity components.
 
         """
 
@@ -36,7 +43,7 @@ class Trajectory(object):
             vel = np.gradient(pos, t, axis=0, edge_order=2)
         else:
             # assumes that the velocity was calculated more accurately
-            self.slope = vel[:, 1] / vel[:, 0]
+            self.slope = vel[:, 1] / (vel[:, 0] + EPS)
 
         self.vel = vel
 
@@ -45,7 +52,6 @@ class Trajectory(object):
         else:
             self.speed = speed
 
-        self.slope = self.vel[:, 1] / self.vel[:, 0]
         self.angle = np.arctan(self.slope)
 
         if acc is None:
@@ -93,7 +99,7 @@ class Trajectory(object):
     def plot_time_series(self):
         fig, axes = plt.subplots(2, 2)
 
-        idxs = [1, 2, 9, 10]
+        idxs = [1, 2, 7, 8]
         labels = ['Horizontal Position [m]',
                   'Vertical Position [m]',
                   'Slope [m/m]',
@@ -101,7 +107,8 @@ class Trajectory(object):
         for traj, ax, lab in zip(self._traj[:, idxs].T, axes.flatten(), labels):
             ax.plot(self.t, traj)
             ax.set_ylabel(lab)
-        ax.set_xlabel('Time [s]')
+        axes[1, 0].set_xlabel('Time [s]')
+        axes[1, 1].set_xlabel('Time [s]')
         plt.tight_layout()
 
         def make_plot(data, word, unit):
