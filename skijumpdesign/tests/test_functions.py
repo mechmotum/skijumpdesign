@@ -18,14 +18,11 @@ def test_shift_surface_origin(plot=False):
 @pytest.mark.xfail(strict=True)
 def test_make_jump_expected_to_fail():
 
-    # ValueError: x and y arrays must have at least 2 entries
-    make_jump(-15.0, 0.0, 30.0, 20.0, 2.7)
-
     # TODO : Fix these.
-    # Invalid value in sqrt, these hang after the sqrt warning, no errors.
-    #make_jump(-10.0, 0.0, 30.0, 23.0, 0.2)
-    #make_jump(-10.0, 0.0, 30.0, 20.0, 0.1)
-    #make_jump(-11.2, 0.0, 40.0, 10.2, 0.54)
+    # Was Invalid value in sqrt, these hang after the sqrt warning, no errors.
+    make_jump(-10.0, 0.0, 30.0, 23.0, 0.2)
+    make_jump(-10.0, 0.0, 30.0, 20.0, 0.1)
+    make_jump(-11.2, 0.0, 40.0, 10.2, 0.54)
 
 
 def test_invalid_fall_height():
@@ -43,19 +40,11 @@ def test_fall_height_too_large():
     with pytest.raises(InvalidJumpError):
         make_jump(-10.0, 0.0, 30.0, 20.0, 2.0)
 
-    with pytest.raises(InvalidJumpError):
-        make_jump(-15.0, 0.0, 30.0, 20.0, 3.0)
-
-    with pytest.raises(InvalidJumpError):
-        # Used to be: ValueError: x and y arrays must have at least 2 entries
-        make_jump(-15.0, 0.0, 30.0, 20.0, 3.0)
-
 
 def test_skier_flies_forever():
 
-    # Flying skier never contacts surface.
-    with pytest.raises(InvalidJumpError):
-        make_jump(-10.0, 0.0, 30.0, 20.0, 1.5)
+    # works now
+    make_jump(-10.0, 0.0, 30.0, 20.0, 1.5)
 
 
 def test_slow_skier():
@@ -71,7 +60,8 @@ def test_problematic_jump_parameters():
 
     # This used to cause a RuntimeWarning: Invalid value in arsin in
     # LandingTransitionSurface.calc_trans_acc() before the fix.
-    make_jump(-26.0, 0.0, 3.0, 27.0, 0.6)
+    with pytest.raises(InvalidJumpError):
+        make_jump(-26.0, 0.0, 3.0, 27.0, 0.6)
 
     # Divide by zero in scipy/integrate/_ivp/rk.py
     # RuntimeWarning: divide by zero encountered in double_scalars
@@ -92,4 +82,16 @@ def test_problematic_jump_parameters():
 
     # Used to be: ValueError: need at least one array to concatenate
     # Also has: while loop ran more than 1000 times
-    make_jump(-15.0, 0.0, 30.0, 20.0, 2.8)
+    with pytest.raises(InvalidJumpError):
+        make_jump(-15.0, 0.0, 30.0, 20.0, 2.8)
+
+    # Used to be too much fall height
+    make_jump(-15.0, 0.0, 30.0, 20.0, 3.0)
+
+    # Used to fall height too large
+    # Used to be: ValueError: x and y arrays must have at least 2 entries
+    make_jump(-15.0, 0.0, 30.0, 20.0, 3.0)
+
+    # Used to be ValueError: x and y arrays must have at least 2 entries
+    make_jump(-15.0, 0.0, 30.0, 20.0, 2.7)
+

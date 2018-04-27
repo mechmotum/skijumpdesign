@@ -3,10 +3,12 @@ from math import isclose
 import numpy as np
 import sympy as sm
 import matplotlib.pyplot as plt
+import pytest
 
 from ..skiers import Skier
 from ..surfaces import (Surface, FlatSurface, ClothoidCircleSurface,
-                        TakeoffSurface)
+                        TakeoffSurface, LandingTransitionSurface)
+from ..utils import InvalidJumpError
 
 
 def test_surface():
@@ -82,6 +84,51 @@ def test_takeoff_surface(plot=False):
         ax = fsurf.plot()
         ax = tsurf.plot(ax=ax)
         plt.show()
+
+
+def test_landing_trans_surface(plot=False):
+    slope_angle = -10.0
+    start_pos = 0.0
+    approach_len = 30.0
+    takeoff_angle = 20.0
+    fall_height = 2.0
+
+    skier = Skier()
+
+    slope_angle = np.deg2rad(slope_angle)
+    takeoff_angle = np.deg2rad(takeoff_angle)
+
+    init_pos = (start_pos * np.cos(slope_angle),
+                start_pos * np.sin(slope_angle))
+
+    approach = FlatSurface(slope_angle, approach_len, init_pos=init_pos)
+
+    takeoff_entry_speed = skier.end_speed_on(approach)
+    takeoff = TakeoffSurface(skier, slope_angle, takeoff_angle,
+                             takeoff_entry_speed, init_pos=approach.end)
+
+    slope = FlatSurface(slope_angle, 100 * approach_len)
+
+    takeoff_vel = skier.end_vel_on(takeoff, init_speed=takeoff_entry_speed)
+
+    flight = skier.fly_to(slope, init_pos=takeoff.end, init_vel=takeoff_vel)
+
+    with pytest.raises(InvalidJumpError):
+        landing_trans = LandingTransitionSurface(slope, flight, fall_height,
+                                                 skier.tolerable_landing_acc)
+
+    #xpara, ypara = landing_trans.find_parallel_traj_point()
+#
+    #x_trans, char_dist = landing_trans.find_transition_point()
+#
+    #if plot:
+        #ax = slope.plot()
+        #ax = takeoff.plot(ax=ax)
+        #ax = flight.plot(ax=ax)
+        #ax = landing_trans.plot(ax=ax)
+        #ax.plot(xpara, ypara, marker='o')
+        #ax.axvline(x_trans)
+        #plt.show()
 
 
 def test_area_under():
