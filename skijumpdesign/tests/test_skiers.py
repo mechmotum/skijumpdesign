@@ -1,10 +1,11 @@
+import os
 from math import isclose
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 from ..skiers import Skier
-from ..surfaces import Surface
+from ..surfaces import Surface, FlatSurface, TakeoffSurface
 from ..utils import vel2speed
 
 
@@ -57,7 +58,7 @@ def test_skier(plot=False):
     assert isclose(landing_vel[1], landing_vel2[1], rel_tol=1e-5)
 
 
-def test_slide_on():
+def test_slide_on(plot=False):
 
     x = np.linspace(0, 20)
     y = -1.0 * x + 10.0
@@ -175,3 +176,31 @@ def test_slide_on():
 
     if plot:
         plt.show()
+
+
+def test_slide_on2():
+
+    approach_ang = -np.deg2rad(20)  # radians
+    approach_len = 20.0  # meters
+    takeoff_ang = np.deg2rad(15)
+
+    skier = Skier()
+
+    approach = FlatSurface(approach_ang, approach_len)
+
+    takeoff_entry_speed = skier.end_speed_on(approach)
+
+    assert isclose(takeoff_entry_speed, 10.92727081007988)
+
+    takeoff = TakeoffSurface(skier, approach_ang, takeoff_ang,
+                             takeoff_entry_speed, init_pos=approach.end)
+
+    times, takeoff_traj = skier.slide_on(takeoff, takeoff_entry_speed)
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    expected_times = np.loadtxt(os.path.join(this_dir, 'slide-on-times.txt'),
+                                delimiter=',')
+    expected_traj = np.loadtxt(os.path.join(this_dir, 'slide-on-traj.txt'),
+                               delimiter=',')
+
+    np.testing.assert_allclose(times, expected_times)
+    np.testing.assert_allclose(takeoff_traj, expected_traj)
