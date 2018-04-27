@@ -608,6 +608,7 @@ class LandingTransitionSurface(Surface):
         i = 0
         g_error = np.inf
         x, _ = self.find_parallel_traj_point()
+        xpara = float(x)  # copy
 
         while g_error > .001:  # tolerance
 
@@ -636,6 +637,10 @@ class LandingTransitionSurface(Surface):
         msg = ("The maximum landing transition acceleration is {} G's and the "
                "tolerable landing transition acceleration is {} G's.")
         logging.info(msg.format(transition_Gs, self.tolerable_acc))
+
+        if x < xpara:
+            msg = 'Not able to find valid landing transition point.'
+            raise InvalidJumpError(msg)
 
         return x, char_dist
 
