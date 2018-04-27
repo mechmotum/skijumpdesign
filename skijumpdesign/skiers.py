@@ -267,25 +267,29 @@ class Skier(object):
                    'the end of the surface.')
             raise InvalidJumpError(msg)
 
-        return sol.t, sol.y
+        y = surface.interp_y(sol.y[0])
+        slope = surface.interp_slope(sol.y[0])
+        angle = np.arctan(slope)
+        vx = sol.y[1] * np.cos(angle)
+        vy = sol.y[1] * np.sin(angle)
+
+        return Trajectory(sol.t, np.vstack((sol.y[0], y)).T,
+                          vel=np.vstack((vx, vy)).T, speed=sol.y[1])
 
     def end_speed_on(self, surface, **kwargs):
         """Returns the ending speed after sliding on the provided surface.
         Keyword args are passed to Skier.slide_on()."""
 
-        _, traj = self.slide_on(surface, **kwargs)
+        traj = self.slide_on(surface, **kwargs)
 
-        return traj[1, -1]
+        return traj.speed[-1]
 
     def end_vel_on(self, surface, **kwargs):
         """Returns the ending velocity (vx, vy) after sliding on the provided
         surface.  Keyword args are passed to Skier.slide_on()."""
 
-        _, traj = self.slide_on(surface, **kwargs)
-        end_angle = np.tan(surface.slope[-1])
-        speed_x = traj[1, -1] * np.cos(end_angle)
-        speed_y = traj[1, -1] * np.sin(end_angle)
-        return speed_x, speed_y
+        traj = self.slide_on(surface, **kwargs)
+        return tuple(traj.vel[-1])
 
     def speed_to_land_at(self, landing_point, takeoff_point, takeoff_angle,
                          surf):

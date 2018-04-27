@@ -178,7 +178,7 @@ def test_slide_on(plot=False):
         plt.show()
 
 
-def test_slide_on2():
+def test_slide_on_regression():
 
     approach_ang = -np.deg2rad(20)  # radians
     approach_len = 20.0  # meters
@@ -190,17 +190,34 @@ def test_slide_on2():
 
     takeoff_entry_speed = skier.end_speed_on(approach)
 
-    assert isclose(takeoff_entry_speed, 10.92727081007988)
+    expected_speed = 10.92727081007988054750512674218044
 
-    takeoff = TakeoffSurface(skier, approach_ang, takeoff_ang,
-                             takeoff_entry_speed, init_pos=approach.end)
+    assert isclose(takeoff_entry_speed, expected_speed, rel_tol=1e-16)
 
-    times, takeoff_traj = skier.slide_on(takeoff, takeoff_entry_speed)
+    takeoff_entry_vel = skier.end_vel_on(approach)
+
+    # NOTE : Not true regression here because there was a bug in end_vel_on
+    # which used tan instead of arctan.
+    expected_vx = 10.26827574556135758143682323861867
+    expected_vy = -3.7373467286218100547046105930348
+
+    assert isclose(takeoff_entry_vel[0], expected_vx)
+    assert isclose(takeoff_entry_vel[1], expected_vy)
+
+    takeoff = TakeoffSurface(skier, approach_ang, takeoff_ang, expected_speed,
+                             init_pos=approach.end)
+
+    takeoff_traj = skier.slide_on(takeoff, expected_speed)
+
     this_dir = os.path.dirname(os.path.realpath(__file__))
     expected_times = np.loadtxt(os.path.join(this_dir, 'slide-on-times.txt'),
                                 delimiter=',')
     expected_traj = np.loadtxt(os.path.join(this_dir, 'slide-on-traj.txt'),
                                delimiter=',')
 
-    np.testing.assert_allclose(times, expected_times)
-    np.testing.assert_allclose(takeoff_traj, expected_traj)
+    np.testing.assert_allclose(takeoff_traj.t,
+                               expected_times, rtol=1e-16)
+    np.testing.assert_allclose(takeoff_traj.pos[:, 0],
+                               expected_traj[0], rtol=1e-16)
+    np.testing.assert_allclose(takeoff_traj.speed,
+                               expected_traj[1], rtol=1e-16)

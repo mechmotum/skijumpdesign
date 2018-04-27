@@ -11,7 +11,7 @@ else:
 class Trajectory(object):
     """Class that describes a 2D trajectory."""
 
-    def __init__(self, t, pos, vel=None, acc=None):
+    def __init__(self, t, pos, vel=None, acc=None, speed=None):
         """
 
         Parameters
@@ -40,7 +40,11 @@ class Trajectory(object):
 
         self.vel = vel
 
-        self.speed = np.sqrt(np.sum(vel**2, axis=1))
+        if speed is None:
+            self.speed = np.sqrt(np.sum(vel**2, axis=1))
+        else:
+            self.speed = speed
+
         self.slope = self.vel[:, 1] / self.vel[:, 0]
         self.angle = np.arctan(self.slope)
 
