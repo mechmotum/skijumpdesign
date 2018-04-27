@@ -26,12 +26,12 @@ def test_trajectory(plot=False):
 def test_gradients():
 
     t = np.linspace(4.0, 16.0, num=1000)
-    x = np.cos(t)
-    y = np.sin(t)
-    vx = -np.sin(t)
-    vy = np.cos(t)
-    ax = -np.cos(t)
-    ay = -np.sin(t)
+    x = 1.27 * t**3
+    y = np.sin(1.27 * t)
+    vx = 3 * 1.27 * t**2
+    vy = 1.27 * np.cos(1.27 * t)
+    ax = 2 * 3 * 1.27 * t
+    ay = -1.27**2 * np.sin(1.27 * t)
 
     traj = Trajectory(t, np.vstack((x, y)).T,
                       vel=np.vstack((vx, vy)).T,
@@ -45,8 +45,8 @@ def test_gradients():
     # if vel isn't supplied then numerical differentiation is used which gives
     # less accuracy
     traj = Trajectory(t, np.vstack((x, y)).T)
-    np.testing.assert_allclose(vy / vx, traj.slope, rtol=1e-5)
-    np.testing.assert_allclose(np.arctan(vy / vx), traj.angle, rtol=1e-5)
+    np.testing.assert_allclose(vy / vx, traj.slope, atol=1e-5)
+    np.testing.assert_allclose(np.arctan(vy / vx), traj.angle, atol=1e-5)
 
 
 def test_interp_wrt_x():

@@ -58,7 +58,7 @@ def test_skier(plot=False):
     assert isclose(landing_vel[1], landing_vel2[1], rel_tol=1e-5)
 
 
-def test_slide_on(plot=False):
+def test_slide_on():
 
     x = np.linspace(0, 20)
     y = -1.0 * x + 10.0
@@ -75,7 +75,7 @@ def test_slide_on(plot=False):
 
     skier = Skier(mass, area, drag_coeff, friction_coeff)
 
-    times, traj = skier.slide_on(surf, 50.0)
+    traj = skier.slide_on(surf, 50.0)
 
     expected_times = \
     np.array([0.        , 0.00280209, 0.00560419, 0.00840628, 0.01120837,
@@ -167,15 +167,9 @@ def test_slide_on(plot=False):
             47.64843385, 47.42632921, 47.28469214, 47.18097097, 47.07081986,
             46.9080988 ])
 
-    np.testing.assert_allclose(expected_times, times, rtol=1e-5)
-    np.testing.assert_allclose(expected_x, traj[0], rtol=1e-5)
-    np.testing.assert_allclose(expected_v, traj[1], rtol=1e-5)
-
-    if plot:
-        plt.plot(times, traj.T)
-
-    if plot:
-        plt.show()
+    np.testing.assert_allclose(expected_times, traj.t, rtol=1e-5)
+    np.testing.assert_allclose(expected_x, traj.pos[:, 0], rtol=1e-5)
+    np.testing.assert_allclose(expected_v, traj.speed, rtol=1e-5)
 
 
 def test_slide_on_regression():

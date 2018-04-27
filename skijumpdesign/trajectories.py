@@ -43,12 +43,12 @@ class Trajectory(object):
             vel = np.gradient(pos, t, axis=0, edge_order=2)
         else:
             # assumes that the velocity was calculated more accurately
-            self.slope = vel[:, 1] / (vel[:, 0] + EPS)
+            self.slope = vel[:, 1] / vel[:, 0]
 
         self.vel = vel
 
         if speed is None:
-            self.speed = np.sqrt(np.sum(vel**2, axis=1))
+            self.speed = np.sqrt(np.sum(self.vel**2, axis=1))
         else:
             self.speed = speed
 
