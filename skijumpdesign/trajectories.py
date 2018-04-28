@@ -14,7 +14,7 @@ class Trajectory(object):
     """Class that describes a 2D trajectory."""
 
     def __init__(self, t, pos, vel=None, acc=None, speed=None):
-        """
+        """Instantiates a trajectory.
 
         Parameters
         ==========
@@ -97,6 +97,7 @@ class Trajectory(object):
         self._initialize_trajectory()
 
     def plot_time_series(self):
+        """Plots all of the time series stored in the trajectory."""
         fig, axes = plt.subplots(2, 2)
 
         idxs = [1, 2, 7, 8]
@@ -128,7 +129,8 @@ class Trajectory(object):
         return axes
 
     def plot(self, ax=None, **plot_kwargs):
-        """Returns a matplotlib axes containing a plot of the surface.
+        """Returns a matplotlib axes containing a plot of the trajectory
+        position.
 
         Parameters
         ==========
