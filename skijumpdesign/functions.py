@@ -20,7 +20,26 @@ from .utils import InvalidJumpError, vel2speed
 
 
 def snow_budget(parent_slope, takeoff, landing, landing_trans):
-    """Returns the jump's cross sectional snow budget area."""
+    """Returns the jump's cross sectional snow budget area of the EFH jump.
+
+    Parameters
+    ==========
+    parent_slope : FlatSurface
+        A FlatSurface that spans before and after the jump.
+    takeoff : TakeoffSurface
+        The clothiod-circle-clothiod-flat takeoff surface.
+    landing : LandingSurface
+        The EFH landing surface.
+    landing_trans: LandingTransitionSurface
+        The EFH landing transition surface.
+
+    Returns
+    =======
+    float
+        The cross sectional snow budget (area between the parent slope and jump
+        curve) in meters squared.
+
+    """
 
     # TODO : Make this function more robust, may need to handle jumps that are
     # above the x axis.
@@ -28,19 +47,9 @@ def snow_budget(parent_slope, takeoff, landing, landing_trans):
             np.any(landing_trans.y > 0.0)):
         logging.warn('Snowbudget invalid since jump about X axis.')
 
-    logging.info(takeoff.start[0])
-    logging.info(landing_trans.end[0])
-
     A = parent_slope.area_under(x_start=takeoff.start[0],
                                 x_end=landing_trans.end[0])
     B = takeoff.area_under() + landing.area_under() + landing_trans.area_under()
-
-    logging.info('Parent slope area: {}'.format(A))
-    logging.info('Takeoff area: {}'.format(takeoff.area_under()))
-    logging.info('Landing area: {}'.format(landing.area_under()))
-    logging.info('Landing transition area: {}'.format(
-        landing_trans.area_under()))
-    logging.info('B= {}'.format(B))
 
     return np.abs(A - B)
 
@@ -48,8 +57,8 @@ def snow_budget(parent_slope, takeoff, landing, landing_trans):
 @clru_cache(maxsize=128)
 def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
               plot=False):
-    """Returns a set of surfaces that define the equivalent fall height jump
-    design and the skier's flight trajectory.
+    """Returns a set of surfaces and output values that define the equivalent
+    fall height jump design and the skier's flight trajectory.
 
     Parameters
     ==========
@@ -82,10 +91,14 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
         The equivalent fall height landing surface.
     landing_trans : LandingTransitionSurface
         The minimum exponential landing transition.
-    flight : Surface
-        A "surface" that encodes the maximum velocity flight trajectory.
+    flight : Trajectory
+        The maximum velocity flight trajectory.
+    outputs : dictionary
+        A dictionary of output values.
 
     """
+
+    # TODO : function is too long!
 
     outputs = {'Takeoff Speed': None,
                'Flight Time': None,
