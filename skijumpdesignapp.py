@@ -182,13 +182,13 @@ row4 = html.Div([
                  html.Div([slope_angle_widget], className='col-md-5'),
                  html.Div([], className='col-md-2'),
                  html.Div([approach_len_widget], className='col-md-5'),
-                 ], className='row', style={'margin-top': 15})
+                 ], className='row shaded')
 
 row5 = html.Div([
                  html.Div([takeoff_angle_widget], className='col-md-5'),
                  html.Div([], className='col-md-2'),
                  html.Div([fall_height_widget], className='col-md-5'),
-                 ], className='row', style={'margin-top': 15})
+                 ], className='row shaded')
 
 row6 = html.Div([
     html.Div([], className='col-md-3'),
@@ -219,7 +219,7 @@ row6 = html.Div([
     ], className='col-md-4'),
     html.Div([button], className='col-md-2'),
     html.Div([], className='col-md-3'),
-], className='row', style={'padding-top': '40px'})
+], className='row shaded', style={'padding-top': '40px'})
 
 markdown_text = """\
 # Instructions

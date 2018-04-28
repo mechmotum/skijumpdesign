@@ -1,6 +1,43 @@
 body {
      background: url('https://upload.wikimedia.org/wikipedia/commons/e/eb/Snow_on_the_shore_of_frozen_Hooker_Glacier_Lake_with_Mount_Cook_in_the_background.jpg');
      background-repeat: no-repeat;
+     background-size: cover;
+     color: #404756;
+}
+
+.dash-undo-redo {
+    display: none;
+}
+
+.row.shaded {
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 20px;
+}
+
+.table {
+    font-size: 16px;
+}
+
+.rc-slider-mark-text {
+    color: #404756;
+    font-size: 14px;
+}
+
+.rc-slider-track {
+    background-color: #8e690a;
+
+}
+
+.rc-slider-handle {
+   border-color: #8e690a;
+}
+
+.rc-slider-dot {
+    border-color: #c89b43;
+}
+
+.rc-slider-handle:hover {
+   border-color: #c89b43;
 }
 
 a {
@@ -17,8 +54,8 @@ a:focus, a:hover {
 }
 
 .btn-primary:hover {
-    background-color: #60a4ff;
-    border-color: #60a4ff;
+    background-color: #c89b43;
+    border-color: #c89b43;
 }
 
 .svg-container {
