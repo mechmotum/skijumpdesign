@@ -21,18 +21,22 @@ setup(
     zip_safe=False,
     entry_points={'console_scripts':
                   ['skijumpdesign = skijumpdesignapp:app.run_server']},
-    install_requires=['numpy',
-                      'scipy>=1.0',
+    install_requires=['setuptools',
+                      'numpy',
+                      'scipy>=1.0',  # requires solve_ivp
                       'matplotlib',
                       'sympy',
                       'cython',
                       'fastcache',
+                      'plotly',
+                      'dash',
+                      'dash-renderer',
+                      'dash-html-components',
+                      'dash-core-components'
                       ],
-    extras_require={'app': ['plotly', 'dash', 'dash-renderer',
-                            'dash-html-components', 'dash-core-components'],
-                    'dev': ['pytest', 'sphinx', 'coverage']},
+    extras_require={'dev': ['pytest', 'pytest-cov', 'sphinx', 'coverage']},
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
         'Intended Audience :: Science/Research',
         'Operating System :: OS Independent',
