@@ -25,18 +25,18 @@ class Skier(object):
 
         Parameters
         ==========
-        mass : float
+        mass : float, optional
             The mass of the skier.
-        area : float
+        area : float, optional
             The frontal area of the skier.
-        drag_coeff : float
+        drag_coeff : float, optional
             The air drag coefficient of the skier.
-        friction_coeff : float
+        friction_coeff : float, optional
             The sliding friction coefficient between the skis and the slope.
-        tolerable_sliding_acc : float
+        tolerable_sliding_acc : float, optional
             The maximum normal acceleration in G's that a skier can withstand
             while sliding.
-        tolerable_landing_acc : float
+        tolerable_landing_acc : float, optional
             The maximum normal acceleration in G's that a skier can withstand
             when landing.
 
@@ -68,9 +68,9 @@ class Skier(object):
         ==========
         speed : float
             The tangential speed of the skier in meters per second.
-        slope : float
+        slope : float, optional
             The slope of the surface at the point of contact.
-        curvature : float
+        curvature : float, optional
             The curvature of the surface at the point of contact.
 
         """
@@ -93,9 +93,9 @@ class Skier(object):
         surface : Surface
             A landing surface. This surface must intersect the flight path.
         init_pos : 2-tuple of floats
-            The X and Y coordinates of the starting point of the flight.
+            The x and y coordinates of the starting point of the flight.
         init_vel : 2-tuple of floats
-            The X and Y components of the skier's velocity at the start of the
+            The x and y components of the skier's velocity at the start of the
             flight.
         fine : boolean
             If True two integrations occur. The first finds the landing time
@@ -109,11 +109,8 @@ class Skier(object):
         Returns
         =======
         trajectory : Trajectory
-        times : ndarray, shape(n,)
-            The values of time corresponding to each state instance.
-        states : ndarray, shape(n, 4)
-            The states: (x, y, vx, vy) for each instance of time. The last
-            value of the state corresponds to the skier touching the surface.
+            A trajectory instance that contains the time, position, velocity,
+            acceleration, speed, and slope of the flight.
 
         Raises
         ======
@@ -197,7 +194,7 @@ class Skier(object):
         ==========
         surface : Surface
             A surface that the skier will slide on.
-        init_speed : float
+        init_speed : float, optional
             The magnitude of the velocity of the skier at the start of the
             surface which is directed tangent to the surface.
         fine : boolean
@@ -207,10 +204,9 @@ class Skier(object):
 
         Returns
         =======
-        times : ndarray(n,)
-            The time values from the simulation.
-        states : ndarray(n, 4)
-            The [x, y, vx, vy] states.
+        trajectory : Trajectory
+            A trajectory instance that contains the time, position, velocity,
+            acceleration, speed, and slope of the slide,
 
         Raises
         ======
@@ -286,7 +282,7 @@ class Skier(object):
 
     def end_vel_on(self, surface, **kwargs):
         """Returns the ending velocity (vx, vy) after sliding on the provided
-        surface.  Keyword args are passed to Skier.slide_on()."""
+        surface. Keyword args are passed to Skier.slide_on()."""
 
         traj = self.slide_on(surface, **kwargs)
         return tuple(traj.vel[-1])
@@ -306,18 +302,17 @@ class Skier(object):
             The takeoff angle in radians.
         surf : Surface
             This should most likely be the parent slope but needs to be
-            something that ensures the skier flys past the landing point.
+            something that ensures the skier flies past the landing point.
 
         Returns
         =======
         takeoff_speed : float
             The magnitude of the takeoff velocity.
 
-        Notes
-        =====
-        This method corresponds to Mont's Matlab function findVoWithDrag.m.
-
         """
+
+        # NOTE : This method corresponds to Mont's Matlab function
+        # findVoWithDrag.m.
 
         # NOTE : This may only work if the landing surface is below the takeoff
         # point.
@@ -355,8 +350,6 @@ class Skier(object):
 
         deltay = np.inf
 
-        #ax = surf.plot()
-
         while abs(deltay) > 0.001:
             vox = vo*cto
             voy = vo*sto
@@ -364,8 +357,6 @@ class Skier(object):
             flight_traj = self.fly_to(surf, init_pos=takeoff_point,
                                       init_vel=(vox, voy),
                                       logging_type='debug')
-
-            #ax.plot(*flight_traj[:2])
 
             traj_at_impact = flight_traj.interp_wrt_x(x)
 
@@ -378,11 +369,6 @@ class Skier(object):
             logging.debug('dvo = {}'.format(dvo))
             vo = vo + dvo
             logging.debug('vo = {}'.format(vo))
-
-        #ax.plot(*takeoff_point, 'o')
-        #ax.plot(*landing_point, 'o')
-        #ax.set_xlim((10.0, 35.0))
-        #plt.show()
 
         # the takeoff velocity is adjsted by dvo before the while loop ends
         vo = vo - dvo
