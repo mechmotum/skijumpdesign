@@ -1,3 +1,4 @@
+# Requirements for the Heroku install via pip.
 numpy
 scipy >=1.0
 matplotlib
@@ -10,7 +11,6 @@ plotly
 flask
 flask-compress
 dash
-dash-auth
 dash-renderer
 dash-html-components
 dash-core-components
