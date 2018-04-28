@@ -17,16 +17,11 @@ Forge channel`_ at Anaconda.org::
 pip
 ===
 
-The library can be installed from PyPi using pip [1]_::
+The library and web application can be installed from PyPi using pip [1]_::
 
    $ pip install skijumpdesign
 
-If you want to use the web application install both the library and web
-application with::
-
-   $ pip install skijumpdesign[web]
-
-If you want to run the unit tests use::
+If you want to run the unit tests and/or build the documentation use::
 
    $ pip install skijumpdesign[dev]
 
