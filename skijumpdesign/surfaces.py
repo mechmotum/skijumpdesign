@@ -23,25 +23,26 @@ logger.setLevel(logging.INFO)
 
 
 class Surface(object):
-    """Base class for a 2D surface tied to a standard xy coordinate system."""
+    """Base class for a 2D curve that represents the cross section of a surface
+    expressed in a standard Cartesian coordinate system."""
 
     def __init__(self, x, y):
         """Instantiates an arbitrary 2D surface.
 
         Parameters
         ==========
-        x : ndarray, shape(n,)
+        x : array_like, shape(n,)
             The horizontal, x, coordinates of the slope. x[0] should be the
             left most horizontal position and corresponds to the start of the
-            surface.
-        y : ndarray, shape(n,)
+            surface. This should be monotonically increasing.
+        y : array_like, shape(n,)
             The vertical, y, coordinates of the slope. y[0] corresponds to the
             start of the surface.
 
         """
 
-        self.x = x
-        self.y = y
+        self.x = np.asarray(x)
+        self.y = np.asarray(y)
 
         self._initialize_surface()
 
@@ -65,18 +66,14 @@ class Surface(object):
 
     @property
     def start(self):
-        """Returns the x and y coordinates at the start of the surface."""
+        """Returns the x and y coordinates at the start point of the
+        surface."""
         return self.x[0], self.y[0]
 
     @property
     def end(self):
-        """Returns the x and y coordinates at the end of the surface."""
+        """Returns the x and y coordinates at the end point of the surface."""
         return self.x[-1], self.y[-1]
-
-    @property
-    def xy(self):
-        """Returns a tuple of the x and y coordinates."""
-        return self.x, self.y
 
     def shift_coordinates(self, delx, dely):
         """Shifts the x and y coordinates by delx and dely respectively. This
@@ -105,10 +102,12 @@ class Surface(object):
             is above the surface a positive distance is returned, else a
             negative distance.
 
-        """
+        Note
+        ====
+        This general implementation can be slow, so implement overloaded
+        ``distance_from()`` methods in subclasses when you can.
 
-        # NOTE : This general implementation can be slow, so implement
-        # overloaded distance_from methods in subclasses when you can.
+        """
 
         def distance_squared(x):
             return (xp - x)**2 + (yp - self.interp_y(x))**2
@@ -128,7 +127,7 @@ class Surface(object):
 
     def area_under(self, x_start=None, x_end=None, interval=0.05):
         """Returns the area under the curve integrating wrt to the x axis at
-        0.05 m intervals with the trapezoidal rule."""
+        0.05 m intervals using the trapezoidal rule."""
         if x_start is not None:
             if x_start < self.start[0] or x_start > self.end[0]:
                 raise ValueError('x_start has to be between start and end.')
@@ -144,7 +143,7 @@ class Surface(object):
         return trapz(y, x)
 
     def height_above(self, surface):
-        """Returns an array of values giving the height each point in thsi
+        """Returns an array of values giving the height each point in this
         surface is above the provided surface."""
         return self.y - surface.interp_y(self.x)
 
@@ -173,7 +172,8 @@ class Surface(object):
 
 
 class FlatSurface(Surface):
-    """Class that represents a flat angled surface."""
+    """Class that represents a flat surface angled relative to the
+    horizontal."""
 
     def __init__(self, angle, length, init_pos=(0.0, 0.0), num_points=100):
         """Instantiates a flat surface that is oriented at a counterclockwise
@@ -186,9 +186,11 @@ class FlatSurface(Surface):
             positive, clockwise is negative.
         length : float
             The distance in meters along the surface from the initial position.
-        init_pos : 2-tuple of floats
+        init_pos : 2-tuple of floats, optional
             The x and y coordinates in meters that locate the start of the
             surface.
+        num_points : integer, optional
+            The number of points used to define the surface coordinates.
 
         """
 
@@ -242,8 +244,7 @@ class ClothoidCircleSurface(Surface):
 
     def __init__(self, entry_angle, exit_angle, entry_speed, tolerable_acc,
                  init_pos=(0.0, 0.0), gamma=0.99, num_points=200):
-        """Instantiates a clothoid-circle-clothoid takeoff curve (without the
-        flat takeoff ramp).
+        """Instantiates a clothoid-circle-clothoid curve.
 
         Parameters
         ==========
@@ -368,7 +369,7 @@ class ClothoidCircleSurface(Surface):
 
 class TakeoffSurface(Surface):
     """Class that represents a surface made up of a circle bounded by two
-    clothoids."""
+    clothoids with a flat exit surface."""
 
     def __init__(self, skier, entry_angle, exit_angle, entry_speed,
                  time_on_ramp=0.25, gamma=0.99, init_pos=(0.0, 0.0),
@@ -388,12 +389,12 @@ class TakeoffSurface(Surface):
         entry_speed : float
             The magnitude of the skier's velocity in meters per second as they
             enter the left clothiod.
-        time_on_ramp : float
+        time_on_ramp : float, optional
             The time in seconds that the skier should be on the takeoff ramp
             before launch.
-        gamma : float
+        gamma : float, optional
             Fraction of circular section.
-        init_pos : 2-tuple of floats
+        init_pos : 2-tuple of floats, optional
             The x and y coordinates of the start of the left clothoid.
         num_points : integer, optional
             The number of points in each of the three sections of the curve.
@@ -448,7 +449,7 @@ class LandingTransitionSurface(Surface):
 
     def __init__(self, parent_surface, flight_traj, fall_height, tolerable_acc,
                  num_points=100):
-        """Instantiaties an exponentially decaying surface that connects the
+        """Instantiates an exponentially decaying surface that connects the
         landing surface to the parent slope.
 
         Parameters
@@ -456,11 +457,10 @@ class LandingTransitionSurface(Surface):
         parent_surface : FlatSurface
             The parent slope in which the landing transition should be tangent
             to on exit.
-        flight_traj : ndarray, shape(4, n)
-            The flight trajectory from the takeoff point to the parent sloped.
-            Rows correspond to [x, y, vx, vy] and columns to time.
+        flight_traj : Trajectory
+            The flight trajectory from the takeoff point to the parent slope.
         fall_height : float
-            The desired equivalnent fall height for the jump design in meters.
+            The desired equivalent fall height for the jump design in meters.
         tolerable_acc : float
             The maximum normal acceleration the skier should experience in the
             landing.
@@ -488,61 +488,15 @@ class LandingTransitionSurface(Surface):
         provided fall height."""
         return np.sqrt(2 * GRAV_ACC * self.fall_height)
 
-    def _create_flight_interpolator(self):
-        """Creates a method that interpolates the veritcal position, slope,
-        magnitude of the velocity, and angle of the velocity of the flight
-        trajectory given a horizontal distance."""
-
-        # TODO : This might be nicer to have in a Trajectory class that is
-        # similar to a surface but includes velocity and acceleration.
-
-        x = self.flight_traj[0]
-        y = self.flight_traj[1]
-        vx = self.flight_traj[2]
-        vy = self.flight_traj[3]
-
-        speed = np.sqrt(vx**2 + vy**2)
-
-        slope = vy / vx
-        angle = np.arctan(slope)
-
-        data = np.vstack((y, slope, speed, angle))
-
-        self._flight_interpolator = interp1d(x, data, fill_value='extrapolate')
-
-    def interp_flight(self, x):
-        """Returns the flight trajectory height, magnitude of the velocity, and
-        the angle of the velocity given a horizontal position x.
-
-        Returns
-        =======
-
-        y : float
-            Trajectory height at position x.
-        slope : float
-            Trajectory slope at position x.
-        speed : float
-            Trajectory speed at position x.
-        angle : float
-            Trajectory speed direction at position x.
-
-        """
-
-        vals = self._flight_interpolator(x)
-
-        return vals[0], vals[1], vals[2], vals[3]
-
     def calc_trans_acc(self, x):
         """Returns the acceleration in G's the skier feels at the exit
-        transition occuring if the transition starts at the provided horizontal
-        location, x."""
+        transition occurring if the transition starts at the provided
+        horizontal location, x."""
 
         # TODO : This code seems to be repeated some in the LandingSurface
         # creation code.
 
         # NOTE : "slope" means dy/dx here
-
-        #flight_y, _, flight_speed, flight_angle = self.interp_flight(x)
 
         flight_y, flight_speed, flight_angle = \
             self.flight_traj.interp_wrt_x(x)[[2, 9, 8]]
@@ -646,7 +600,7 @@ class LandingTransitionSurface(Surface):
 
     def find_parallel_traj_point(self):
         """Returns the position of a point on the flight trajectory where its
-        tagent is parallel to the parent slope. This is used as a starting
+        tangent is parallel to the parent slope. This is used as a starting
         guess for the start of the landing transition point."""
 
         slope_angle = self.parent_surface.angle
@@ -691,7 +645,7 @@ class LandingSurface(Surface):
     """Class that defines an equivalent fall height landing surface."""
 
     def __init__(self, skier, takeoff_point, takeoff_angle, max_landing_point,
-                 fall_height, surf=None):
+                 fall_height, surf):
         """Instantiates a surface that ensures impact velocity is equivalent to
         that from a vertical fall.
 
@@ -726,7 +680,7 @@ class LandingSurface(Surface):
         self.fall_height = fall_height
         self.surf = surf
 
-        x, y = self.create_safe_surface()
+        x, y = self._create_safe_surface()
 
         super(LandingSurface, self).__init__(x, y)
 
@@ -738,7 +692,7 @@ class LandingSurface(Surface):
         # duplicate code. May need to be a simple function.
         return np.sqrt(2 * GRAV_ACC * self.fall_height)
 
-    def create_safe_surface(self):
+    def _create_safe_surface(self):
         """Returns the x and y coordinates of the equivalent fall height
         landing surface."""
 
