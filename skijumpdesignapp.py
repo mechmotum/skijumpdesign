@@ -44,13 +44,17 @@ BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 CUS_URL = 'https://moorepants.info/misc/skijump.css'
 CUS_URL = '/static/skijump.css'
 
-parser = argparse.ArgumentParser(description=TITLE)
-parser.add_argument('-p', '--profile', action='store_true', default=False,
-                    help='Profile the main callback with pyinstrument.')
-cmd_line_args = parser.parse_args()
+if 'ONHEROKU' in os.environ:
+    cmd_line_args = lambda x: None
+    cmd_line_args.profile = False
+else:
+    parser = argparse.ArgumentParser(description=TITLE)
+    parser.add_argument('-p', '--profile', action='store_true', default=False,
+                        help='Profile the main callback with pyinstrument.')
+    cmd_line_args = parser.parse_args()
 
-if cmd_line_args.profile:
-    from pyinstrument import Profiler
+    if cmd_line_args.profile:
+        from pyinstrument import Profiler
 
 app = dash.Dash(__name__)
 app.css.append_css({'external_url': [BS_URL, CUS_URL]})
