@@ -3,6 +3,7 @@ import logging
 import textwrap
 import json
 import urllib
+import argparse
 from io import StringIO
 
 import numpy as np
@@ -13,7 +14,6 @@ from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
-from pyinstrument import Profiler
 
 from skijumpdesign.functions import make_jump
 from skijumpdesign.utils import InvalidJumpError
@@ -559,8 +559,11 @@ def generate_csv_data(surfs):
 
 @app.callback(Output('data-store', 'children'), inputs)
 def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
-    profiler = Profiler()
-    profiler.start()
+
+    if cmd_line_args.profile:
+        profiler = Profiler()
+        profiler.start()
+
     slope_angle = -float(slope_angle)
     approach_len = float(approach_len)
     takeoff_angle = float(takeoff_angle)
@@ -585,8 +588,11 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
         dic = populated_graph(surfs)
         outputs['download'] = generate_csv_data(surfs)
         dic['outputs'] = outputs
-    profiler.stop()
-    print(profiler.output_text(unicode=True, color=True))
+
+    if cmd_line_args.profile:
+        profiler.stop()
+        print(profiler.output_text(unicode=True, color=True))
+
     return json.dumps(dic)
 
 
@@ -641,4 +647,14 @@ def update_download_link(json_data):
     return csv_string
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=TITLE)
+
+    parser.add_argument('-p', '--profile', action='store_true', default=False,
+                        help='Profile the main callback with pyinstrument.')
+
+    cmd_line_args = parser.parse_args()
+
+    if cmd_line_args.profile:
+        from pyinstrument import Profiler
+
     app.run_server(debug=True)
