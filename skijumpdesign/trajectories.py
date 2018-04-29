@@ -79,7 +79,10 @@ class Trajectory(object):
 
     def _initialize_interpolators(self):
 
-        kwargs = {'fill_value': 'extrapolate', 'axis': 0}
+        kwargs = {'fill_value': 'extrapolate',
+                  'copy': False,
+                  'assume_sorted': True,
+                  'axis': 0}
         self.interp_pos_wrt_x = interp1d(self.pos[:, 0], self.pos, **kwargs)
         self.interp_wrt_x = interp1d(self.pos[:, 0], self._traj, **kwargs)
         self.interp_pos_wrt_slope = interp1d(self.slope, self.pos, **kwargs)
