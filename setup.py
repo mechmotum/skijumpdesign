@@ -14,6 +14,13 @@ setup(
     long_description=open('README.rst').read(),
     keywords="engineering sports physics",
     license='MIT',
+    project_urls={
+        'App': 'http://skijumpdesign.herokuapp.com',
+        'Documentation': 'http://skijumpdesign.readthedocs.io',
+        'Source': 'https://gitlab.com/moorepants/skijumpdesign',
+        'Tracker': 'https://gitlab.com/moorepants/skijumpdesign/issues',
+    },
+    python_requires='>=3.5',
     py_modules=['skijumpdesignapp'],
     packages=find_packages(),
     include_package_data=True,  # includes things in MANIFEST.in
