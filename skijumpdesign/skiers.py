@@ -156,40 +156,43 @@ class Skier(object):
 
         logging_call = getattr(logging, logging_type)
 
-        # NOTE : For a more accurate event time, the error tolerances on the
-        # states need to be lower.
         logging_call('Integrating skier flight.')
         start_time = time.time()
 
-        # integrate to find the final time point
+        # integrate to find the impact time
+        # NOTE : For a more accurate event time, the error tolerances on the
+        # states need to be lower.
         sol = solve_ivp(self._flight_rhs,
                         (0.0, self.max_flight_time),
                         init_pos + init_vel,
                         events=(touch_surface, ),
                         rtol=1e-6, atol=1e-9)
 
-        if isclose(sol.t[-1], self.max_flight_time):
+        impact_time = sol.t[-1]
+
+        te = sol.t_events[0]
+
+        if (isclose(impact_time, self.max_flight_time) or impact_time >
+                self.max_flight_time):
             msg = ('Flying skier did not contact ground within {:1.3f} '
                    'seconds, integration aborted.')
             raise InvalidJumpError(msg.format(self.max_flight_time))
 
         msg = 'Flight integration terminated at {:1.3f} s'
-        logging_call(msg.format(sol.t[-1]))
-        msg = 'Flight contact event occurred at {:1.3f} s'
-        logging_call(msg.format(float(sol.t_events[0])))
+        logging_call(msg.format(impact_time))
+        msg = 'Flight impact event occurred at {:1.3f} s'
+        logging_call(msg.format(float(te)))
 
-        logging.debug(sol.t[-1] - sol.t_events[0])
+        logging.debug(impact_time)
+        logging.debug(impact_time - te)
         logging.debug(sol.y[:, -1])
-        logging.debug(touch_surface(sol.t[-1], sol.y[:, -1]))
+        logging.debug(touch_surface(impact_time, sol.y[:, -1]))
 
-        te = sol.t_events[0]
-
-        if fine:
-            # integrate at desired resolution
-            times = np.linspace(0.0, sol.t[-1],
-                                num=int(self.samples_per_sec * sol.t[-1]))
+        if fine:  # integrate at desired resolution
+            times = np.linspace(0.0, impact_time,
+                                num=int(self.samples_per_sec * impact_time))
             sol = solve_ivp(self._flight_rhs,
-                            (0.0, sol.t[-1]),
+                            (0.0, impact_time),
                             init_pos + init_vel,
                             t_eval=times,
                             rtol=1e-6,
@@ -198,10 +201,12 @@ class Skier(object):
         msg = 'Flight integration finished in {:1.3f} seconds.'
         logging_call(msg.format(time.time() - start_time))
 
-        logging.debug(sol.t[-1])
-        logging.debug(sol.t[-1] - te)
+        impact_time = sol.t[-1]
+
+        logging.debug(impact_time)
+        logging.debug(impact_time - te)
         logging.debug(sol.y[:, -1])
-        logging.debug(touch_surface(sol.t[-1], sol.y[:, -1]))
+        logging.debug(touch_surface(impact_time, sol.y[:, -1]))
 
         return Trajectory(sol.t, sol.y[:2].T, vel=sol.y[2:].T)
 
