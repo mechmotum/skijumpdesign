@@ -82,6 +82,30 @@ class Skier(object):
 
         return -np.sign(speed) * self.friction_coeff * normal_force
 
+    def _flight_rhs(self, t, state):
+        """Returns the time derivative of the state during flight.
+
+        Parameters
+        ==========
+        t : float
+            The value of time.
+        state : array_like, shape(4,)
+            The values of the states: [x, y, vx, vy].
+
+        Returns
+        =======
+        4-tuple of floats
+            The values of the derivatives of the states.
+
+        """
+
+        xdot = state[2]
+        ydot = state[3]
+        vxdot = self.drag_force(xdot) / self.mass
+        vydot = -GRAV_ACC + self.drag_force(ydot) / self.mass
+
+        return xdot, ydot, vxdot, vydot
+
     def fly_to(self, surface, init_pos, init_vel, fine=True,
                logging_type='info'):
         """Returns the flight trajectory of the skier given the initial
@@ -119,16 +143,6 @@ class Skier(object):
 
         """
 
-        def rhs(t, state):
-
-            xdot = state[2]
-            ydot = state[3]
-
-            vxdot = self.drag_force(xdot) / self.mass
-            vydot = -GRAV_ACC + self.drag_force(ydot) / self.mass
-
-            return xdot, ydot, vxdot, vydot
-
         def touch_surface(t, state):
 
             x = state[0]
@@ -148,7 +162,7 @@ class Skier(object):
         start_time = time.time()
 
         # integrate to find the final time point
-        sol = solve_ivp(rhs,
+        sol = solve_ivp(self._flight_rhs,
                         (0.0, self.max_flight_time),
                         init_pos + init_vel,
                         events=(touch_surface, ),
@@ -174,8 +188,12 @@ class Skier(object):
             # integrate at desired resolution
             times = np.linspace(0.0, sol.t[-1],
                                 num=int(self.samples_per_sec * sol.t[-1]))
-            sol = solve_ivp(rhs, (0.0, sol.t[-1]), init_pos + init_vel,
-                            t_eval=times, rtol=1e-6, atol=1e-9)
+            sol = solve_ivp(self._flight_rhs,
+                            (0.0, sol.t[-1]),
+                            init_pos + init_vel,
+                            t_eval=times,
+                            rtol=1e-6,
+                            atol=1e-9)
 
         msg = 'Flight integration finished in {:1.3f} seconds.'
         logging_call(msg.format(time.time() - start_time))
