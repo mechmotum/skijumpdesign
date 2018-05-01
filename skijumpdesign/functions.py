@@ -14,7 +14,7 @@ else:
     import matplotlib.pyplot as plt
 
 from .skiers import Skier
-from .surfaces import (Surface, FlatSurface, TakeoffSurface,
+from .surfaces import (Surface, FlatSurface, HorizontalSurface, TakeoffSurface,
                        LandingTransitionSurface, LandingSurface)
 from .utils import InvalidJumpError, vel2speed
 
@@ -152,8 +152,9 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     slope = FlatSurface(slope_angle, np.sqrt(landing_trans.end[0]**2 +
                                              landing_trans.end[1]**2) + 1.0)
 
-    land_trans_contact = Surface(np.linspace(0.0, landing_trans.end[0]),
-                                 np.ones(50) * landing_trans.start[1])
+    land_trans_contact = HorizontalSurface(landing_trans.start[1],
+                                           50.0,
+                                           start=landing_trans.start[0] - 10.0)
 
     flight = skier.fly_to(land_trans_contact, init_pos=takeoff.end,
                           init_vel=takeoff_vel)
