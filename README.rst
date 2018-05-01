@@ -37,7 +37,7 @@ See ``docs/install.rst`` or http://skijumpdesign.readthedocs.io/en/latest/instal
 References
 ==========
 
-.. [1] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. “A
+.. [1] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A
    Design Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall
-   Height.” Sports Engineering 18, no. 4 (December 2015): 227–39.
+   Height." Sports Engineering 18, no. 4 (December 2015): 227–39.
    https://doi.org/10.1007/s12283-015-0182-6.
