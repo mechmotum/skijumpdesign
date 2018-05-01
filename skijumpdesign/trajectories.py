@@ -54,6 +54,8 @@ class Trajectory(object):
 
         self.angle = np.arctan(self.slope)
 
+        # TODO : Would be nice to be able to pass in acc=False to skip this
+        # gradient.
         if acc is None:
             acc = np.gradient(self.vel, t, axis=0, edge_order=2)
 
