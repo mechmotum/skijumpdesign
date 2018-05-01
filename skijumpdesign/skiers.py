@@ -138,8 +138,8 @@ class Skier(object):
         dsdt[2] = vxdot
         dsdt[3] = vydot
 
-    def fly_to(self, surface, init_pos, init_vel, fine=True,
-               compute_acc=True, logging_type='info'):
+    def fly_to(self, surface, init_pos, init_vel, fine=True, compute_acc=True,
+               logging_type='info'):
         """Returns the flight trajectory of the skier given the initial
         conditions and a surface which the skier contacts at the end of the
         flight trajectory.
@@ -177,6 +177,17 @@ class Skier(object):
         Skier.max_flight_time.
 
         """
+        if pycvodes is not None:
+            return self._fly_to_sundials(surface, init_pos, init_vel,
+                                         fine=fine, compute_acc=compute_acc,
+                                         logging_type=logging_type)
+        else:
+            return self._fly_to_scipy(surface, init_pos, init_vel, fine=fine,
+                                      compute_acc=compute_acc,
+                                      logging_type=logging_type)
+
+    def _fly_to_scipy(self, surface, init_pos, init_vel, fine=True,
+                      compute_acc=True, logging_type='info'):
 
         def touch_surface(t, state):
 
@@ -253,7 +264,7 @@ class Skier(object):
         return Trajectory(sol.t, sol.y[:2].T, vel=sol.y[2:].T, acc=acc)
 
     def _fly_to_sundials(self, surface, init_pos, init_vel, fine=True,
-                        compute_acc=True, logging_type='info'):
+                         compute_acc=True, logging_type='info'):
 
         def touch_surface_sundials(t, state, out):
             x = state[0]
