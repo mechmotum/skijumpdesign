@@ -4,6 +4,12 @@ from math import isclose
 
 import numpy as np
 from scipy.integrate import solve_ivp
+try:
+    import pycvodes
+except ImportError:
+    pycvodes = None
+else:
+    from pycvodes import integrate_adaptive, integrate_predefined
 
 from .trajectories import Trajectory
 from .utils import GRAV_ACC, AIR_DENSITY
@@ -101,10 +107,36 @@ class Skier(object):
 
         xdot = state[2]
         ydot = state[3]
+        # TODO : sympy autowrap these entire expressions instead of just
+        # drag_force().
         vxdot = self.drag_force(xdot) / self.mass
         vydot = -GRAV_ACC + self.drag_force(ydot) / self.mass
 
         return xdot, ydot, vxdot, vydot
+
+    def _flight_rhs_sundials(self, t, s, dsdt):
+        """Populates the time derivative of the state during flight.
+
+        Parameters
+        ==========
+        t : float
+            The value of time.
+        s : array_like, shape(4,)
+            The values of the states: [x, y, vx, vy].
+        dsdt : array_like, shape(4,)
+            The values of the time derivatives of the states.
+
+        """
+
+        xdot = s[2]
+        ydot = s[3]
+        vxdot = self.drag_force(xdot) / self.mass
+        vydot = -GRAV_ACC + self.drag_force(ydot) / self.mass
+
+        dsdt[0] = xdot
+        dsdt[1] = ydot
+        dsdt[2] = vxdot
+        dsdt[3] = vydot
 
     def fly_to(self, surface, init_pos, init_vel, fine=True,
                compute_acc=True, logging_type='info'):
@@ -219,6 +251,65 @@ class Skier(object):
             acc = np.zeros_like(sol.y[:2].T)
 
         return Trajectory(sol.t, sol.y[:2].T, vel=sol.y[2:].T, acc=acc)
+
+    def _fly_to_sundials(self, surface, init_pos, init_vel, fine=True,
+                        compute_acc=True, logging_type='info'):
+
+        def touch_surface_sundials(t, state, out):
+            x = state[0]
+            y = state[1]
+            out[0] = surface.distance_from(x, y)
+
+        logging_call = getattr(logging, logging_type)
+
+        logging_call('Integrating skier flight.')
+        start_time = time.time()
+
+        times, states, info = integrate_adaptive(rhs=self._flight_rhs_sundials,
+                                                 jac=None,
+                                                 y0=init_pos + init_vel,
+                                                 x0=0.0,
+                                                 xend=self.max_flight_time,
+                                                 atol=1e-9,
+                                                 rtol=1e-6,
+                                                 roots=touch_surface_sundials,
+                                                 nroots=1,
+                                                 return_on_root=True)
+        impact_time = times[-1]
+
+        if (isclose(impact_time, self.max_flight_time) or impact_time >
+                self.max_flight_time):
+            msg = ('Flying skier did not contact ground within {:1.3f} '
+                   'seconds, integration aborted.')
+            raise InvalidJumpError(msg.format(self.max_flight_time))
+
+        msg = 'Flight integration terminated at {:1.3f} s'
+        logging_call(msg.format(impact_time))
+        msg = 'Flight impact event occurred at {:1.3f} s'
+        #logging_call(msg.format(float(te)))
+
+        if fine:  # integrate at desired resolution
+            times = np.linspace(0.0, impact_time,
+                                num=int(self.samples_per_sec * impact_time))
+            states, info = integrate_predefined(self._flight_rhs_sundials,
+                                                None,
+                                                init_pos + init_vel,
+                                                times,
+                                                1e-9,
+                                                1e-6,
+                                                1e-8)
+
+        msg = 'Flight integration finished in {:1.3f} seconds.'
+        logging_call(msg.format(time.time() - start_time))
+
+        # NOTE : This prevents Trajectory from running the acceleration
+        # gradient if not needed.
+        if compute_acc:
+            acc = None
+        else:
+            acc = np.zeros_like(states[:, :2])
+
+        return Trajectory(times, states[:, :2], vel=states[:, 2:], acc=acc)
 
     def slide_on(self, surface, init_speed=0.0, fine=True):
         """Returns the trajectory of the skier sliding over a surface.
