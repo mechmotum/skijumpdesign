@@ -107,7 +107,7 @@ class Skier(object):
         return xdot, ydot, vxdot, vydot
 
     def fly_to(self, surface, init_pos, init_vel, fine=True,
-               logging_type='info'):
+               compute_acc=True, logging_type='info'):
         """Returns the flight trajectory of the skier given the initial
         conditions and a surface which the skier contacts at the end of the
         flight trajectory.
@@ -125,6 +125,9 @@ class Skier(object):
             If True two integrations occur. The first finds the landing time
             with coarse time steps and the second integrates over a finer
             equally spaced time steps. False will skip the second integration.
+        compute_acc : boolean, optional
+            If true acceleration will be calculated. If false acceleration is
+            set to zero.
         logging_type : string
             The logging level desired for the non-debug logging calls in this
             function. Useful for suppressing too much information since this
@@ -208,7 +211,14 @@ class Skier(object):
         logging.debug(sol.y[:, -1])
         logging.debug(touch_surface(impact_time, sol.y[:, -1]))
 
-        return Trajectory(sol.t, sol.y[:2].T, vel=sol.y[2:].T)
+        # NOTE : This prevents Trajectory from running the acceleration
+        # gradient if not needed.
+        if compute_acc:
+            acc = None
+        else:
+            acc = np.zeros_like(sol.y[:2].T)
+
+        return Trajectory(sol.t, sol.y[:2].T, vel=sol.y[2:].T, acc=acc)
 
     def slide_on(self, surface, init_speed=0.0, fine=True):
         """Returns the trajectory of the skier sliding over a surface.
@@ -379,6 +389,7 @@ class Skier(object):
 
             flight_traj = self.fly_to(surf, init_pos=takeoff_point,
                                       init_vel=(vox, voy),
+                                      compute_acc=False,
                                       logging_type='debug')
 
             traj_at_impact = flight_traj.interp_wrt_x(x)
