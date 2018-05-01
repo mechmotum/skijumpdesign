@@ -34,7 +34,11 @@ setup(
                       'dash-html-components',
                       'dash-core-components'
                       ],
-    extras_require={'dev': ['pytest', 'pytest-cov', 'sphinx', 'coverage']},
+    extras_require={'dev': ['pytest',
+                            'pytest-cov',
+                            'sphinx',
+                            'coverage',
+                            'pyinstrument']},
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
