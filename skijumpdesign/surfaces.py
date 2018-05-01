@@ -171,6 +171,48 @@ class Surface(object):
         return ax
 
 
+class HorizontalSurface(Surface):
+    def __init__(self, height, length, start=0.0, num_points=100):
+        """Instantiates a class that represents a horizontal surface at a
+        height above the x axis.abs
+
+        Parameters
+        ==========
+        height : float
+            The height of the surface above the horizontal x axis in meters.
+        length : float
+            The length of the surface in meters.
+        start : float, optional
+            The x location of the start of the left most point of the surface.
+        num_points : integer, optional
+            The number of (x,y) coordinates.
+
+        """
+        x = np.linspace(start, start + length, num=num_points)
+        y = height * np.ones_like(x)
+        super(HorizontalSurface, self).__init__(x, y)
+
+    def distance_from(self, xp, yp):
+        """Returns the shortest distance from point (xp, yp) to the surface.
+
+        Parameters
+        ==========
+        xp : float
+            The horizontal, x, coordinate of the point.
+        yp : float
+            The vertical, y, coordinate of the point.
+
+        Returns
+        =======
+        distance : float
+            The shortest distance from the point to the surface. If the point
+            is above the surface a positive distance is returned, else a
+            negative distance.
+
+        """
+        return yp - self.y[0]
+
+
 class FlatSurface(Surface):
     """Class that represents a flat surface angled relative to the
     horizontal."""
