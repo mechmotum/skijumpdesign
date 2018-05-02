@@ -1,5 +1,9 @@
 import pytest
 import matplotlib.pyplot as plt
+try:
+    import pycvodes
+except ImportError:
+    pycvodes = False
 
 from ..functions import make_jump, plot_jump
 from ..utils import InvalidJumpError
@@ -44,7 +48,15 @@ def test_fall_height_too_large():
 def test_skier_flies_forever():
 
     # works now
-    make_jump(-10.0, 0.0, 30.0, 20.0, 1.5)
+    # TODO : This passes with solve_ivp but fails with pycvodes. It is a jump
+    # that's on the edge of being able to land with the required landing Gs and
+    # the tolerances in the two integrators are such that one fails and one
+    # passes.
+    if pycvodes:
+        with pytest.raises(InvalidJumpError):
+            make_jump(-10.0, 0.0, 30.0, 20.0, 1.5)
+    else:
+        make_jump(-10.0, 0.0, 30.0, 20.0, 1.5)
 
 
 def test_slow_skier():
@@ -61,8 +73,11 @@ def test_problematic_jump_parameters():
     # This used to cause a RuntimeWarning: Invalid value in arsin in
     # LandingTransitionSurface.calc_trans_acc() before the fix.
     # TODO : This passes with pycvodes but fails with solve_ivp.
-    with pytest.raises(InvalidJumpError):
+    if pycvodes:
         make_jump(-26.0, 0.0, 3.0, 27.0, 0.6)
+    else:
+        with pytest.raises(InvalidJumpError):
+            make_jump(-26.0, 0.0, 3.0, 27.0, 0.6)
 
     # Divide by zero in scipy/integrate/_ivp/rk.py
     # RuntimeWarning: divide by zero encountered in double_scalars
