@@ -29,7 +29,7 @@ setup(
     entry_points={'console_scripts':
                   ['skijumpdesign = skijumpdesignapp:app.run_server']},
     install_requires=['setuptools',
-                      'numpy',
+                      'numpy>=0.13.0',
                       'scipy>=1.0',  # requires solve_ivp
                       'matplotlib',
                       'sympy',

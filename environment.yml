@@ -8,7 +8,7 @@ dependencies:
   - pip
   - ipython
   - spyder
-  - numpy
+  - numpy >=0.13.0  # requires new options in gradient()
   - scipy >=1.0  # requires solve_ivp()
   - matplotlib
   - sympy

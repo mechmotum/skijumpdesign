@@ -1,5 +1,5 @@
 # Requirements for the Heroku install via pip.
-numpy
+numpy >=0.13.0
 scipy >=1.0
 matplotlib
 sympy
