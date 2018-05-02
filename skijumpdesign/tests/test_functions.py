@@ -60,6 +60,7 @@ def test_problematic_jump_parameters():
 
     # This used to cause a RuntimeWarning: Invalid value in arsin in
     # LandingTransitionSurface.calc_trans_acc() before the fix.
+    # TODO : This passes with pycvodes but fails with solve_ivp.
     with pytest.raises(InvalidJumpError):
         make_jump(-26.0, 0.0, 3.0, 27.0, 0.6)
 
