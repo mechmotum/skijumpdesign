@@ -89,7 +89,7 @@ approach_len_widget = html.Div([
     ])
 
 fall_height_widget = html.Div([
-    html.H3('Fall Height: 0.5 [m]',
+    html.H3('Equivalent Fall Height: 0.5 [m]',
             id='fall-height-text',
             style={'color': '#404756'}),
     dcc.Slider(
@@ -277,8 +277,8 @@ surface.
   maximum achievable (design) speed.
 - **Takeoff Angle**: The upward angle, relative to horizontal, at the end of
   the takeoff ramp, a free design parameter.
-- **Fall Height**: The desired equivalent fall height that characterizes
-  landing impact everywhere on this jump.
+- **Equivalent Fall Height**: The desired equivalent fall height that
+  characterizes landing impact everywhere on this jump.
 
 ## Outputs
 
@@ -420,7 +420,7 @@ def update_takeoff_text(takeoff_angle):
               [Input('fall_height', 'value')])
 def update_fall_height_text(fall_height):
     fall_height = float(fall_height)
-    return 'Fall Height: {:0.2f} [m]'.format(fall_height)
+    return 'Equivalent Fall Height: {:0.2f} [m]'.format(fall_height)
 
 
 inputs = [
