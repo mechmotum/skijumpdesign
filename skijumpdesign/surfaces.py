@@ -663,8 +663,7 @@ class LandingTransitionSurface(Surface):
 
     def _create_trans_curve(self, trans_x, char_dist, num_points):
 
-        # TODO : Mont's code has 3 * char_dist
-        xTranOutEnd = trans_x + 4 * char_dist
+        xTranOutEnd = trans_x + 3 * char_dist
 
         xParent = np.linspace(trans_x, xTranOutEnd, num_points)
 
