@@ -4,7 +4,7 @@ import textwrap
 import json
 import urllib
 import argparse
-from io import StringIO
+from io import BytesIO
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -564,9 +564,13 @@ def generate_csv_data(surfs):
     height = f(x_one_meter) - slope.interp_y(x_one_meter)
 
     data = np.vstack((hyp_one_meter, height)).T
-    s = StringIO()
-    np.savetxt(s, data, fmt='%.2f', delimiter=',', newline="\n")
-    return 'Distance Along Slope [m],Height Above Slope [m]\n' + s.getvalue()
+    # NOTE : StringIO() worked here for NumPy 1.14 but fails on NumPy 1.13,
+    # thus BytesIO() is used as per an answer here:
+    # https://stackoverflow.com/questions/22355026/numpy-savetxt-to-a-string
+    buf = BytesIO()
+    np.savetxt(buf, data, fmt='%.2f', delimiter=',', newline="\n")
+    header = 'Distance Along Slope [m],Height Above Slope [m]\n'
+    return header + buf.getvalue().decode()
 
 
 @app.callback(Output('data-store', 'children'), inputs)
