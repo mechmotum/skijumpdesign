@@ -1,11 +1,10 @@
-============== ========
-============== ========
-PyPi Download  |pypi|
-Conda Download |conda|
-Launch App     |heroku|
-Documentation  |rtd|
-Contribute     |gitlab|
-============== ========
+=============== ========
+Launch App      |heroku|
+PyPi Download   |pypi|
+Conda Download  |conda|
+Documentation   |rtd|
+Automated Tests |ci|
+=============== ========
 
 .. |pypi| image:: https://badge.fury.io/py/skijumpdesign.svg
    :target: https://badge.fury.io/py/skijumpdesign
@@ -21,7 +20,7 @@ Contribute     |gitlab|
    :target: http://skijumpdesign.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
-.. |gitlab| image:: https://gitlab.com/moorepants/skijumpdesign/badges/master/pipeline.svg
+.. |ci| image:: https://gitlab.com/moorepants/skijumpdesign/badges/master/pipeline.svg
    :target: https://gitlab.com/moorepants/skijumpdesign/commits/master
    :alt: pipeline status
 
