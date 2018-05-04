@@ -1,3 +1,7 @@
+=========================================================
+Ski Jump Design Tool For Specified Equivalent Fall Height
+=========================================================
+
 =============== ========
 Launch App      |heroku|
 PyPi Download   |pypi|
@@ -5,24 +9,6 @@ Conda Download  |conda|
 Documentation   |rtd|
 Automated Tests |ci|
 =============== ========
-
-.. |pypi| image:: https://badge.fury.io/py/skijumpdesign.svg
-   :target: https://badge.fury.io/py/skijumpdesign
-
-.. |conda| image:: https://anaconda.org/conda-forge/skijumpdesign/badges/version.svg
-   :target: https://anaconda.org/conda-forge/skijumpdesign
-
-.. |heroku| image:: http://heroku-badge.herokuapp.com/?app=skijumpdesign&svg=1
-   :target: https://skijumpdesign.herokuapp.com/
-   :alt: Heroku Application
-
-.. |rtd| image:: https://readthedocs.org/projects/skijumpdesign/badge/?version=latest
-   :target: http://skijumpdesign.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
-
-.. |ci| image:: https://gitlab.com/moorepants/skijumpdesign/badges/master/pipeline.svg
-   :target: https://gitlab.com/moorepants/skijumpdesign/commits/master
-   :alt: pipeline status
 
 Introduction
 ============
@@ -55,3 +41,21 @@ References
    Design Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall
    Height." Sports Engineering 18, no. 4 (December 2015): 227–39.
    https://doi.org/10.1007/s12283-015-0182-6.
+
+.. |pypi| image:: https://badge.fury.io/py/skijumpdesign.svg
+   :target: https://badge.fury.io/py/skijumpdesign
+
+.. |conda| image:: https://anaconda.org/conda-forge/skijumpdesign/badges/version.svg
+   :target: https://anaconda.org/conda-forge/skijumpdesign
+
+.. |heroku| image:: http://heroku-badge.herokuapp.com/?app=skijumpdesign&svg=1
+   :target: https://skijumpdesign.herokuapp.com/
+   :alt: Heroku Application
+
+.. |rtd| image:: https://readthedocs.org/projects/skijumpdesign/badge/?version=latest
+   :target: http://skijumpdesign.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+
+.. |ci| image:: https://gitlab.com/moorepants/skijumpdesign/badges/master/pipeline.svg
+   :target: https://gitlab.com/moorepants/skijumpdesign/commits/master
+   :alt: pipeline status
