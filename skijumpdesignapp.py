@@ -15,6 +15,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 
+import skijumpdesign
 from skijumpdesign.functions import make_jump
 from skijumpdesign.utils import InvalidJumpError
 
@@ -41,8 +42,25 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
-CUS_URL = 'https://moorepants.info/misc/skijump.css'
-CUS_URL = '/static/skijump.css'
+
+# NOTE : Serve the file locally if it exists. Works for development and on
+# heroku. It will not exist when installed via setuptools because the data file
+# is placed at sys.prefix instead of into the site-packages directory. The
+# backup is to serve from our git repo, but we must go through a third party to
+# ensure that the content-type headers are correct, in this case:
+# raw.githack.com. This may not be up-to-date due to caching. See
+# https://gitlab.com/moorepants/skijumpdesign/issues/44 for more info.
+if os.path.exists(os.path.join(STATIC_PATH, 'skijump.css')):
+    logging.info('Local css file found.')
+    CUS_URL = '/static/skijump.css'
+else:
+    logging.info('Local css file not found, loading from CDN.')
+    URL_TEMP = ('https://glcdn.githack.com/moorepants/skijumpdesign/raw/'
+                '{}/static/skijump.css')
+    if 'dev' in skijumpdesign.__version__:  # unlikely case
+        CUS_URL = URL_TEMP.format('master')
+    else:
+        CUS_URL = URL_TEMP.format('v' + skijumpdesign.__version__)
 
 if 'ONHEROKU' in os.environ:
     cmd_line_args = lambda x: None
