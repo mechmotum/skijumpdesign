@@ -2,13 +2,14 @@
 Ski Jump Design Tool For Specified Equivalent Fall Height
 =========================================================
 
-=============== ========
-Launch App      |heroku|
-PyPi Download   |pypi|
-Conda Download  |conda|
-Documentation   |rtd|
-Automated Tests |ci|
-=============== ========
+================= ========
+Launch App        |heroku|
+PyPi Download     |pypi|
+Anaconda Download |conda|
+Documentation     |rtd|
+Conda Forge       |forge|
+Automated Tests   |ci|
+================= ========
 
 Introduction
 ============
@@ -55,6 +56,9 @@ References
 .. |rtd| image:: https://readthedocs.org/projects/skijumpdesign/badge/?version=latest
    :target: http://skijumpdesign.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
+
+.. |forge| image:: https://img.shields.io/conda/vn/conda-forge/skijumpdesign.svg
+   :target: https://github.com/conda-forge/skijumpdesign-feedstock
 
 .. |ci| image:: https://gitlab.com/moorepants/skijumpdesign/badges/master/pipeline.svg
    :target: https://gitlab.com/moorepants/skijumpdesign/commits/master
