@@ -177,11 +177,15 @@ class Skier(object):
         Skier.max_flight_time.
 
         """
+        logging_call = getattr(logging, logging_type)
+
         if pycvodes is not None:
+            logging_call('Using pycvodes for flight integration.')
             return self._fly_to_sundials(surface, init_pos, init_vel,
                                          fine=fine, compute_acc=compute_acc,
                                          logging_type=logging_type)
         else:
+            logging_call('Using scipy for flight integration.')
             return self._fly_to_scipy(surface, init_pos, init_vel, fine=fine,
                                       compute_acc=compute_acc,
                                       logging_type=logging_type)
