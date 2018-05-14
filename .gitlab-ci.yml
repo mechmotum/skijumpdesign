@@ -4,6 +4,7 @@ stages:
   - install
   - test
   - docs
+  - test_pycvodes
 
 before_script:
   - apt-get update -q -y
@@ -21,6 +22,11 @@ install:
 
 test:
   script:
+    - py.test --cov=skijumpdesign
+
+test_pycvodes:
+  script:
+    - conda install -c bjodah pycvodes
     - py.test --cov=skijumpdesign
 
 docs:
