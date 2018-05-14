@@ -5,25 +5,14 @@ channels:
 dependencies:
   - python >=3.5
   - setuptools
-  - pip
-  - ipython
-  - spyder
   - numpy >=0.13.0  # requires new options in gradient()
   - scipy >=1.0  # requires solve_ivp()
   - matplotlib
   - sympy
   - cython
   - fastcache
-  - pytest
-  - coverage
-  - pytest-cov
-  - pyinstrument
-  - sphinx
-  - nbformat  # plotly dep, oddly not included in conda dep
-  - jupyter_core  # plotly dep, oddly not included in conda dep
-  - plotly
   - flask
-  - flask-compress
+  - plotly
   - dash
   - dash-renderer
   - dash-html-components
