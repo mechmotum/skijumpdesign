@@ -24,8 +24,7 @@ dependencies:
   - plotly
   - flask
   - flask-compress
-  - pip:
-    - dash
-    - dash-renderer
-    - dash-html-components
-    - dash-core-components
+  - dash
+  - dash-renderer
+  - dash-html-components
+  - dash-core-components
