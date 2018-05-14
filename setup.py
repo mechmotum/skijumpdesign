@@ -35,6 +35,7 @@ setup(
                       'sympy',
                       'cython',
                       'fastcache',
+                      'flask',
                       'plotly',
                       'dash',
                       'dash-renderer',
