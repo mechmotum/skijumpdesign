@@ -1,4 +1,4 @@
-name: skijumpdesign
+name: skijumpdesign-dev
 channels:
   - conda-forge
   - defaults

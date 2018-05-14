@@ -7,8 +7,8 @@ Installation
 conda
 =====
 
-The library can be installed into the root conda environment from the `Conda
-Forge channel`_ at Anaconda.org::
+The library and web application can be installed into the root conda
+environment from the `Conda Forge channel`_ at Anaconda.org::
 
    $ conda install -c conda-forge skijumpdesign
 
@@ -54,12 +54,12 @@ Setup the custom development conda environment named ``skijumpdesign`` to
 ensure it has all of the correct software dependencies. To create the
 environment type::
 
-   $ conda env create -f environment.yml
+   $ conda env create -f environment-dev.yml
 
 To activate the environment type [2]_::
 
-   $ conda activate skijumpdesign
-   (skijumpdesign)$
+   $ conda activate skijumpdesign-dev
+   (skijumpdesign-dev)$
 
 Heroku Installation
 ===================
