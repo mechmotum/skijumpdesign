@@ -1,5 +1,6 @@
 include README.rst
 include LICENSE
+include CHANGELOG
 recursive-include static *
 include docs/*.rst
 include docs/*.py
