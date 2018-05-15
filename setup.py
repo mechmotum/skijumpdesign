@@ -1,24 +1,27 @@
 #!/usr/bin/env python
 
+import os
+
 from setuptools import setup, find_packages
 
-exec(open('skijumpdesign/version.py').read())
+this_dir = os.path.abspath(os.path.dirname(__file__))
+exec(open(os.path.join(this_dir, 'skijumpdesign', 'version.py')).read())
 
 setup(
     name='skijumpdesign',
     version=__version__,
-    author='Jason K. Moore',
+    author='Jason K. Moore, Mont Hubbard',
     author_email='moorepants@gmail.com',
     url="https://gitlab.com/moorepants/skijumpdesign/",
     description='Ski Jump Design Tool For Specified Equivalent Fall Height',
-    long_description=open('README.rst').read(),
-    keywords="engineering sports physics",
+    long_description=open(os.path.join(this_dir, 'README.rst')).read(),
+    keywords="engineering sports physics design",
     license='MIT',
     project_urls={
-        'App': 'http://skijumpdesign.herokuapp.com',
-        'Documentation': 'http://skijumpdesign.readthedocs.io',
-        'Source': 'https://gitlab.com/moorepants/skijumpdesign',
-        'Tracker': 'https://gitlab.com/moorepants/skijumpdesign/issues',
+        'Web Application': 'http://skijumpdesign.herokuapp.com',
+        'Library Documentation': 'http://skijumpdesign.readthedocs.io',
+        'Source Code': 'https://gitlab.com/moorepants/skijumpdesign',
+        'Issue Tracker': 'https://gitlab.com/moorepants/skijumpdesign/issues',
     },
     python_requires='>=3.5',
     py_modules=['skijumpdesignapp'],
