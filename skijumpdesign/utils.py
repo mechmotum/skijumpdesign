@@ -22,7 +22,10 @@ def _generate_fast_drag_func():
     drag_expr = -sm.sign(v) / 2 * ro * C * A * v**2
     return autowrap(drag_expr, backend='cython', args=(ro, v, C, A))
 
-compute_drag = _generate_fast_drag_func()
+try:
+    compute_drag = _generate_fast_drag_func()
+except:
+    compute_drag = None
 
 
 def _gen_fast_distance_from():
@@ -30,7 +33,10 @@ def _gen_fast_distance_from():
     expr = (y - sm.tan(theta) * x) * sm.cos(theta)
     return autowrap(expr, backend='cython', args=(theta, x, y))
 
-compute_dist_from_flat = _gen_fast_distance_from()
+try:
+    compute_dist_from_flat = _gen_fast_distance_from()
+except:
+    compute_dist_from_flat = None
 
 
 def speed2vel(speed, angle):
