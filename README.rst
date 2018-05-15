@@ -27,7 +27,7 @@ License
 =======
 
 The skijumpdesign source code is released under the MIT license. If you make
-use of the software we ask that you cite the relevant papers or the software
+use of the software we ask that you cite the relevant papers and the software
 itself. See the included ``LICENSE`` file for details.
 
 Installation
