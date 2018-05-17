@@ -24,33 +24,35 @@ bibliography: paper.bib
 # Summary
 Over the past three decades an evolution has occurred toward freestyle skiing and snowboarding 
 involving aerials in terrain parks at ski resorts hosting dedicated
-jumping features [1]. Today more than 95% of US ski resorts have such jumps but 
+jumping features. Today more than 95% of US ski resorts have such jumps but 
 these rarely, if ever, involve formal or detailed design or engineering. 
 Although usually tested and modified before being opened to the public, 
 they are often simply fabricated based on the past experience of the builder in jump construction. 
-Together with the increase in these jumps has come a concomitant increase in injuries. 
-Although omitted here, the voluminous epidemiology of these injuries is covered in detail in references [@hubbard2009, ].
+Together with the increase in these jumps has come a concomitant increase in injuries and their very high social cost. 
+Although omitted here, the voluminous epidemiology and financial effects of these injuries is covered in detail in references 
+[@hubbard2009,  @mcneil2012, @levy2015, @petrone2017].
 
 The likelihood and severity of injury on landing is proportional to the energy dissipated on impact 
 when the component of velocity of the jumper perpendicular to the snow surface is brought to zero. This energy is 
 naturally measured by the "equivalent fall height" (EFH), defined as the kinetic energy associated with the 
 landing velocity component perpendicular to the landing surface divided by mg, where  m is the jumper mass and g is the acceleration of gravity.
 
-Past research [@hubbard2009, @mcneil2012, @levy2015 ] has developed a theoretical approach for jump design. It is based on 
-shaping the landing surface so that the perpendicular component of landing velocity (and thus impact landing energy) 
-is controlled to be relatively small everywhere that impact is possible. More recent research [@petrone2017] has  presented compelling evidence that
-these designed jump surfaces that embody low values of EFH are practical to build and, once built, perform as predicted in
-limiting landing impact. This research has demonstrated that impact on landing can be controlled through design of the shape of
+Past research [@hubbard2009, @swedberg2010, @mcneil2012, @levy2015 ] has developed a theoretical approach for jump design. It is based on 
+shaping the landing surface so the perpendicular component of landing velocity (and thus impact landing energy and EFH) 
+is controlled to be relatively small everywhere impact is possible. More recent research [@petrone2017] has presented compelling experimental evidence that
+these designed jump surfaces embodying low values of EFH are practical to build and, once built, perform as predicted in
+limiting landing impact. This experimental research has demonstrated that impact on landing can be controlled through design of the shape of
 the landing surface according to the theory.
 
-Ski resorts, however, have been reluctant to adopt this more engineered approach to jump design, in part due to questions
-of feasibility, but also becasue of the somewhat conplex calculations required. Some recent effort has been made to develop 
-numerical software to automate these calculations [@Levy 2015] that also include graphical user interfaces but these have relied on proprietary,
+Ski resorts have been reluctant, however, to adopt this more engineered approach to jump design, in part due to questions
+of feasibility, but also becasue of the somewhat ponderous and complex calculations required. Some recent effort has been made to develop 
+numerical software to automate these calculations [@Levy 2015] that also embodies graphical user interfaces but these have relied on proprietary,
 closed-source tools and programming environments (MATLAB).  The present open source, online application implemented in Python ... etc.   ... 
 removes the restrictions and promises to make the method more widely available to the skiing industry.
 
 # Acknowledgements
 
+We acknowledge the assistance of Jim McNeil and Dean Levy who aided in testing the application before release.
 
 
 # References
