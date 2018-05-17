@@ -28,14 +28,14 @@ jumping features. Today more than 95% of US ski resorts have such jumps but
 these rarely, if ever, involve formal or detailed design or engineering. 
 Although usually tested and modified before being opened to the public, 
 they are often simply fabricated based on the past experience of the builder in jump construction. 
-Together with the increase in these jumps has come a concomitant increase in injuries and their very high social cost. 
-Although omitted here, the voluminous epidemiology and financial effects of these injuries is covered in detail in references 
+Together with the increase in these jumps have come a concomitant increase in injuries and their very high social costs. 
+Although omitted here, the voluminous epidemiology and financial effects of these injuries are covered in detail in references 
 [@hubbard2009,  @mcneil2012, @levy2015, @petrone2017].
 
-The likelihood and severity of injury on landing is proportional to the energy dissipated on impact 
+The likelihood and severity of injury on landing are proportional to the energy dissipated on impact, 
 when the component of velocity of the jumper perpendicular to the snow surface is brought to zero. This energy is 
 naturally measured by the "equivalent fall height" (EFH), defined as the kinetic energy associated with the 
-landing velocity component perpendicular to the landing surface divided by mg, where  m is the jumper mass and g is the acceleration of gravity.
+landing velocity component perpendicular to the landing surface divided by mg, where m is the jumper mass and g is the acceleration of gravity.
 
 Past research [@hubbard2009, @swedberg2010, @mcneil2012, @levy2015 ] has developed a theoretical approach for jump design. It is based on 
 shaping the landing surface so the perpendicular component of landing velocity (and thus impact landing energy and EFH) 
@@ -45,10 +45,12 @@ limiting landing impact. This experimental research has demonstrated that impact
 the landing surface according to the theory.
 
 Ski resorts have been reluctant, however, to adopt this more engineered approach to jump design, in part due to questions
-of feasibility, but also becasue of the somewhat ponderous and complex calculations required. Some recent effort has been made to develop 
+of feasibility, but also becasue of the somewhat ponderous and complex calculations required. Some recent efforts have been made to develop 
 numerical software to automate these calculations [@Levy 2015] that also embodies graphical user interfaces but these have relied on proprietary,
-closed-source tools and programming environments (MATLAB).  The present open source, online application implemented in Python ... etc.   ... 
-removes the restrictions and promises to make the method more widely available to the skiing industry.
+closed-source tools and programming environments (MATLAB).  The present open source, online application skijumpdesign is implemented in Python ... etc.   ..., 
+removes these restrictions and promises to make the method more widely available to the skiing industry.
+
+Do we need a paragraph here that summarizes in more detail what the software does?
 
 # Acknowledgements
 
