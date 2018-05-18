@@ -519,7 +519,7 @@ def populated_graph(surfs):
     return {'data': [
                      {'x': [approach.x[0], approach.x[0] + leader_len],
                       'y': [approach.y[0], approach.y[0]],
-                      'line': {'color': 'black', 'dash': 'dash'},
+                      'line': {'color': 'black', 'width': 1},
                       'mode': 'lines',
                       'hoverinfo': 'none',
                       'showlegend': False},
