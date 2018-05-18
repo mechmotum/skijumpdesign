@@ -106,7 +106,7 @@ The flight trajectory can be plotted alongside the surfaces.
 
    ax = approach.plot()
    ax = takeoff.plot(ax=ax)
-   flight.plot(ax=ax)
+   flight.plot(ax=ax, color='#9467bd')
 
 Landing Transition
 ==================
@@ -127,8 +127,8 @@ The next step is to determine a landing transition curve.
 
    ax = approach.plot()
    ax = takeoff.plot(ax=ax)
-   ax = flight.plot(ax=ax)
-   landing_trans.plot(ax=ax)
+   ax = flight.plot(ax=ax, color='#9467bd')
+   landing_trans.plot(ax=ax, color='#d62728')
 
 Landing
 =======
@@ -153,9 +153,9 @@ accommodate all takeoff speeds below the maximum takeoff speed above.
 
    ax = approach.plot()
    ax = takeoff.plot(ax=ax)
-   ax = flight.plot(ax=ax)
-   ax = landing_trans.plot(ax=ax)
-   landing.plot(ax=ax)
+   ax = flight.plot(ax=ax, color='#9467bd')
+   ax = landing_trans.plot(ax=ax, color='#d62728')
+   landing.plot(ax=ax, color='#2ca02c')
 
 Entire Jump
 ===========
