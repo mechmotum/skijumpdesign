@@ -14,10 +14,10 @@ Automated Tests   |ci|
 Introduction
 ============
 
-A ski jump design tool for equivalent fall height based on the work presented
-in [1]_. Includes a library for 2D skiing simulations and a graphical web
-application for designing ski jumps. It is written in Python backed by NumPy,
-SciPy, SymPy, Cython, matplotlib, fastcache, pycvodes, Plotly, and Dash.
+A ski jump design tool for specified equivalent fall height based on the work
+presented in [1]_. Includes a library for 2D skiing simulations and a graphical
+web application for designing ski jumps. It is written in Python backed by
+NumPy, SciPy, SymPy, Cython, matplotlib, fastcache, pycvodes, Plotly, and Dash.
 
 The design tool web application can be accessed via our Heroku deployment at:
 
