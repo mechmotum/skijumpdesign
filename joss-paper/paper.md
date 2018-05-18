@@ -1,12 +1,12 @@
 ---
 title: 'skijumpdesign: A Ski Jump Design Tool for Specified Equivalent Fall Height'
 tags:
-  - python
   - engineering
-  - sports
+  - python
+  - safety
   - ski
   - snowboard
-  - safety
+  - sports
 authors:
   - name: Jason K. Moore
     orcid: 0000-0002-8698-6143
@@ -32,8 +32,8 @@ public, they are often simply fabricated based on the past experience of the
 builder in jump construction. Together with the increase in these jumps has
 come a concomitant increase in injuries and their very high social costs.
 Although omitted here, the voluminous epidemiology and financial effects of
-these injuries are covered in detail in references [@hubbard2009,  @mcneil2012,
-@levy2015, @petrone2017].
+these injuries are covered in detail in references [@Hubbard2009,  @McNeil2012,
+@Levy2015, @Petrone2017].
 
 The likelihood and severity of injury on landing are proportional to the energy
 dissipated on impact, when the component of velocity of the jumper
@@ -43,11 +43,11 @@ associated with the landing velocity component perpendicular to the landing
 surface divided by mg, where m is the jumper mass and g is the acceleration of
 gravity.
 
-Past research [@hubbard2009, @swedberg2010, @mcneil2012, @levy2015] has
+Past research [@Hubbard2009, @Swedberg2010, @McNeil2012, @Levy2015] has
 developed a theoretical approach for jump design. It is based on shaping the
 landing surface so the perpendicular component of landing velocity (and thus
 impact landing energy and EFH) is controlled to be relatively small everywhere
-impact is possible. More recent research [@petrone2017] has presented
+impact is possible. More recent research [@Petrone2017] has presented
 compelling experimental evidence that these designed jump surfaces embodying
 low values of EFH are practical to build and, once built, perform as predicted
 in limiting landing impact. This experimental research has demonstrated that
@@ -58,13 +58,13 @@ Ski resorts have been reluctant, however, to adopt this more engineered
 approach to jump design, in part due to questions of feasibility, but also
 because of the somewhat ponderous and complex calculations required. Some
 recent efforts have been made to develop numerical software to automate these
-calculations [@Levy 2015] that also embodies graphical user interfaces but
+calculations [@Levy2015] that also embodies graphical user interfaces but
 these have relied on proprietary, closed-source tools and programming
 environments (MATLAB). The present open source library and online application
 "skijumpdesign" implemented in Python removes these restrictions and promises
 to make the design method more widely available to the skiing industry.
 
-The present online application, located at http://skijjumpdesign.herokuapp.com,
+The present online application, accessed at http://skijjumpdesign.herokuapp.com,
 allows a relatively unskilled user (e.g. a terrain park manager at a ski
 resort) to design a ski jump composed of three sections: the approach, landing
 surface and landing transition by inputting through sliders four independent
@@ -81,19 +81,22 @@ equivalent fall height that characterizes landing impact everywhere on this
 jump.
 
 The output of the program is a graphical display of the total jump surface
-shape, and the possibility of a downloaded file describing the jump surface
-shape in a format useful for jump fabrication. This interface is implemented
-with Dash, Flask, and Plotly [@Plotly2015] and is suitable for use on any
-platform that can run a modern web browser.
+shape, a table of numerical characteristic results, and downloadable file
+describing the jump surface shape in a format useful for jump fabrication. This
+interface is implemented using Dash, Flask, and Plotly [@Plotly2015] and is
+suitable for use on any platform that can run a modern web browser. Moreover,
+we make the interface available online for free use for user that do not want
+or need to install it on their personal computer.
 
 The online application utilizes a custom server-side Python library for
-construction of the jump and output parameter calculation. The library utilizes
-NumPy [@vanderWalt2011], SciPy [@Jones2001], matplotlib [@Hunter2007], SymPy
-[@Meurer2017], Cython [@Behnel2011], and fastcache for numerical computations
-and visualizations. The library provides an application programming interface
-for simulating planar skiing along arbitrary surface cross sections and flight
-trajectories which can be used for design needs other than the one posed
-herein.
+construction of the jump and output parameter calculations. The library's
+algorithms are implemented using NumPy [@vanderWalt2011], SciPy [@Jones2001],
+matplotlib [@Hunter2007], SymPy [@Meurer2017], Cython [@Behnel2011], pycvodes
+[@Dahlgren2018] and fastcache [@Brady2014]. The library provides an application
+programming interface (API) for simulating planar skiing along arbitrary
+surface cross sections and two dimensional flight trajectories. This API enable
+a programmer to use the tools and methods for design needs other than the one
+posed herein.
 
 # Acknowledgements
 
