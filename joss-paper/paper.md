@@ -29,7 +29,7 @@ dedicated jumping features. Today more than 95% of US ski resorts have such
 jumps but these rarely, if ever, involve formal or detailed design or
 engineering. Although usually tested and modified before being opened to the
 public, they are often simply fabricated based on the past experience of the
-builder in jump construction. Together with the increase in these jumps have
+builder in jump construction. Together with the increase in these jumps has
 come a concomitant increase in injuries and their very high social costs.
 Although omitted here, the voluminous epidemiology and financial effects of
 these injuries are covered in detail in references [@hubbard2009,  @mcneil2012,
