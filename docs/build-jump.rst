@@ -3,7 +3,7 @@ Example EFH Jump Design
 =======================
 
 The following page describes how to construct a typical equivalent fall height
-ski jump using the ``skijumpdesign`` API. Make sure to :ref:`install <install>`
+ski jump landing surface using the ``skijumpdesign`` API. Make sure to :ref:`install <install>`
 the library first.
 
 Approach
@@ -27,7 +27,7 @@ resulting surface can be visualized with the ``FlatSurface.plot()`` method.
 
    approach.plot()
 
-Now that a surface has been created a skier can be created. The skier can "ski"
+Now that a surface has been created, a skier can be created. The skier can "ski"
 along the approach surface using the ``slide_on()`` method which generates a
 skiing simulation trajectory.
 
@@ -48,7 +48,7 @@ Takeoff
 =======
 
 The takeoff ramp is constructed with a clothoid-circle-clothoid-flat surface to
-transition from the approach to the desired takeoff angle, in this case 15
+transition from the approach parent slope angle to the desired takeoff angle, in this case 15
 degrees.
 
 .. plot::
@@ -82,8 +82,8 @@ The trajectory of the skier on the takeoff can be examined also.
 Flight
 ======
 
-Once the skier leaves the takeoff ramp they will be in flight. The
-``Skier.fly_to()`` method can be used to simulate the flight trajectory.
+Once the skier leaves the takeoff ramp at the maximum (design) speed they will be in flight. The
+``Skier.fly_to()`` method can be used to simulate this longest flight trajectory.
 
 .. plot::
    :include-source: True
@@ -97,7 +97,7 @@ Once the skier leaves the takeoff ramp they will be in flight. The
 
    flight.plot_time_series()
 
-The flight trajectory can be plotted alongside the surfaces.
+The design speed flight trajectory can be plotted alongside the surfaces.
 
 .. plot::
    :include-source: True
@@ -111,7 +111,13 @@ The flight trajectory can be plotted alongside the surfaces.
 Landing Transition
 ==================
 
-The next step is to determine a landing transition curve.
+There is a single infinity of landing surfaces that satisfy the efh differential 
+equation and provide the desired equivalent fall height. The algorithm selects 
+the one of these that is closest to the parent slope, and hence is least expensive 
+to build, but which still is able to transition back to the parent slope with 
+slope continuity and simultaneously is constrained to experience limited normal acceleration. 
+The final part of this step is to determine the landing transition curve which 
+connects the optimum (cheapest) constant efh landing surface to the parent slope.
 
 .. plot::
    :include-source: True
@@ -133,8 +139,8 @@ The next step is to determine a landing transition curve.
 Landing
 =======
 
-Finally, the equivalent fall height landing surface can be generated to
-accommodate all takeoff speeds below the maximum takeoff speed above.
+Finally, the equivalent fall height landing surface can be generated which
+accommodates all takeoff speeds below the maximum takeoff (design) speed above.
 
 .. plot::
    :include-source: True
