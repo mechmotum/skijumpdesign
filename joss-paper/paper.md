@@ -64,21 +64,21 @@ environments (MATLAB). The present open source library and online application
 "skijumpdesign" implemented in Python removes these restrictions and promises
 to make the design method more widely available to the skiing industry.
 
-The present online application, accessed at http://skijjumpdesign.herokuapp.com,
-allows a relatively unskilled user (e.g. a terrain park manager at a ski
-resort) to design a ski jump composed of three sections: the approach, landing
-surface and landing transition by inputting through sliders four independent
-design parameters: 1. Parent Slope Angle: The measured downward angle of the
-parent slope (or a good approximation thereof) where the jump is desired. The
-designed jump shape is measured from this line. 2. Maximum Approach Length: The
-maximum distance along the slope above the jump that the jumper can slide to
-build up speed. The jumper reaches a theoretical maximum speed at the end of
-this approach and the landing surface shape provides the same impact EFH for
-all speeds up to and including this maximum achievable (design) speed. 3.
-Takeoff Angle: The upward angle, relative to horizontal, at the end of the
-takeoff ramp, a free design parameter. 4. Equivalent Fall Height: The desired
-equivalent fall height that characterizes landing impact everywhere on this
-jump.
+The present online application, accessed at http://skijjumpdesign.herokuapp.com
+and seen in Figure 1, allows a relatively unskilled user (e.g. a terrain park
+manager at a ski resort) to design a ski jump composed of three sections: the
+approach, landing surface and landing transition by inputting through sliders
+four independent design parameters: 1. Parent Slope Angle: The measured
+downward angle of the parent slope (or a good approximation thereof) where the
+jump is desired. The designed jump shape is measured from this line. 2. Maximum
+Approach Length: The maximum distance along the slope above the jump that the
+jumper can slide to build up speed. The jumper reaches a theoretical maximum
+speed at the end of this approach and the landing surface shape provides the
+same impact EFH for all speeds up to and including this maximum achievable
+(design) speed. 3. Takeoff Angle: The upward angle, relative to horizontal, at
+the end of the takeoff ramp, a free design parameter. 4. Equivalent Fall
+Height: The desired equivalent fall height that characterizes landing impact
+everywhere on this jump.
 
 | ![Web Application Screenshot](app-screenshot.jpg){ width=400px } |
 |:--:|
