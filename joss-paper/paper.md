@@ -85,11 +85,11 @@ everywhere on this jump.
 | *Figure 1: Screenshot of the online application depicting the inputs (4 sliders) and outputs (graph, table, and profile file download).* |
 
 The output of the program is a graphical display of the total jump surface
-shape, a table of numerical characteristic results, and downloadable file
+shape, a table of numerical characteristic results, and a downloadable file
 describing the jump surface shape in a format useful for jump fabrication. This
 interface is implemented using Flask [@Pallets2018], Dash, and Plotly
 [@Plotly2015] and is suitable for use on any platform that can run a modern web
-browser. Moreover, we make the interface available online for free use for
+browser. Moreover, we make the interface available online for free use to
 users that do not want or need to install it on their personal computer.
 
 The online application utilizes a custom server-side Python library for
