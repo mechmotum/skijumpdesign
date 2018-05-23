@@ -64,7 +64,7 @@ environments (MATLAB). The present open source library and online application
 "skijumpdesign" implemented in Python removes these restrictions and promises
 to make the design method more widely available to the skiing industry.
 
-The present online application, accessed at http://skijjumpdesign.herokuapp.com
+The present online application, accessed at http://www.skijjumpdesign.info
 and seen in Figure 1, allows a relatively unskilled user (e.g. a terrain park
 manager at a ski resort) to design a ski jump composed of three sections: the
 approach, landing surface and landing transition by inputting through sliders

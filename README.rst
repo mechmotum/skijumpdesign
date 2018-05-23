@@ -19,9 +19,7 @@ presented in [1]_. Includes a library for 2D skiing simulations and a graphical
 web application for designing ski jumps. It is written in Python backed by
 NumPy, SciPy, SymPy, Cython, matplotlib, fastcache, pycvodes, Plotly, and Dash.
 
-The design tool web application can be accessed via our Heroku deployment at:
-
-https://skijumpdesign.herokuapp.com/
+The design tool web application can be accessed at http://www.skijumpdesign.info.
 
 License
 =======
