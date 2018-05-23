@@ -31,7 +31,7 @@ itself. See the included ``LICENSE`` file for details.
 Installation
 ============
 
-See ``docs/install.rst`` or http://skijumpdesign.readthedocs.io/en/latest/install.html.
+See ``docs/install.rst`` or http://skijumpdesign.readthedocs.io.
 
 References
 ==========
