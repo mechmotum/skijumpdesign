@@ -45,10 +45,10 @@ Optional dependencies
 If pycvodes_ is installed it will be used to speed up the flight simulation and
 the landing surface calculation significantly. This library is not trivial to
 install on all operating systems, so you will need to refer its documentation
-for installation instructions. If you are using conda and 64 bit Linux, this
+for installation instructions. If you are using conda Linux or OSX, this
 package can be installed using::
 
-   $ conda install -c conda-forge -c bjodah pycvodes
+   $ conda install -c conda-forge pycvodes
 
 .. _pycvodes: https://github.com/bjodah/pycvodes
 
