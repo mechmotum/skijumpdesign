@@ -254,27 +254,6 @@ row6 = html.Div([
 ], className='row shaded', style={'padding-top': '40px'})
 
 markdown_text = """\
-# Instructions
-
-- Select a parent slope angle to match or closely approximate the location
-  where the jump is planned. The shape of the jump surface above this line is
-  calculated.
-- Set the length of approach to be the maximum distance along the parent slope
-  from above the jump (measured from the top of the takeoff transition curve)
-  that the jumper can descend when starting from rest. This distance determines
-  the design (maximum) takeoff speed.
-- Set the desired takeoff (TO) angle of the ramp at the takeoff point. This is
-  a free design parameter but rarely are takeoff angles greater than 30 deg
-  used.
-- Choose the desired equivalent fall height (efh), a measure of impact on
-  landing (see [1]). The landing surface shape calculated in the design
-  provides the same efh for all speeds up to and including the design speed and
-  consequently for all starting points up to and including the maximum start
-  position.
-- Inspect and view the graph of the resulting jump design using the menu bar
-  and iterate design parameters. The third button allows zoom.
-- Download the jump design profile using the **Download Profile** button.
-
 # Explanation
 
 This tool allows the design of a ski jump that limits landing impact (measured
@@ -336,15 +315,6 @@ The table provides a set of outputs about the currently visible jump design:
   landing surfaces. Multiply this value times the width of the jump to obtain
   the volume of snow in the jump design.
 
-### Profile
-
-The **Download Profile** button returns a comma separated value text file with
-two columns. The first column provides the distance from the top of the jump
-(start of the takeoff curve) at every meter along the slope and corresponding
-values of the height above the parent slope in the second column. Both columns
-are in meters. This data is primarily useful in building the actual jump, see
-[2].
-
 ## Assumptions
 
 The design calculations in this application depend on the ratios of aerodynamic
@@ -364,6 +334,36 @@ parameters is provided here:
   0.99
 - equilibration time the jumper should have on the straight ramp just before
   takeoff: 0.25 sec
+
+### Profile
+
+The **Download Profile** button returns a comma separated value text file with
+two columns. The first column provides the distance from the top of the jump
+(start of the takeoff curve) at every meter along the slope and corresponding
+values of the height above the parent slope in the second column. Both columns
+are in meters. This data is primarily useful in building the actual jump, see
+[2].
+
+# Instructions
+
+- Select a parent slope angle to match or closely approximate the location
+  where the jump is planned. The shape of the jump surface above this line is
+  calculated.
+- Set the length of approach to be the maximum distance along the parent slope
+  from above the jump (measured from the top of the takeoff transition curve)
+  that the jumper can descend when starting from rest. This distance determines
+  the design (maximum) takeoff speed.
+- Set the desired takeoff (TO) angle of the ramp at the takeoff point. This is
+  a free design parameter but rarely are takeoff angles greater than 30 deg
+  used.
+- Choose the desired equivalent fall height (efh), a measure of impact on
+  landing (see [1]). The landing surface shape calculated in the design
+  provides the same efh for all speeds up to and including the design speed and
+  consequently for all starting points up to and including the maximum start
+  position.
+- Inspect and view the graph of the resulting jump design using the menu bar
+  and iterate design parameters. The third button allows zoom.
+- Download the jump design profile using the **Download Profile** button.
 
 # Colophon
 
