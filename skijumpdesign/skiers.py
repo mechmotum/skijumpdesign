@@ -18,10 +18,12 @@ from .utils import compute_drag
 
 
 class Skier(object):
-    """Class that represents a skier which can slide on surfaces and fly in the
-    air."""
+    """Class that represents a two dimensional skier who can slide on surfaces
+    and fly in the air."""
 
-    samples_per_sec = 360
+    # All trajectories are resampled at this rate.
+    samples_per_sec = 360  # Hz
+    # If the skier flies too long the integration will be stopped.
     max_flight_time = 30.0  # seconds
 
     def __init__(self, mass=75.0, area=0.34, drag_coeff=0.821,
@@ -32,9 +34,9 @@ class Skier(object):
         Parameters
         ==========
         mass : float, optional
-            The mass of the skier.
+            The mass of the skier in kilograms.
         area : float, optional
-            The frontal area of the skier.
+            The frontal area of the skier in squared meters.
         drag_coeff : float, optional
             The air drag coefficient of the skier.
         friction_coeff : float, optional
@@ -56,8 +58,8 @@ class Skier(object):
         self.tolerable_landing_acc = tolerable_landing_acc
 
     def drag_force(self, speed):
-        """Returns the drag force in Newtons opposing the speed of the
-        skier."""
+        """Returns the drag force in Newtons opposing the speed in meters per
+        second of the skier."""
 
         if compute_drag is None:
             return (-np.sign(speed) / 2 * AIR_DENSITY * self.drag_coeff *
@@ -75,9 +77,9 @@ class Skier(object):
         speed : float
             The tangential speed of the skier in meters per second.
         slope : float, optional
-            The slope of the surface at the point of contact.
+            The slope of the surface at the skier's point of contact.
         curvature : float, optional
-            The curvature of the surface at the point of contact.
+            The curvature of the surface at the skier's point of contact.
 
         """
 
@@ -89,12 +91,12 @@ class Skier(object):
         return -np.sign(speed) * self.friction_coeff * normal_force
 
     def _flight_rhs(self, t, state):
-        """Returns the time derivative of the state during flight.
+        """Returns the time derivative of the skier's state during flight.
 
         Parameters
         ==========
         t : float
-            The value of time.
+            The value of time in seconds.
         state : array_like, shape(4,)
             The values of the states: [x, y, vx, vy].
 
@@ -115,12 +117,12 @@ class Skier(object):
         return xdot, ydot, vxdot, vydot
 
     def _flight_rhs_sundials(self, t, s, dsdt):
-        """Populates the time derivative of the state during flight.
+        """Populates the time derivative of the skier's state during flight.
 
         Parameters
         ==========
         t : float
-            The value of time.
+            The value of time in seconds.
         s : array_like, shape(4,)
             The values of the states: [x, y, vx, vy].
         dsdt : array_like, shape(4,)
@@ -149,10 +151,11 @@ class Skier(object):
         surface : Surface
             A landing surface. This surface must intersect the flight path.
         init_pos : 2-tuple of floats
-            The x and y coordinates of the starting point of the flight.
+            The x and y coordinates of the starting point of the flight in
+            meters.
         init_vel : 2-tuple of floats
             The x and y components of the skier's velocity at the start of the
-            flight.
+            flight in meters per second.
         fine : boolean
             If True two integrations occur. The first finds the landing time
             with coarse time steps and the second integrates over a finer
