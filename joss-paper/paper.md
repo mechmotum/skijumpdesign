@@ -40,7 +40,7 @@ dissipated on impact, when the component of velocity of the jumper
 perpendicular to the snow surface is brought to zero. This energy is naturally
 measured by the "equivalent fall height" (EFH), defined as the kinetic energy
 associated with the landing velocity component perpendicular to the landing
-surface divided by \(mg\), where \(m\) is the jumper mass and \(g\) is the
+surface divided by $mg$, where $m$ is the jumper mass and $g$ is the
 acceleration of gravity.
 
 Past research [@Hubbard2009, @Swedberg2010, @McNeil2012, @Levy2015] has
