@@ -104,7 +104,7 @@ the one posed herein.
 
 # Acknowledgements
 
-We acknowledge the assistance of Jim McNeil and Dean Levy who aided in testing
-the application before release.
+We acknowledge the assistance of Jim McNeil who aided in testing the
+application before release.
 
 # References
