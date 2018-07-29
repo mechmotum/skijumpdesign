@@ -14,6 +14,7 @@ from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
+from plotly.utils import PlotlyJSONEncoder
 
 import skijumpdesign
 from skijumpdesign.functions import make_jump
@@ -627,7 +628,7 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
         profiler.stop()
         print(profiler.output_text(unicode=True, color=True))
 
-    return json.dumps(dic)
+    return json.dumps(dic, cls=PlotlyJSONEncoder)
 
 
 @app.callback(Output('my-graph', 'figure'), [Input('data-store', 'children')])
