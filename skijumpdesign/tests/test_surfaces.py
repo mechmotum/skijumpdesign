@@ -89,9 +89,9 @@ def test_takeoff_surface(plot=False):
 def test_landing_trans_surface(plot=False):
     slope_angle = -10.0
     start_pos = 0.0
-    approach_len = 30.0
+    approach_len = 50.0
     takeoff_angle = 20.0
-    fall_height = 2.0
+    fall_height = 1.5
 
     skier = Skier()
 
@@ -113,22 +113,21 @@ def test_landing_trans_surface(plot=False):
 
     flight = skier.fly_to(slope, init_pos=takeoff.end, init_vel=takeoff_vel)
 
-    with pytest.raises(InvalidJumpError):
-        landing_trans = LandingTransitionSurface(slope, flight, fall_height,
-                                                 skier.tolerable_landing_acc)
+    landing_trans = LandingTransitionSurface(slope, flight, fall_height,
+                                             skier.tolerable_landing_acc)
 
-    #xpara, ypara = landing_trans.find_parallel_traj_point()
-#
-    #x_trans, char_dist = landing_trans.find_transition_point()
-#
-    #if plot:
-        #ax = slope.plot()
-        #ax = takeoff.plot(ax=ax)
-        #ax = flight.plot(ax=ax)
-        #ax = landing_trans.plot(ax=ax)
-        #ax.plot(xpara, ypara, marker='o')
-        #ax.axvline(x_trans)
-        #plt.show()
+    xpara, ypara = landing_trans.find_parallel_traj_point()
+
+    x_trans, char_dist = landing_trans.find_transition_point()
+
+    if plot:
+        ax = slope.plot()
+        ax = takeoff.plot(ax=ax)
+        ax = flight.plot(ax=ax)
+        ax = landing_trans.plot(ax=ax)
+        ax.plot(xpara, ypara, marker='o')
+        ax.axvline(x_trans)
+        plt.show()
 
 
 def test_area_under():

@@ -617,6 +617,9 @@ class LandingTransitionSurface(Surface):
             x += dx
 
             if x >= self.flight_traj.pos[-1, 0]:
+                msg = ('No landing transition point was found, backing up to '
+                       'last possible point.')
+                logging.info(msg)
                 x = self.flight_traj.pos[-1, 0] - 2 * self.delta
 
             if i > self.max_iterations:
