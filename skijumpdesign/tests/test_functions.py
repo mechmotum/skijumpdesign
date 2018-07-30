@@ -47,15 +47,11 @@ def test_fall_height_too_large():
 
 def test_skier_flies_forever():
 
-    # works now
-    # TODO : This passes with solve_ivp but fails with pycvodes. It is a jump
-    # that's on the edge of being able to land with the required landing Gs and
-    # the tolerances in the two integrators are such that one fails and one
-    # passes.
-    if pycvodes:
-        with pytest.raises(InvalidJumpError):
-            make_jump(-10.0, 0.0, 30.0, 20.0, 1.5)
-    else:
+    # This used to pass with solve_ivp and not pycvodes, but since the 1.2.0
+    # release upstream changes in the dependencies seemed to cause it to fail
+    # with both integrators.
+
+    with pytest.raises(InvalidJumpError):
         make_jump(-10.0, 0.0, 30.0, 20.0, 1.5)
 
 
