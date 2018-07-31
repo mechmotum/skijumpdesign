@@ -36,6 +36,7 @@ This was setup to match the color blue of the sky in the background image.
 """
 
 TITLE = "Ski Jump Design Tool for Specified Equivalent Fall Height"
+VERSION_STAMP = 'skijumpdesign {}'.format(skijumpdesign.__version__)
 
 STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 
@@ -185,10 +186,12 @@ graph_widget = html.Div([dcc.Graph(id='my-graph',
                                    figure=go.Figure(layout=layout))],
                         className='col-md-12')
 
-row1 = html.Div([html.H1(TITLE,
+row1 = html.Div([
+                 html.H1(TITLE,
                          style={'text-align': 'center',
                                 'padding-top': '20px',
-                                'color': 'white'})],
+                                'color': 'white'}),
+                ],
                 className='page-header',
                 style={
                        'height': 'auto',
@@ -196,7 +199,10 @@ row1 = html.Div([html.H1(TITLE,
                        'background': 'rgb(64, 71, 86)',
                       })
 
-row2 = html.Div([graph_widget], className='row')
+
+row2 = html.Div([
+                 graph_widget
+                ], className='row')
 
 button = html.A('Download Profile',
                 id='download-button',
@@ -396,7 +402,6 @@ Sports Engineering 20, no. 4 (December 2017): 283-92.
 [https://doi.org/10.1007/s12283-017-0253-y](https://doi.org/10.1007/s12283-017-0253-y)
 
 """
-
 row7 = html.Div([dcc.Markdown(markdown_text)],
                 className='row',
                 style={'background-color': 'rgb(64,71,86, 0.9)',
@@ -409,8 +414,13 @@ row7 = html.Div([dcc.Markdown(markdown_text)],
 
 row8 = html.Div(id='data-store', style={'display': 'none'})
 
+ver_row = html.Div([html.P([html.Small(VERSION_STAMP)],
+                           style={'text-align': 'right'})],
+                   className='row')
+
 app.layout = html.Div([row1,
-                       html.Div([row2, row3, row4, row5, row6, row7, row8],
+                       html.Div([ver_row, row2, row3, row4, row5, row6, row7,
+                                 row8],
                                 className='container')])
 
 
