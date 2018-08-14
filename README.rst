@@ -51,8 +51,8 @@ References
    :target: https://www.skijumpdesign.info
    :alt: Heroku Application
 
-.. |rtd| image:: https://readthedocs.org/projects/skijumpdesign/badge/?version=latest
-   :target: http://skijumpdesign.readthedocs.io/en/latest/?badge=latest
+.. |rtd| image:: https://readthedocs.org/projects/skijumpdesign/badge/?version=stable
+   :target: http://skijumpdesign.readthedocs.io/en/latest/?badge=stable
    :alt: Documentation Status
 
 .. |forge| image:: https://img.shields.io/conda/vn/conda-forge/skijumpdesign.svg
