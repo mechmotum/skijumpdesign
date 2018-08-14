@@ -52,7 +52,7 @@ References
    :alt: Heroku Application
 
 .. |rtd| image:: https://readthedocs.org/projects/skijumpdesign/badge/?version=stable
-   :target: http://skijumpdesign.readthedocs.io/en/latest/?badge=stable
+   :target: http://skijumpdesign.readthedocs.io/en/stable/?badge=stable
    :alt: Documentation Status
 
 .. |forge| image:: https://img.shields.io/conda/vn/conda-forge/skijumpdesign.svg
