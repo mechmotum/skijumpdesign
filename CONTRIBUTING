@@ -1,9 +1,22 @@
-Contributions to the software are welcome.
-
-Submit issues to:
+Skijumpdesign is released under an open source license and managed with Gitlab
+to encourage reuse and contributions. Questions about the software should be
+directed to the authors via email or as an issue posted to:
 
 http://gitlab.com/moorepants/skijumpdesign/issues
 
-Submit merge requests to:
+Instructions on how to submit an issue via Gitlab are found here:
+
+https://docs.gitlab.com/ee/user/project/issues/create_new_issue.html
+
+We accept proposals for software bug fixes, feature additions, documentation
+improvements, etc via the Gitlab merge request system:
 
 http://gitlab.com/moorepants/skijumpdesign/merge_requests
+
+Instructions on how to submit a merge request via Gitlab are found here:
+
+https://docs.gitlab.com/ee/gitlab-basics/add-merge-request.html
+
+The software authors will review your submissions, provide feedback, and accept
+if it is deemed appropriate. It is best to raise an issue for discussion prior
+to work on large additions and changes.
