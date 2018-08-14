@@ -322,6 +322,15 @@ The table provides a set of outputs about the currently visible jump design:
   landing surfaces. Multiply this value times the width of the jump to obtain
   the volume of snow in the jump design.
 
+### Profile
+
+The **Download Profile** button returns a comma separated value text file with
+two columns. The first column provides the distance from the top of the jump
+(start of the takeoff curve) at every meter along the slope and corresponding
+values of the height above the parent slope in the second column. Both columns
+are in meters. This data is primarily useful in building the actual jump, see
+[2].
+
 ## Assumptions
 
 The design calculations in this application depend on the ratios of aerodynamic
@@ -341,15 +350,6 @@ parameters is provided here:
   0.99
 - equilibration time the jumper should have on the straight ramp just before
   takeoff: 0.25 sec
-
-### Profile
-
-The **Download Profile** button returns a comma separated value text file with
-two columns. The first column provides the distance from the top of the jump
-(start of the takeoff curve) at every meter along the slope and corresponding
-values of the height above the parent slope in the second column. Both columns
-are in meters. This data is primarily useful in building the actual jump, see
-[2].
 
 # Instructions
 
