@@ -1,3 +1,13 @@
+1.3.0
+=====
+
+- Improved CONTRIBUTING guidelines.
+- Added statement of need to the documentation.
+- Added list of relevant references to the documentation.
+- Ensured JOSS paper references all have urls.
+- Display version in the web application.
+- Fixed order of app documentation sections.
+
 1.2.1
 =====
 
