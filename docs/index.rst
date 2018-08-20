@@ -7,7 +7,7 @@ Welcome to skijumpdesign's documentation!
 =========================================
 
 This is the documentation for "skijumpdesign: A Ski Jump Design Tool for
-Equivalent Fall Height" based on the work presented in [1]_. The software
+Equivalent Fall Height" based on the work presented in [2]_. The software
 includes a library for two dimensional skiing simulations and a graphical web
 application for designing basic ski jumps. The purpose of the software is to
 provide an open source, layperson-friendly graphical web application for
@@ -39,46 +39,52 @@ References
 The following references provide background information on the theory and
 rationale of the software implementation.
 
-The primary reference is:
+A paper on this software implementation:
 
-.. [1] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A
+.. [1] Moore, Jason K. and Mont Hubbard, (2018). skijumpdesign: A Ski Jump
+   Design Tool for Specified Equivalent Fall Height. Journal of Open Source
+   Software, 3(28), 818, https://doi.org/10.21105/joss.00818
+
+Which is based on this primary reference:
+
+.. [2] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A
    Design Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall
    Height." Sports Engineering 18, no. 4 (December 2015): 227–39.
    https://doi.org/10.1007/s12283-015-0182-6.
 
 The following are also useful for more in-depth study (in chronological order):
 
-.. [2] Hubbard, Mont. "Safer Ski Jump Landing Surface Design Limits Normal
+.. [3] Hubbard, Mont. "Safer Ski Jump Landing Surface Design Limits Normal
    Impact Velocity." Journal of ASTM International 6, no. 1 (2009): 10.
    https://doi.org/10.1520/STP47480S.
-.. [3] McNeil, James A., and James B. McNeil. "Dynamical Analysis of Winter
+.. [4] McNeil, James A., and James B. McNeil. "Dynamical Analysis of Winter
    Terrain Park Jumps." Sports Engineering 11, no. 3 (June 2009): 159–64.
    https://doi.org/10.1007/s12283-009-0013-8.
-.. [4] Swedberg, Andrew Davis. "Safer Ski Jumps: Design of Landing Surfaces and
+.. [5] Swedberg, Andrew Davis. "Safer Ski Jumps: Design of Landing Surfaces and
    Clothoidal in-Run Transitions." Master of Science in Applied Mathematics,
    Naval Postgraduate School, 2010.
-.. [5] Hubbard, Mont, and Andrew D. Swedberg. "Design of Terrain Park Jump
+.. [6] Hubbard, Mont, and Andrew D. Swedberg. "Design of Terrain Park Jump
    Landing Surfaces for Constant Equivalent Fall Height Is Robust to
    'Uncontrollable' Factors." In Skiing Trauma and Safety: 19th Volume, edited
    by Robert J. Johnson, Jasper E. Shealy, Richard M. Greenwald, and Irving S.
    Scher, 75–94. 100 Barr Harbor Drive, PO Box C700, West Conshohocken, PA
    19428-2959: ASTM International, 2012. https://doi.org/10.1520/STP104515.
-.. [6] Swedberg, Andrew D., and Mont Hubbard. "Modeling Terrain Park Jumps:
+.. [7] Swedberg, Andrew D., and Mont Hubbard. "Modeling Terrain Park Jumps:
    Linear Tabletop Geometry May Not Limit Equivalent Fall Height." In Skiing
    Trauma and Safety: 19th Volume, edited by Robert J. Johnson, Jasper E.
    Shealy, Richard M. Greenwald, and Irving S. Scher, 120–35. 100 Barr Harbor
    Drive, PO Box C700, West Conshohocken, PA 19428-2959: ASTM International,
    2012.  https://doi.org/10.1520/STP104335.
-.. [7] McNeil, James A., Mont Hubbard, and Andrew D. Swedberg. "Designing
+.. [8] McNeil, James A., Mont Hubbard, and Andrew D. Swedberg. "Designing
    Tomorrow's Snow Park Jump." Sports Engineering 15, no. 1 (March 2012): 1–20.
    https://doi.org/10.1007/s12283-012-0083-x.
-.. [8] Hubbard, Mont, James A. McNeil, Nicola Petrone, and Matteo Cognolato.
+.. [9] Hubbard, Mont, James A. McNeil, Nicola Petrone, and Matteo Cognolato.
    "Impact Performance of Standard Tabletop and Constant Equivalent Fall Height
    Snow Park Jumps." In Skiing Trauma and Safety: 20th Volume, edited by Robert
    J.  Johnson, Jasper E. Shealy, and Richard M. Greenwald, 51–71. 100 Barr
    Harbor Drive, PO Box C700, West Conshohocken, PA 19428-2959: ASTM
    International, 2015. https://doi.org/10.1520/STP158220140027.
-.. [9] Petrone, Nicola, Matteo Cognolato, James A. McNeil, and Mont Hubbard.
+.. [10] Petrone, Nicola, Matteo Cognolato, James A. McNeil, and Mont Hubbard.
    "Designing, Building, Measuring, and Testing a Constant Equivalent Fall Height
    Terrain Park Jump." Sports Engineering 20, no. 4 (December 2017): 283–92.
    https://doi.org/10.1007/s12283-017-0253-y.

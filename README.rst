@@ -4,6 +4,7 @@ Ski Jump Design Tool For Specified Equivalent Fall Height
 
 ================= ========
 Launch App        |heroku|
+JOSS Paper        |joss|
 PyPi Download     |pypi|
 Anaconda Download |conda|
 Documentation     |rtd|
@@ -25,8 +26,14 @@ License
 =======
 
 The skijumpdesign source code is released under the MIT license. If you make
-use of the software we ask that you cite the relevant papers and the software
-itself. See the included ``LICENSE`` file for details.
+use of the software we ask that you cite this paper along with including the
+license:
+
+   Moore, Jason K. and Mont Hubbard, (2018). skijumpdesign: A Ski Jump Design
+   Tool for Specified Equivalent Fall Height. Journal of Open Source Software,
+   3(28), 818, https://doi.org/10.21105/joss.00818
+
+See the included ``LICENSE`` file for more details.
 
 Installation
 ============
@@ -61,3 +68,6 @@ References
 .. |ci| image:: https://gitlab.com/moorepants/skijumpdesign/badges/master/pipeline.svg
    :target: https://gitlab.com/moorepants/skijumpdesign/commits/master
    :alt: pipeline status
+
+.. |joss| image:: http://joss.theoj.org/papers/10.21105/joss.00818/status.svg
+   :target: https://doi.org/10.21105/joss.00818
