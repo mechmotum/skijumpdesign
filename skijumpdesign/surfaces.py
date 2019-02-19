@@ -3,6 +3,7 @@ import time
 import logging
 
 import numpy as np
+import math
 from scipy.interpolate import interp1d
 from scipy.optimize import fsolve
 from scipy.integrate import solve_ivp, trapz, quad
@@ -10,6 +11,7 @@ from scipy.integrate import solve_ivp, trapz, quad
 from .utils import InvalidJumpError
 from .utils import GRAV_ACC, EPS
 from .utils import compute_dist_from_flat, vel2speed
+from .skiers import Skier
 
 
 if 'ONHEROKU' in os.environ:
@@ -146,6 +148,28 @@ class Surface(object):
         """Returns an array of values giving the height each point in this
         surface is above the provided surface."""
         return self.y - surface.interp_y(self.x)
+
+    def calculate_efh(self, takeoff_angle):
+        """Interpolates the surface to 5Hz sampling rate and returns interpolated distance and an array of values for the equivalent fall
+        height of a jump given a takeoff angle """
+        total_dist = self.x[len(self.x) - 1] - self.x[0]
+        distance_x = np.linspace(self.x[0], self.x[len(self.x) - 1], math.floor(total_dist / .2))
+        height_interp = interp1d(self.x, self.y, fill_value='extrapolate')
+        height_y = height_interp(distance_x)
+        skier = Skier()
+        takeoff_angle = np.deg2rad(takeoff_angle)
+        landing_slope = np.diff(height_y) / np.diff(distance_x)
+        takeoff_point = (0, 0)
+        efh = []
+        for coordinates in range(1, (len(distance_x))):
+            landing_coord = (distance_x[coordinates], height_y[coordinates])
+            takeoff_speed, impact_vel = skier.speed_to_land_at(landing_coord, takeoff_point,
+                                                               takeoff_angle, self)
+            impact_speed, impact_angle = vel2speed(*impact_vel)
+            efh_coord = (impact_speed ** 2) * ((np.sin(impact_angle -
+                                                       landing_slope[coordinates - 1])) ** 2) / (2 * GRAV_ACC)
+            efh = efh + [efh_coord]
+        return distance_x[1:], efh
 
     def plot(self, ax=None, **plot_kwargs):
         """Returns a matplotlib axes containing a plot of the surface.
