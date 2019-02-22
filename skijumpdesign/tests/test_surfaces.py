@@ -153,3 +153,18 @@ def test_area_under():
 
     assert isclose(surf.area_under(x_start=x0, x_end=xf), expected_area,
                    rel_tol=1e-4)
+
+
+def test_calculate_efh():
+
+    x = [0.00, .169, .339, .509, .678]
+    y = [-0.501, -0.484, -0.451, -0.420, -0.397]
+
+    takeoff_angle = 25.0
+    skier = Skier()
+
+    surface = Surface(x,y)
+
+    distance, efh = surface.calculate_efh(takeoff_angle, skier)
+
+    assert isclose(np.mean(efh), 0.5, abs_tol=1e-2)

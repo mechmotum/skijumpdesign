@@ -3,7 +3,6 @@ import time
 import logging
 
 import numpy as np
-import math
 from scipy.interpolate import interp1d
 from scipy.optimize import fsolve
 from scipy.integrate import solve_ivp, trapz, quad
@@ -149,25 +148,35 @@ class Surface(object):
         surface is above the provided surface."""
         return self.y - surface.interp_y(self.x)
 
-    def calculate_efh(self, takeoff_angle):
-        """Interpolates the surface to 5Hz sampling rate and returns interpolated distance and an array of values for the equivalent fall
-        height of a jump given a takeoff angle """
-        total_dist = self.x[len(self.x) - 1] - self.x[0]
-        distance_x = np.linspace(self.x[0], self.x[len(self.x) - 1], math.floor(total_dist / .2))
-        height_interp = interp1d(self.x, self.y, fill_value='extrapolate')
-        height_y = height_interp(distance_x)
-        skier = Skier()
+    def calculate_efh(self, takeoff_angle, skier, x_start=None, x_end=None, interval=0.2):
+        """Interpolates the surface to 0.2m intervals and returns interpolated distance and an array of values for
+        the equivalent fall height of a jump."""
+
+        if x_start is not None:
+            if x_start < self.start[0] or x_start > self.end[0]:
+                raise ValueError('x_start has to be between start and end.')
+        else:
+            x_start = self.start[0]
+        if x_end is not None:
+            if x_end < self.start[0] or x_end > self.end[0]:
+                raise ValueError('x_end has to be between start and end.')
+        else:
+            x_end = self.end[0]
+        distance_x = np.linspace(x_start, x_end, num=(x_end - x_start) / interval)
+
         takeoff_angle = np.deg2rad(takeoff_angle)
-        landing_slope = np.diff(height_y) / np.diff(distance_x)
+        slope_angle = self.interp_slope(distance_x)
+        height_y = self.interp_y(distance_x)
         takeoff_point = (0, 0)
         efh = []
+
         for coordinates in range(1, (len(distance_x))):
             landing_coord = (distance_x[coordinates], height_y[coordinates])
             takeoff_speed, impact_vel = skier.speed_to_land_at(landing_coord, takeoff_point,
                                                                takeoff_angle, self)
             impact_speed, impact_angle = vel2speed(*impact_vel)
             efh_coord = (impact_speed ** 2) * ((np.sin(impact_angle -
-                                                       landing_slope[coordinates - 1])) ** 2) / (2 * GRAV_ACC)
+                                                       slope_angle[coordinates - 1])) ** 2) / (2 * GRAV_ACC)
             efh = efh + [efh_coord]
         return distance_x[1:], efh
 
