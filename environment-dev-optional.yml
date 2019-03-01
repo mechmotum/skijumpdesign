@@ -7,6 +7,7 @@ dependencies:
   - setuptools
   - ipython
   - numpy >=0.13.0  # requires new options in gradient()
+  - pandas
   - scipy >=1.0  # requires solve_ivp()
   - matplotlib
   - sympy
@@ -24,3 +25,4 @@ dependencies:
   - dash-renderer
   - dash-html-components
   - dash-core-components
+  - dash-table
