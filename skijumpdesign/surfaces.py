@@ -10,6 +10,7 @@ from scipy.integrate import solve_ivp, trapz, quad
 from .utils import InvalidJumpError
 from .utils import GRAV_ACC, EPS
 from .utils import compute_dist_from_flat, vel2speed
+from .skiers import Skier
 
 
 if 'ONHEROKU' in os.environ:
@@ -146,6 +147,38 @@ class Surface(object):
         """Returns an array of values giving the height each point in this
         surface is above the provided surface."""
         return self.y - surface.interp_y(self.x)
+
+    def calculate_efh(self, takeoff_angle, skier, x_start=None, x_end=None, interval=0.2):
+        """Interpolates the surface to 0.2m intervals and returns interpolated distance and an array of values for
+        the equivalent fall height of a jump."""
+
+        if x_start is not None:
+            if x_start < self.start[0] or x_start > self.end[0]:
+                raise ValueError('x_start has to be between start and end.')
+        else:
+            x_start = self.start[0]
+        if x_end is not None:
+            if x_end < self.start[0] or x_end > self.end[0]:
+                raise ValueError('x_end has to be between start and end.')
+        else:
+            x_end = self.end[0]
+        distance_x = np.linspace(x_start, x_end, num=(x_end - x_start) / interval)
+
+        takeoff_angle = np.deg2rad(takeoff_angle)
+        slope_angle = self.interp_slope(distance_x)
+        height_y = self.interp_y(distance_x)
+        takeoff_point = (0, 0)
+        efh = []
+
+        for coordinates in range(1, (len(distance_x))):
+            landing_coord = (distance_x[coordinates], height_y[coordinates])
+            takeoff_speed, impact_vel = skier.speed_to_land_at(landing_coord, takeoff_point,
+                                                               takeoff_angle, self)
+            impact_speed, impact_angle = vel2speed(*impact_vel)
+            efh_coord = (impact_speed ** 2) * ((np.sin(impact_angle -
+                                                       slope_angle[coordinates - 1])) ** 2) / (2 * GRAV_ACC)
+            efh = efh + [efh_coord]
+        return distance_x[1:], efh
 
     def plot(self, ax=None, **plot_kwargs):
         """Returns a matplotlib axes containing a plot of the surface.
