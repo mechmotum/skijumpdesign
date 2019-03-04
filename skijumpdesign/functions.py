@@ -199,3 +199,31 @@ def plot_jump(slope, approach, takeoff, landing, landing_trans, flight):
     ax.grid()
     ax.legend()
     return ax
+
+
+def ds_to_xy(sA, A, sL, L, top_width, back_length, back_angle):
+    """Returns x,y coordinates from the dS and angle entered into Freestyle Terrain Park Jump Profile Tool by J. A.
+    McNeil """
+    # Approach Takeoff Region
+    ds = np.diff(sA)
+    cos_x = ds*np.cos(A[:-1]*np.pi/180)
+    sin_y = ds*np.sin(A[:-1]*np.pi/180)
+    x = np.flip(-np.cumsum(cos_x))
+    y = np.flip(-np.cumsum(sin_y))
+    # Add the lip
+    x_lip = 0
+    y_lip = 0
+    # Top of takeoff
+    x_top = x_lip + top_width
+    y_top = y_lip
+    # Back of takeoff
+    x_back = x_top + back_length*(np.cos(back_angle*np.pi/180))
+    y_back = y_top - back_length*np.abs(np.sin(back_angle*np.pi/180))
+    # Landing Region, need to fix if back is not equal to zero
+    ds_land = np.diff(sL)
+    x_land = np.cumsum(ds_land * np.cos(L[:-1]*np.pi/180))
+    y_land = np.cumsum(-ds_land * abs(np.sin(L[:-1]*np.pi/180)))
+    # Compile
+    x = np.append(x, [x_lip, x_top, x_back, x_land])
+    y = np.append(y, [y_lip, y_top, y_back, y_land])
+    return x, y
