@@ -148,9 +148,30 @@ class Surface(object):
         surface is above the provided surface."""
         return self.y - surface.interp_y(self.x)
 
-    def calculate_efh(self, takeoff_angle, skier, x_start=None, x_end=None, interval=0.2):
-        """Interpolates the surface to 0.2m intervals and returns interpolated distance and an array of values for
-        the equivalent fall height of a jump."""
+    def calculate_efh(self, takeoff_angle, skier, x_start=None, x_end=None):
+        """Returns interpolated distance and an array of values for the
+        equivalent fall height of a jump.
+
+        Parameters
+        ==========
+        takeoff_angle : float
+            The takeoff angle in degrees.
+        skier : Skier
+            A skier instance.
+        x_start : float or None
+            The x axis start for interpolation.
+        x_end : float or None
+            The x axis end for interpolation.
+        
+
+        Returns
+        =======
+        distance_x : array
+            The interpolated distance from x_start to x_end.
+        efh : array
+            The equivalent fall height for each distance_x value.
+
+        """
 
         if x_start is not None:
             if x_start < self.start[0] or x_start > self.end[0]:
@@ -162,7 +183,7 @@ class Surface(object):
                 raise ValueError('x_end has to be between start and end.')
         else:
             x_end = self.end[0]
-        distance_x = np.linspace(x_start, x_end, num=(x_end - x_start) / interval)
+        distance_x = np.linspace(x_start, x_end, num=(x_end - x_start) / 0.2)
 
         takeoff_angle = np.deg2rad(takeoff_angle)
         slope_angle = self.interp_slope(distance_x)
