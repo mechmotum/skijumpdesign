@@ -148,7 +148,7 @@ class Surface(object):
         surface is above the provided surface."""
         return self.y - surface.interp_y(self.x)
 
-    def calculate_efh(self, takeoff_angle, skier, x_start=None, x_end=None):
+    def calculate_efh(self, takeoff_angle, takeoff_point, skier, x_start=None, x_end=None):
         """Returns interpolated distance and an array of values for the
         equivalent fall height of a jump.
 
@@ -156,12 +156,14 @@ class Surface(object):
         ==========
         takeoff_angle : float
             The takeoff angle in degrees.
+        takeoff_point : 2-tuple of floats
+            The point at which the skier leaves the takeoff ramp.
         skier : Skier
             A skier instance.
         x_start : float or None
-            The x axis start for interpolation.
+            The x axis start for interpolation and efh calculation.
         x_end : float or None
-            The x axis end for interpolation.
+            The x axis end for interpolation and efh calculation.
         
 
         Returns
@@ -188,7 +190,7 @@ class Surface(object):
         takeoff_angle = np.deg2rad(takeoff_angle)
         slope_angle = self.interp_slope(distance_x)
         height_y = self.interp_y(distance_x)
-        takeoff_point = (0, 0)
+
         efh = []
 
         for coordinates in range(1, (len(distance_x))):
