@@ -167,8 +167,6 @@ def test_calculate_efh():
     slope, approach, takeoff, landing, landing_trans, flight, outputs = \
         make_jump(slope_angle, 0.0, approach_len, takeoff_angle, fall_height)
 
-    takeoff_point = (takeoff.x[-1], takeoff.y[-1])
+    dist, efh = landing.calculate_efh(takeoff_angle, takeoff.end, skier)
 
-    dist, efh = landing.calculate_efh(takeoff_angle, takeoff_point, skier)
-
-    assert isclose(np.mean(efh), fall_height, abs_tol=1e-2)
+    np.testing.assert_allclose(efh, fall_height * np.ones_like(efh))
