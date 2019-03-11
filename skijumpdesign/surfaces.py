@@ -149,8 +149,8 @@ class Surface(object):
         return self.y - surface.interp_y(self.x)
 
     def calculate_efh(self, takeoff_angle, takeoff_point, skier):
-        """Returns interpolated distance and an array of values for the
-        equivalent fall height of a jump.
+        """Returns interpolated distance wrt the x axis at 0.2m intervals
+         and an array of values for the equivalent fall height of a jump.
 
         Parameters
         ==========
@@ -164,30 +164,36 @@ class Surface(object):
 
         Returns
         =======
-        distance_x : array
-            The interpolated distance from x_start to x_end.
-        efh : array
-            The equivalent fall height for each distance_x value.
+        distance_x : array, shape(n,)
+            The interpolated distance wrt x axis at 0.2m intervals.
+        efh : array, shape(n,)
+            The equivalent fall height for each distance_x greater
+            than the takeoff_point x value.
 
         """
 
-        distance_x = np.linspace(self.x[0], self.x[-1], num=(self.x[-1] - self.x[0]) / 0.02)
+        distance_x = np.linspace(self.x[0], self.x[-1], num=(self.x[-1] - self.x[0]) / 0.2)
 
         takeoff_angle = np.deg2rad(takeoff_angle)
-        slope_angle = self.interp_slope(distance_x)
+        slope = self.interp_slope(distance_x)
+        slope_angle = np.arctan(slope)
         height_y = self.interp_y(distance_x)
+
+        catch_surf = HorizontalSurface(np.min(height_y) - 0.1, self.x[0] - self.x[-1] +
+                                       2.0, start=self.x[0] - 1.0)
 
         efh = []
 
-        for coordinates in range(1, (len(distance_x))):
-            landing_coord = (distance_x[coordinates], height_y[coordinates])
-            takeoff_speed, impact_vel = skier.speed_to_land_at(landing_coord, takeoff_point,
-                                                               takeoff_angle, self)
+        for x, y, m in zip(distance_x[1:], height_y[1:], slope_angle[1:]):
+            takeoff_speed, impact_vel = skier.speed_to_land_at((x, y),
+                                                               takeoff_point,
+                                                               takeoff_angle,
+                                                               catch_surf)
             impact_speed, impact_angle = vel2speed(*impact_vel)
-            efh_coord = (impact_speed ** 2) * ((np.sin(impact_angle -
-                                                       slope_angle[coordinates - 1])) ** 2) / (2 * GRAV_ACC)
-            efh = efh + [efh_coord]
-        return distance_x[1:], efh
+            efh_coord = (impact_speed ** 2 * np.sin(m - impact_angle) ** 2 / (2 * GRAV_ACC))
+            efh.append(efh_coord)
+
+        return distance_x[1:], np.array(efh)
 
     def plot(self, ax=None, **plot_kwargs):
         """Returns a matplotlib axes containing a plot of the surface.
