@@ -418,19 +418,9 @@ ver_row = html.Div([html.P([html.Small(VERSION_STAMP)],
                    className='row')
 
 app.layout = html.Div([row1,
-                       dcc.Tabs(id="tab", children=[
-                           dcc.Tab(label='Jump Design', children=[
-                                html.Div([ver_row, row2, row3, row4, row5, row6, row7,
-                                          row8],
-                                className='container')]),
-                           dcc.Tab(label='Jump Evaluation', children=[
-                               html.Div([
-                                   html.H1("This is the content in tab 2"),
-                                   html.P("A graph here.")
-                               ])
-                           ])
-                           ])
-                       ])
+                       html.Div([ver_row, row2, row3, row4, row5, row6, row7,
+                                 row8],
+                                className='container')])
 
 
 @app.callback(Output('slope-text', 'children'),
