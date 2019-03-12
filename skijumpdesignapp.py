@@ -20,7 +20,6 @@ import skijumpdesign
 from skijumpdesign.functions import make_jump
 from skijumpdesign.utils import InvalidJumpError
 
-
 """
 Color Palette
 https://mycolor.space/?hex=%2360A4FF&sub=1

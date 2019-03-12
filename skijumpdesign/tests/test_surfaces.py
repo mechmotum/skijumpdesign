@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import pytest
 
 from ..skiers import Skier
+from ..functions import make_jump
 from ..surfaces import (Surface, FlatSurface, ClothoidCircleSurface,
                         TakeoffSurface, LandingTransitionSurface)
 from ..utils import InvalidJumpError
@@ -153,3 +154,19 @@ def test_area_under():
 
     assert isclose(surf.area_under(x_start=x0, x_end=xf), expected_area,
                    rel_tol=1e-4)
+
+
+def test_calculate_efh():
+
+    slope_angle = -15.0
+    approach_len = 40
+    takeoff_angle = 25.0
+    fall_height = 0.5
+    skier = Skier()
+
+    slope, approach, takeoff, landing, landing_trans, flight, outputs = \
+        make_jump(slope_angle, 0.0, approach_len, takeoff_angle, fall_height)
+
+    dist, efh = landing.calculate_efh(takeoff_angle, takeoff.end, skier)
+
+    np.testing.assert_allclose(efh, fall_height * np.ones_like(efh), atol=1e-2)
