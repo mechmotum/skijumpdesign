@@ -424,8 +424,6 @@ Sports Engineering 20, no. 4 (December 2017): 283-92.
 """
 
 
-
-
 row7 = html.Div([dcc.Markdown(markdown_text)],
                 className='row',
                 style={'background-color': 'rgb(64,71,86, 0.9)',
@@ -651,15 +649,31 @@ home_title = html.Div([
         'background': 'rgb(64, 71, 86)',
     })
 
-home_row1 = html.Div([dcc.Markdown(markdown_text_home)],
-                className='row',
-                style={'background-color': 'rgb(64,71,86, 0.9)',
-                       'color': 'white',
-                       'padding-right': '20px',
-                       'padding-left': '20px',
-                       'margin-top': '40px',
-                       'text-shadow': '1px 1px black',
-                       })
+home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
+
+                         className='row',
+                         style={'background-color': 'rgb(64,71,86, 0.9)',
+                                'color': 'white',
+                                'padding-right': '20px',
+                                'padding-left': '20px',
+                                'margin-top': '40px',
+                                'text-shadow': '1px 1px black',
+                                })
+
+
+home_button_design = html.A('Ski Jump Design',
+                            href='/Design',
+                            className='btn btn-primary btn-lg')
+
+home_button_analysis = html.A('Ski Jump Analysis',
+                              href='/Analysis',
+                              className='btn btn-primary btn-lg')
+
+home_buttons = html.Div([
+    html.Div([], style={'display': 'inline-block', 'width': '30%'}),
+    html.Div([home_button_design], style={'display': 'inline-block', 'width': '28%'}),
+    html.Div([home_button_analysis], style={'display': 'inline-block', 'width': '33%'}),
+], className='row shaded', style={'padding-top': '40px'})
 
 
 layout_index = html.Div([
@@ -667,12 +681,9 @@ layout_index = html.Div([
     html.Br(),
     dcc.Link('Navigate to Ski Jump Analysis', href='/Analysis', style={"color": "blue", "text-decoration": "none"}),
     home_title,
-    dcc.Link(html.Button('Ski Jump Design'), href='/Design', style={"color": "blue", "text-decoration": "none"}),
-    dcc.Link(html.Button('Ski Jump Analysis'), href='/Analysis', style={"color": "blue", "text-decoration": "none",
-                                                                        'width': '100%'}),
-    home_row1,
+    home_buttons,
+    home_markdown,
 ])
-
 
 layout_design = html.Div([dcc.Link('Navigate to Home', href='/', style={"color": "blue", "text-decoration": "none"}),
                           html.Br(),
@@ -693,14 +704,13 @@ layout_analysis = html.Div([dcc.Link('Navigate to Home', href='/',
                                      style={"color": "blue", "text-decoration": "none"}),
                             html.Br(),
                             dcc.Link('Navigate to Ski Jump Design', href='/Design',
-                                style={"color": "blue", "text-decoration": "none"}),
+                                     style={"color": "blue", "text-decoration": "none"}),
                             analysis_title_row,
                             analysis_row1,
                             analysis_row2,
                             analysis_row4,
                             analysis_row5,
                             analysis_row8])
-
 
 
 def serve_layout():
