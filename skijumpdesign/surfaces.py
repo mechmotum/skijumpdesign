@@ -148,37 +148,52 @@ class Surface(object):
         surface is above the provided surface."""
         return self.y - surface.interp_y(self.x)
 
-    def calculate_efh(self, takeoff_angle, skier, x_start=None, x_end=None, interval=0.2):
-        """Interpolates the surface to 0.2m intervals and returns interpolated distance and an array of values for
-        the equivalent fall height of a jump."""
+    def calculate_efh(self, takeoff_angle, takeoff_point, skier):
+        """Returns interpolated distance wrt the x axis at 0.2m intervals
+         and an array of values for the equivalent fall height of a jump.
 
-        if x_start is not None:
-            if x_start < self.start[0] or x_start > self.end[0]:
-                raise ValueError('x_start has to be between start and end.')
-        else:
-            x_start = self.start[0]
-        if x_end is not None:
-            if x_end < self.start[0] or x_end > self.end[0]:
-                raise ValueError('x_end has to be between start and end.')
-        else:
-            x_end = self.end[0]
-        distance_x = np.linspace(x_start, x_end, num=(x_end - x_start) / interval)
+        Parameters
+        ==========
+        takeoff_angle : float
+            The takeoff angle in degrees.
+        takeoff_point : 2-tuple of floats
+            The point at which the skier leaves the takeoff ramp.
+        skier : Skier
+            A skier instance.
+        
+
+        Returns
+        =======
+        distance_x : array, shape(n,)
+            The interpolated distance wrt x axis at 0.2m intervals.
+        efh : array, shape(n,)
+            The equivalent fall height for each distance_x greater
+            than the takeoff_point x value.
+
+        """
+
+        distance_x = np.linspace(self.x[0], self.x[-1], num=(self.x[-1] - self.x[0]) / 0.2)
 
         takeoff_angle = np.deg2rad(takeoff_angle)
-        slope_angle = self.interp_slope(distance_x)
+        slope = self.interp_slope(distance_x)
+        slope_angle = np.arctan(slope)
         height_y = self.interp_y(distance_x)
-        takeoff_point = (0, 0)
+
+        catch_surf = HorizontalSurface(np.min(height_y) - 0.1, self.x[0] - self.x[-1] +
+                                       2.0, start=self.x[0] - 1.0)
+
         efh = []
 
-        for coordinates in range(1, (len(distance_x))):
-            landing_coord = (distance_x[coordinates], height_y[coordinates])
-            takeoff_speed, impact_vel = skier.speed_to_land_at(landing_coord, takeoff_point,
-                                                               takeoff_angle, self)
+        for x, y, m in zip(distance_x[1:], height_y[1:], slope_angle[1:]):
+            takeoff_speed, impact_vel = skier.speed_to_land_at((x, y),
+                                                               takeoff_point,
+                                                               takeoff_angle,
+                                                               catch_surf)
             impact_speed, impact_angle = vel2speed(*impact_vel)
-            efh_coord = (impact_speed ** 2) * ((np.sin(impact_angle -
-                                                       slope_angle[coordinates - 1])) ** 2) / (2 * GRAV_ACC)
-            efh = efh + [efh_coord]
-        return distance_x[1:], efh
+            efh_coord = (impact_speed ** 2 * np.sin(m - impact_angle) ** 2 / (2 * GRAV_ACC))
+            efh.append(efh_coord)
+
+        return distance_x[1:], np.array(efh)
 
     def plot(self, ax=None, **plot_kwargs):
         """Returns a matplotlib axes containing a plot of the surface.
