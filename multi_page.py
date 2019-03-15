@@ -676,19 +676,32 @@ home_buttons = html.Div([
 ], className='row shaded', style={'padding-top': '40px'})
 
 
+nav_bar = html.Div([
+    html.Nav(children=[
+            html.A('Home',
+                   href='/',
+                   className='nav-item nav-link btn',
+                   style={'background-color': 'grey'}),
+            html.A('Ski Jump Design',
+                   href='/Design',
+                   className='nav-item nav-link btn',
+                   style={'background-color':'grey'}),
+            html.A('Ski Jump Analysis',
+                   href='/Analysis',
+                   className='nav-item nav-link btn',
+                   style={'background-color': 'grey'})
+    ])
+])
+
+
 layout_index = html.Div([
-    dcc.Link('Navigate to Ski Jump Design', href='/Design', style={"color": "blue", "text-decoration": "none"}),
-    html.Br(),
-    dcc.Link('Navigate to Ski Jump Analysis', href='/Analysis', style={"color": "blue", "text-decoration": "none"}),
+    nav_bar,
     home_title,
     home_buttons,
     home_markdown,
 ])
 
-layout_design = html.Div([dcc.Link('Navigate to Home', href='/', style={"color": "blue", "text-decoration": "none"}),
-                          html.Br(),
-                          dcc.Link('Navigate to Ski Jump Analysis', href='/Analysis',
-                                   style={"color": "blue", "text-decoration": "none"}),
+layout_design = html.Div([nav_bar,
                           row1,
                           ver_row,
                           row2,
@@ -700,11 +713,7 @@ layout_design = html.Div([dcc.Link('Navigate to Home', href='/', style={"color":
                           row8,
                           ])
 
-layout_analysis = html.Div([dcc.Link('Navigate to Home', href='/',
-                                     style={"color": "blue", "text-decoration": "none"}),
-                            html.Br(),
-                            dcc.Link('Navigate to Ski Jump Design', href='/Design',
-                                     style={"color": "blue", "text-decoration": "none"}),
+layout_analysis = html.Div([nav_bar,
                             analysis_title_row,
                             analysis_row1,
                             analysis_row2,
