@@ -663,17 +663,16 @@ home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
 
 home_button_design = html.A('Ski Jump Design',
                             href='/Design',
-                            className='btn btn-primary btn-lg')
+                            className='btn btn-primary btn-lg', style={'padding': '72px 72px'})
 
 home_button_analysis = html.A('Ski Jump Analysis',
                               href='/Analysis',
-                              className='btn btn-primary btn-lg')
+                              className='btn btn-primary btn-lg', style={'padding': '72px 72px'})
 
 home_buttons = html.Div([
-    html.Div([], style={'display': 'inline-block', 'width': '30%'}),
-    html.Div([home_button_design], style={'display': 'inline-block', 'width': '28%'}),
-    html.Div([home_button_analysis], style={'display': 'inline-block', 'width': '33%'}),
-], className='row shaded', style={'padding-top': '40px'})
+    html.Div([home_button_design], style={'display': 'inline-block', 'padding': '15px'}),
+    html.Div([home_button_analysis], style={'display': 'inline-block', 'padding': '15px'}),
+], className='row shaded', style={'padding': '40px', 'display': 'flex', 'justify-content': 'center'})
 
 
 nav_menu = html.Div([
