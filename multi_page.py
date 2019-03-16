@@ -676,32 +676,29 @@ home_buttons = html.Div([
 ], className='row shaded', style={'padding-top': '40px'})
 
 
-nav_bar = html.Div([
-    html.Nav(children=[
-            html.A('Home',
-                   href='/',
-                   className='nav-item nav-link btn',
-                   style={'background-color': 'grey'}),
-            html.A('Ski Jump Design',
-                   href='/Design',
-                   className='nav-item nav-link btn',
-                   style={'background-color':'grey'}),
-            html.A('Ski Jump Analysis',
-                   href='/Analysis',
-                   className='nav-item nav-link btn',
-                   style={'background-color': 'grey'})
-    ])
-])
+nav_menu = html.Div([
+    html.Ul([
+            html.Li([
+                    dcc.Link('Home', href='/')
+                    ], className='active'),
+            html.Li([
+                    dcc.Link('Ski Jump Design', href='/Design')
+                    ]),
+            html.Li([
+            dcc.Link('Ski Jump Analysis', href='/Analysis')
+                    ]),
+            ], className='nav navbar-nav')
+], className='navbar navbar-expand-sm bg-info navbar-dark navbar-static-top')
 
 
 layout_index = html.Div([
-    nav_bar,
+    nav_menu,
     home_title,
     home_buttons,
     home_markdown,
 ])
 
-layout_design = html.Div([nav_bar,
+layout_design = html.Div([nav_menu,
                           row1,
                           ver_row,
                           row2,
@@ -713,7 +710,7 @@ layout_design = html.Div([nav_bar,
                           row8,
                           ])
 
-layout_analysis = html.Div([nav_bar,
+layout_analysis = html.Div([nav_menu,
                             analysis_title_row,
                             analysis_row1,
                             analysis_row2,
