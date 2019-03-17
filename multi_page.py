@@ -605,7 +605,7 @@ efh_graph_widget = html.Div([dcc.Graph(id='efh-graph',
                             className='twelve columns')
 
 
-table_widget = html.Div(id='data-table')
+table_widget = html.Div(id='datatable-upload')
 
 analysis_title_row = html.Div([
     html.H1("Ski Jump Analysis",
@@ -637,7 +637,7 @@ analysis_graph_row = html.Div([
 
 analysis_table_row = html.Div([
     table_widget
-], className='row')
+])
 
 analysis_data_row = html.Div(id='output-data-upload', style={'display': 'none'})
 
@@ -1065,30 +1065,31 @@ def update_efh_graph(json_data):
     return dic
 
 
-# @app.callback(Output('data-table', 'children'),
-#               [Input('upload-data', 'contents'), Input('output-data-upload', 'children')])
-# def update_table(contents, json_data):
-#
-#     if contents is not None:
-#         dic = json.loads(json_data)
-#         jump_uploaded = dic['upload_data']
-#         df = pd.read_json(jump_uploaded, orient='index')
-#         if df is not None:
-#             return dash_table.DataTable(data=df.to_dict('rows'),
-#                                         columns=[{'id': c, 'name': c} for c in df.columns],
-#                                         n_fixed_rows=1,
-#                                         style_table={'overflowY': 'scroll'},
-#                                         style_cell={
-#                                             # all three widths are needed
-#                                             'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
-#                                             'whiteSpace': 'no-wrap',
-#                                             'overflow': 'hidden',
-#                                             'textOverflow': 'ellipsis'
-#                                         })
-#         else:
-#             return [{}]
-#     else:
-#         return [{}]
+@app.callback(Output('datatable-upload', 'children'),
+              [Input('upload-data', 'contents'), Input('output-data-upload', 'children')])
+def update_table(contents, json_data):
+    if contents is None:
+        children_none = []
+        return children_none
+    dic = json.loads(json_data)
+    jump_upload = dic['upload_data']
+    df = pd.read_json(jump_upload, orient='index')
+    children = [
+        html.Div([
+            dash_table.DataTable(
+                data=df.to_dict('rows'),
+                columns=[{'name': i, 'id': i} for i in df.columns],
+                n_fixed_rows=1,
+                style_table={'overflowY': 'scroll'},
+                style_header={'backgroundColor': 'rgba(96, 164, 255, 0.0)'},
+                style_cell_conditional=[{
+                    'if': {'row_index': 'odd'},
+                    'backgroundColor': 'rgb(248, 248, 248)'
+                }]
+            ),
+        ])
+    ]
+    return children
 
 
 if __name__ == '__main__':
