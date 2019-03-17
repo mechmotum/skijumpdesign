@@ -447,7 +447,7 @@ upload_widget = html.Div([
         id='upload-data',
         children=html.Div([
             'Drag and Drop or ',
-            html.A('Select Files')
+            html.A('Select Files', style={'color': 'blue'})
         ]),
         style={
             'width': '100%',
@@ -463,16 +463,6 @@ upload_widget = html.Div([
     )
 ])
 
-layout = go.Layout(autosize=True,
-                   hovermode='closest',
-                   paper_bgcolor='rgba(96, 164, 255, 0.0)',  # transparent
-                   plot_bgcolor='rgba(255, 255, 255, 0.5)',  # white
-                   xaxis={'title': 'Distance [m]', 'zeroline': False},
-                   yaxis={'scaleanchor': 'x',  # equal aspect ratio
-                          'scaleratio': 1.0,  # equal aspect ratio
-                          'title': 'Height [m]', 'zeroline': False},
-                   legend={'orientation': "h",
-                           'y': 1.15})
 
 layout_efh = go.Layout(autosize=True,
                    hovermode='closest',
@@ -485,14 +475,44 @@ layout_efh = go.Layout(autosize=True,
                    legend={'orientation': "h",
                            'y': 1.15})
 
+analysis_filename_widget = html.Div([
+    html.H3(id='filename-text-analysis')
+])
+
 
 analysis_takeoff_angle_widget = html.Div([
-    html.H3('Enter Takeoff Angle [deg]',
+    html.H3('Takeoff Angle: [deg]',
             id='takeoff-text-analysis',
             style={'color': '#404756'}),
 
     dcc.Input(
         id='takeoff_angle_analysis',
+        placeholder='0',
+        type='text',
+        value=''
+    )
+])
+
+analysis_takeoff_x_widget = html.Div([
+    html.H3('Takeoff Point, Distance: [m]',
+            id='takeoff-text-distance',
+            style={'color': '#404756'}),
+
+    dcc.Input(
+        id='takeoff_pos_dist',
+        placeholder='0',
+        type='text',
+        value=''
+    )
+])
+
+analysis_takeoff_y_widget = html.Div([
+    html.H3('Takeoff Point, Height: [m]',
+            id='takeoff-text-height',
+            style={'color': '#404756'}),
+
+    dcc.Input(
+        id='takeoff_pos_height',
         placeholder='0',
         type='text',
         value=''
@@ -520,27 +540,27 @@ def populated_efh_graph(surface, distance, efh):
         {'x': surface.x,
          'y': surface.y,
          'name': 'Jump Profile',
-         'line': {'color': '#c89b43', 'width': 4},
+         'line': {'color': '#8e690a', 'width': 4},
          'mode': 'lines'},
         {'x': distance,
          'y': efh,
          'name': 'Calculated EFH',
          'type': 'bar',
-         'marker': {'color': '#404756'},
+         'marker': {'color': '#c89b43'},
          },
         {'x': distance,
          'y': distance_standards*recommend_efh,
          'name': 'Recommended EFH',
-         'line': {'color': 'red', 'dash': 'dash'}},
+         'line': {'color': '#404756', 'dash': 'dash'}},
         {'x': distance,
          'y': distance_standards * maximum_efh,
          'name': 'Maximum EFH',
-         'line': {'color': 'blue', 'dash': 'dash'}},
+         'line': {'color': '#404756', 'dash': 'dot'}},
     ],
         'layout': layout_efh}
 
 
-def parse_contents(takeoff_angle, contents, filename):
+def parse_contents(takeoff_angle, takeoff_point_x, takeoff_point_y, contents, filename):
 
     content_type, content_string = contents.split(',')
 
@@ -562,8 +582,11 @@ def parse_contents(takeoff_angle, contents, filename):
     surface = Surface(df.iloc[:, 0].values, df.iloc[:, 1].values)
     skier = Skier()
     takeoff_angle = float(takeoff_angle)
+    takeoff_point_x = float(takeoff_point_x)
+    takeoff_point_y = float(takeoff_point_y)
+    takeoff_point = (takeoff_point_x, takeoff_point_y)
 
-    distance, efh = surface.calculate_efh(takeoff_angle, skier)
+    distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point, skier)
 
     dic = populated_efh_graph(surface, distance, efh)
     dic['upload_data'] = df.to_json(orient='index')
@@ -572,36 +595,17 @@ def parse_contents(takeoff_angle, contents, filename):
 
 
 efh_graph_widget = html.Div([dcc.Graph(id='efh-graph',
-                                   # following is a trick to get height to
-                                   # scale with width using padding-bottom
-                                   style={'width': '100%',
-                                          'height': '0',
-                                          # NOTE : If less that 75% graphs may
-                                          # not have any height on a phone.
-                                          'padding-bottom': '75%'
-                                          },
-                                   figure=go.Figure(layout=layout_efh))],
-                        className='twelve columns')
+                                       style={'width': '100%',
+                                              'height': '0',
+                                              # NOTE : If less that 75% graphs may
+                                              # not have any height on a phone.
+                                              'padding-bottom': '75%'
+                                              },
+                                       figure=go.Figure(layout=layout_efh))],
+                            className='twelve columns')
 
 
-table_widget = html.Div([dash_table.DataTable(
-    id='table-data',
-)])
-
-#     dash_table.DataTable(
-#         data=df.to_dict('rows'),
-#         columns=[{'id': c, 'name': c} for c in df.columns],
-#         n_fixed_rows=1,
-#         style_table={'overflowY': 'scroll'},
-#         style_cell={
-#             # all three widths are needed
-#             'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
-#             'whiteSpace': 'no-wrap',
-#             'overflow': 'hidden',
-#             'textOverflow': 'ellipsis',
-#         },
-#     )
-# ])
+table_widget = html.Div(id='data-table')
 
 analysis_title_row = html.Div([
     html.H1("Ski Jump Analysis",
@@ -616,23 +620,26 @@ analysis_title_row = html.Div([
         'background': 'rgb(64, 71, 86)',
     })
 
-analysis_row1 = html.Div([
+analysis_upload_row = html.Div([
     upload_widget
 ], className='row')
 
-analysis_row2 = html.Div([
-    html.Div([analysis_takeoff_angle_widget], className='col-md-5')
+analysis_takeoff_row = html.Div([
+    html.Div([analysis_filename_widget], className='col-md-3'),
+    html.Div([analysis_takeoff_angle_widget], className='col-md-3'),
+    html.Div([analysis_takeoff_x_widget], className='col-md-3'),
+    html.Div([analysis_takeoff_y_widget], className='col-md-3'),
 ], className='row shaded')
 
-analysis_row4= html.Div([
+analysis_graph_row = html.Div([
     efh_graph_widget
 ], className='row')
 
-analysis_row5 = html.Div([
+analysis_table_row = html.Div([
     table_widget
 ], className='row')
 
-analysis_row8 = html.Div(id='output-data-upload', style={'display': 'none'})
+analysis_data_row = html.Div(id='output-data-upload', style={'display': 'none'})
 
 # Home
 
@@ -690,32 +697,26 @@ nav_menu = html.Div([
 ], className='navbar navbar-expand-sm bg-info navbar-dark navbar-static-top')
 
 
-layout_index = html.Div([
-    nav_menu,
-    home_title,
-    home_buttons,
-    home_markdown,
-])
+layout_index = html.Div([nav_menu, home_title,
+                         html.Div([
+                             ver_row, home_buttons, home_markdown
+                         ], className='container')
+                        ])
 
-layout_design = html.Div([nav_menu,
-                          row1,
-                          ver_row,
-                          row2,
-                          row3,
-                          row4,
-                          row5,
-                          row6,
-                          row7,
-                          row8,
-                          ])
+layout_design = html.Div([nav_menu, row1,
+                          html.Div([ver_row, row2, row3, row4, row5, row6,
+                                    row7, row8],
+                                   className='container')])
 
-layout_analysis = html.Div([nav_menu,
-                            analysis_title_row,
-                            analysis_row1,
-                            analysis_row2,
-                            analysis_row4,
-                            analysis_row5,
-                            analysis_row8])
+layout_analysis = html.Div([nav_menu, analysis_title_row,
+                            html.Div([ver_row,
+                                      analysis_upload_row,
+                                      analysis_takeoff_row,
+                                      analysis_graph_row,
+                                      analysis_table_row,
+                                      analysis_data_row
+                                      ], className='container')
+                            ])
 
 
 def serve_layout():
@@ -1012,6 +1013,13 @@ def display_page(pathname):
 
 
 # Analysis callbacks
+
+@app.callback(Output('filename-text-analysis', 'children'),
+              [Input('upload-data', 'filename')])
+def update_filename(filename):
+    return 'Filename: {}'.format(filename)
+
+
 @app.callback(Output('takeoff-text-analysis', 'children'),
               [Input('takeoff_angle_analysis', 'value')])
 def update_takeoff_analysis(takeoff_angle):
@@ -1019,17 +1027,34 @@ def update_takeoff_analysis(takeoff_angle):
     return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle)
 
 
-inputs = [
+@app.callback(Output('takeoff-text-distance', 'children'),
+              [Input('takeoff_pos_dist', 'value')])
+def update_takeoff_xpos(takeoff_pos_x):
+    takeoff_pos_x = float(takeoff_pos_x)
+    return 'Takeoff Point, Distance: {:0.1f} [m]'.format(takeoff_pos_x)
+
+
+@app.callback(Output('takeoff-text-height', 'children'),
+              [Input('takeoff_pos_height', 'value')])
+def update_takeoff_ypos(takeoff_pos_y):
+    takeoff_pos_y = float(takeoff_pos_y)
+    return 'Takeoff Point, Height: {:0.1f} [m]'.format(takeoff_pos_y)
+
+
+inputs_analysis = [
     Input('takeoff_angle_analysis', 'value'),
+    Input('takeoff_pos_dist', 'value'),
+    Input('takeoff_pos_height', 'value'),
     Input('upload-data', 'contents'),
 ]
 
 
 @app.callback(Output('output-data-upload', 'children'),
-              inputs, [State('upload-data', 'filename')])
-def update_output(takeoff_angle, contents, filename):
+              inputs_analysis, [State('upload-data', 'filename')])
+def update_output(takeoff_angle, takeoff_pos_dist, takeoff_pos_height, contents, filename):
     if contents is not None:
-        dic = parse_contents(takeoff_angle, contents, filename)
+
+        dic = parse_contents(takeoff_angle, takeoff_pos_dist, takeoff_pos_height, contents, filename)
         return dic
 
 
@@ -1040,20 +1065,30 @@ def update_efh_graph(json_data):
     return dic
 
 
-@app.callback(Output('table-data', 'data'),
-              [Input('upload-data', 'contents'), Input('output-data-upload', 'children')])
-def update_table(contents, json_data):
-
-    if contents is not None:
-        dic = json.loads(json_data)
-        jump_uploaded = dic['upload_data']
-        df = pd.read_json(jump_uploaded, orient='index')
-        if df is not None:
-            return df.to_dict('rows')
-        else:
-            return [{}]
-    else:
-        return [{}]
+# @app.callback(Output('data-table', 'children'),
+#               [Input('upload-data', 'contents'), Input('output-data-upload', 'children')])
+# def update_table(contents, json_data):
+#
+#     if contents is not None:
+#         dic = json.loads(json_data)
+#         jump_uploaded = dic['upload_data']
+#         df = pd.read_json(jump_uploaded, orient='index')
+#         if df is not None:
+#             return dash_table.DataTable(data=df.to_dict('rows'),
+#                                         columns=[{'id': c, 'name': c} for c in df.columns],
+#                                         n_fixed_rows=1,
+#                                         style_table={'overflowY': 'scroll'},
+#                                         style_cell={
+#                                             # all three widths are needed
+#                                             'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
+#                                             'whiteSpace': 'no-wrap',
+#                                             'overflow': 'hidden',
+#                                             'textOverflow': 'ellipsis'
+#                                         })
+#         else:
+#             return [{}]
+#     else:
+#         return [{}]
 
 
 if __name__ == '__main__':
