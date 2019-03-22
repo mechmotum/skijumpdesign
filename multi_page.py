@@ -424,6 +424,81 @@ Sports Engineering 20, no. 4 (December 2017): 283-92.
 """
 
 
+markdown_text_analysis = """\
+# Explanation
+
+This tool allows the analysis of a ski jump that (Prof Hubbard words here).
+
+## Inputs
+
+- **Upload**: An excel or csv file of the x-y coordinates, relative to the 
+  horizontal, of the measured jump in meters. The first row of the data 
+  file must have be the column headers. The first column must be the distance 
+  values of the jump along the horizontal and the second column must be the 
+  height values of the jump along the vertical.
+- **Takeoff Angle**: The upward angle, relative to horizontal, at the end of
+  the takeoff ramp.
+- **Takeoff Point, Distance**: The distance, relative to the horizontal, of 
+  the takeoff point in meters.
+- **Takeoff Point, Height**: The height, relative to the vertical, of the 
+  the takeoff point in meters.
+  
+## Outputs
+
+*(all curves specified as x,y coordinates in a system with origin at the 
+takeoff point). All outputs are 2D curves. The complete jump profile 
+consists of the surfaces input by the user.*
+
+### Graph
+
+- **Jump Profile**: The jump profile displays the data uploaded by the user.
+- **Maximum EFH**: This represents the maximum equivalent fall height a skier
+  can feel without serious injury according to (Prof Hubbard enter here).
+- **Recommended EFH**: This represents the 0.5 m recommended equivalent fall
+  height recommended by (Prof Hubbard enter here).
+- **Calculated EFH**: This is the calculated equivalent fall height at 0.2 m 
+  intervals after the user specified takeoff point. 
+
+### Table
+
+The table provides a look at the inputted csv or excel file that is used for 
+efh calculations.
+
+## Assumptions
+
+The design calculations in this application depend on the ratios of aerodynamic
+drag and snow friction resistive forces to inertial forces for the jumper, and
+on estimates for reasonable turning accelerations (and their rates) able to be
+borne by the jumper in the transitions (see reference [1]). A list of related
+assumed parameters with definitions and a set of nominal values for these
+parameters is provided here:
+
+- skier mass: 75.0 kg
+- skier cross sectional area: 0.34 meters squared
+- skier drag coefficient: 0.821
+- snow/ski Coulomb friction coefficient: 0.03
+- tolerable normal acceleration in approach-takeoff transition: 1.5 g's
+- tolerable normal acceleration in landing transition: 3.0  g's
+- fraction of the approach turning angle subtended by the circular section:
+  0.99
+- equilibration time the jumper should have on the straight ramp just before
+  takeoff: 0.25 sec
+
+# Instructions
+
+- Upload an excel or csv file of the x-y coordinates of the measured jump. The 
+  values must be in meters. The first row of the data file must have be the column 
+  headers. The first column must be the distance values of the jump along the 
+  horizontal  and the second column must be the height values of the jump along 
+  the vertical.
+- Set the takeoff angle of the ramp at the takeoff point. 
+- Set the coordinates of the takeoff point relative to the uploaded data file. 
+- Inspect and view the graph of the resulting jump profile and the calculated
+  equivalent fall height. The third button allows zoom.
+- Use the table to ensure the data file was uploaded properly.
+
+"""
+
 row7 = html.Div([dcc.Markdown(markdown_text)],
                 className='row',
                 style={'background-color': 'rgb(64,71,86, 0.9)',
@@ -639,6 +714,15 @@ analysis_table_row = html.Div([
     table_widget
 ])
 
+analysis_markdown_row = html.Div([dcc.Markdown(markdown_text_analysis)],
+                                 className='row',
+                                 style={'background-color': 'rgb(64,71,86, 0.9)',
+                                        'color': 'white', 'padding-right': '20px',
+                                        'padding-left': '20px',
+                                        'margin-top': '40px',
+                                        'text-shadow': '1px 1px black',
+                                        })
+
 analysis_data_row = html.Div(id='output-data-upload', style={'display': 'none'})
 
 # Home
@@ -714,6 +798,7 @@ layout_analysis = html.Div([nav_menu, analysis_title_row,
                                       analysis_takeoff_row,
                                       analysis_graph_row,
                                       analysis_table_row,
+                                      analysis_markdown_row,
                                       analysis_data_row
                                       ], className='container')
                             ])
@@ -732,7 +817,9 @@ def serve_layout():
 
 app.layout = serve_layout
 
+
 # Ski Jump Design
+
 
 @app.callback(Output('slope-text', 'children'),
               [Input('slope_angle', 'value')])
