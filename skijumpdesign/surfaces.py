@@ -179,7 +179,7 @@ class Surface(object):
         # necessarily divisible by 0.2, so we drop the remainder so it is
         # divisible and make the range inclusive.
 
-        remainder = self.x[-1] - self.x[0] % 0.2
+        remainder = (self.x[-1] - self.x[0]) % 0.2
         rnge = (self.x[0], self.x[-1] - remainder)
         num_points = int((self.x[-1] - self.x[0] - remainder) / 0.2) + 1
         distance_x = np.linspace(*rnge, num=num_points)
