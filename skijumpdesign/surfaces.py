@@ -185,7 +185,6 @@ class Surface(object):
         distance_x = np.linspace(*rnge, num=num_points)
 
         slope = self.interp_slope(distance_x)
-        slope[0] = slope[1]  # ensure slope isn't nan
         slope_angle = np.arctan(slope)
         height_y = self.interp_y(distance_x)
 
