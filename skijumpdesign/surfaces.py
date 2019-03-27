@@ -149,51 +149,63 @@ class Surface(object):
         return self.y - surface.interp_y(self.x)
 
     def calculate_efh(self, takeoff_angle, takeoff_point, skier):
-        """Returns interpolated distance wrt the x axis at 0.2m intervals
-         and an array of values for the equivalent fall height of a jump.
+        """Returns the equivalent fall height for the surface at 0.2 meter
+        intervals relative to the provided takeoff point or the start of the
+        surface.
 
         Parameters
         ==========
         takeoff_angle : float
-            The takeoff angle in degrees.
+            Takeoff angle in radians.
         takeoff_point : 2-tuple of floats
-            The point at which the skier leaves the takeoff ramp.
+            x and y coordinates of the point at which the skier leaves the
+            takeoff ramp.
         skier : Skier
             A skier instance.
-        
 
         Returns
         =======
-        distance_x : array, shape(n,)
-            The interpolated distance wrt x axis at 0.2m intervals.
-        efh : array, shape(n,)
-            The equivalent fall height for each distance_x greater
-            than the takeoff_point x value.
+        distance_x : ndarray, shape(n,)
+            Horizontal x locations of the equivalent fall height measures
+            spaced at 0.2 meter intervals relative to leftmost point on the
+            surface or the takeoff point, whichever is greater.
+        efh : ndarray, shape(n,)
+            The equivalent fall height corresponding to each value in
+            ``distance_x``.
 
         """
 
-        distance_x = np.linspace(self.x[0], self.x[-1], num=(self.x[-1] - self.x[0]) / 0.2)
+        # NOTE : 0.2 meter intervals are desired but the x distance is not
+        # necessarily divisible by 0.2, so we drop the remainder so it is
+        # divisible and make the range inclusive.
 
-        takeoff_angle = np.deg2rad(takeoff_angle)
+        remainder = (self.x[-1] - self.x[0]) % 0.2
+        rnge = (self.x[0], self.x[-1] - remainder)
+        num_points = int((self.x[-1] - self.x[0] - remainder) / 0.2) + 1
+        distance_x = np.linspace(*rnge, num=num_points)
+
         slope = self.interp_slope(distance_x)
         slope_angle = np.arctan(slope)
         height_y = self.interp_y(distance_x)
 
-        catch_surf = HorizontalSurface(np.min(height_y) - 0.1, self.x[0] - self.x[-1] +
-                                       2.0, start=self.x[0] - 1.0)
+        # NOTE : Create a surface under the surface that the skier will impact
+        # if they pass over the primary surface (self).
+        catch_surf = HorizontalSurface(np.min(height_y) - 0.1,
+                                       self.x[0] - self.x[-1] + 2.0,
+                                       start=self.x[0] - 1.0)
 
         efh = []
 
-        for x, y, m in zip(distance_x[1:], height_y[1:], slope_angle[1:]):
-            takeoff_speed, impact_vel = skier.speed_to_land_at((x, y),
-                                                               takeoff_point,
-                                                               takeoff_angle,
-                                                               catch_surf)
+        for x, y, m in zip(distance_x, height_y, slope_angle):
+            takeoff_speed, impact_vel = \
+                skier.speed_to_land_at((x, y), takeoff_point, takeoff_angle,
+                                       catch_surf)
             impact_speed, impact_angle = vel2speed(*impact_vel)
-            efh_coord = (impact_speed ** 2 * np.sin(m - impact_angle) ** 2 / (2 * GRAV_ACC))
+            efh_coord = (impact_speed ** 2 * np.sin(m - impact_angle) ** 2 /
+                         (2 * GRAV_ACC))
             efh.append(efh_coord)
 
-        return distance_x[1:], np.array(efh)
+        return distance_x, np.array(efh)
 
     def plot(self, ax=None, **plot_kwargs):
         """Returns a matplotlib axes containing a plot of the surface.
