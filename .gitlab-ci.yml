@@ -21,6 +21,7 @@ install:
   script:
     - source activate skijumpdesign
     - python setup.py install
+    - skijumpdesign
     - source activate skijumpdesign-dev
     - python setup.py install
     - source activate skijumpdesign-dev-optional
@@ -30,7 +31,7 @@ test:
   script:
     - source activate skijumpdesign
     - conda list
-    - skijumpdesign
+    - python skijumpdesignapp.py
 
 test_dev:
   script:
