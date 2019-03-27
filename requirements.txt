@@ -1,5 +1,5 @@
 # Requirements for the Heroku install via pip.
-dash ==0.23.1
+dash ==0.25.0
 dash-core-components ==0.27.1
 dash-html-components ==0.11.0
 dash-renderer ==0.13.2

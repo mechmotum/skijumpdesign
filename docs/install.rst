@@ -92,6 +92,19 @@ directory::
 
    (skijumpdesign-dev)$ python setup.py develop
 
+There are several conda environment files that may be of use:
+
+- ``environment.yml``: Installs the versions of the required
+  dependencies to run the library and the web app pinned to the release or
+  current commit on the master branch.
+- ``environment-dev.yml``: Installs the latest version of the required
+  dependencies to run the library and the web app, test the code, and build the
+  documentation.
+- ``environment-dev-optional.yml``: Installs the latest version of the required
+  and optional dependencies to run the library and the web app, test the code,
+  and build the documentation.
+
+
 Heroku Installation
 ===================
 
