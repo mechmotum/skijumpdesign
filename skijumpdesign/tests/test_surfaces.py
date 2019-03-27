@@ -170,4 +170,5 @@ def test_calculate_efh():
     dist, efh = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end,
                                       skier)
 
-    np.testing.assert_allclose(efh, fall_height * np.ones_like(efh), atol=1e-2)
+    np.testing.assert_allclose(efh[0], 0.0)
+    np.testing.assert_allclose(efh[1:], fall_height, rtol=0.0, atol=8e-3)
