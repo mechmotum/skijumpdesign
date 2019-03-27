@@ -150,7 +150,8 @@ class Surface(object):
 
     def calculate_efh(self, takeoff_angle, takeoff_point, skier):
         """Returns the equivalent fall height for the surface at 0.2 meter
-        intervals relative to the provided takeoff point.
+        intervals relative to the provided takeoff point or the start of the
+        surface.
 
         Parameters
         ==========
@@ -165,7 +166,7 @@ class Surface(object):
         Returns
         =======
         distance_x : ndarray, shape(n,)
-            Horizontal x locations of the equivlaent fall height measures
+            Horizontal x locations of the equivalent fall height measures
             spaced at 0.2 meter intervals relative to leftmost point on the
             surface or the takeoff point, whichever is greater.
         efh : ndarray, shape(n,)
