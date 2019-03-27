@@ -22,10 +22,6 @@ install:
     - source activate skijumpdesign
     - python setup.py install
     - skijumpdesign
-    - source activate skijumpdesign-dev
-    - python setup.py install
-    - source activate skijumpdesign-dev-optional
-    - python setup.py install
 
 test:
   script:
