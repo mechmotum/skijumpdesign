@@ -85,6 +85,5 @@ def vel2speed(hor_vel, ver_vel):
 
     """
     speed = np.sqrt(hor_vel**2 + ver_vel**2)
-    slope = ver_vel / hor_vel
-    angle = np.arctan(slope)
+    angle = np.arctan2(ver_vel, hor_vel)
     return speed, angle
