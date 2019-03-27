@@ -2,10 +2,10 @@ image: continuumio/miniconda3:latest
 
 stages:
   - install
-  - test_app
+  - test
+  - docs
   - test_dev
   - test_dev_optional
-  - docs
 
 before_script:
   - apt-get update -q -y
@@ -19,9 +19,14 @@ before_script:
 
 install:
   script:
+    - source activate skijumpdesign
+    - python setup.py install
+    - source activate skijumpdesign-dev
+    - python setup.py install
+    - source activate skijumpdesign-dev-optional
     - python setup.py install
 
-test_app:
+test:
   script:
     - source activate skijumpdesign
     - conda list
