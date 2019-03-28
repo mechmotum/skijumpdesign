@@ -21,13 +21,13 @@ install:
   script:
     - source activate skijumpdesign
     - python setup.py install
-    - skijumpdesign
+    - which skijumpdesign
 
 test:
   script:
     - source activate skijumpdesign
     - conda list
-    - python skijumpdesignapp.py
+    - python -c "import skijumpdesign"
 
 test_dev:
   script:
