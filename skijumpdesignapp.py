@@ -657,6 +657,7 @@ def parse_contents(takeoff_angle, takeoff_point_x, takeoff_point_y, contents, fi
     surface = Surface(df.iloc[:, 0].values, df.iloc[:, 1].values)
     skier = Skier()
     takeoff_angle = float(takeoff_angle)
+    takeoff_angle = np.deg2rad(takeoff_angle)
     takeoff_point_x = float(takeoff_point_x)
     takeoff_point_y = float(takeoff_point_y)
     takeoff_point = (takeoff_point_x, takeoff_point_y)
@@ -1110,22 +1111,40 @@ def update_filename(filename):
 @app.callback(Output('takeoff-text-analysis', 'children'),
               [Input('takeoff_angle_analysis', 'value')])
 def update_takeoff_analysis(takeoff_angle):
-    takeoff_angle = float(takeoff_angle)
-    return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle)
+    if takeoff_angle is '':
+        return 'Takeoff Angle: [deg]'
+    else:
+        try:
+            takeoff_angle = float(takeoff_angle)
+            return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle)
+        except ValueError as err:
+            return 'Takeoff Angle Value Error: {0}'.format(err)
 
 
 @app.callback(Output('takeoff-text-distance', 'children'),
               [Input('takeoff_pos_dist', 'value')])
 def update_takeoff_xpos(takeoff_pos_x):
-    takeoff_pos_x = float(takeoff_pos_x)
-    return 'Takeoff Point, Distance: {:0.1f} [m]'.format(takeoff_pos_x)
+    if takeoff_pos_x is '':
+        return 'Takeoff Point, Distance: [m]'
+    else:
+        try:
+            takeoff_pos_x = float(takeoff_pos_x)
+            return 'Takeoff Point, Distance: {:0.1f} [m]'.format(takeoff_pos_x)
+        except ValueError as err:
+            return 'Takeoff Point Value Error: {0}'.format(err)
 
 
 @app.callback(Output('takeoff-text-height', 'children'),
               [Input('takeoff_pos_height', 'value')])
 def update_takeoff_ypos(takeoff_pos_y):
-    takeoff_pos_y = float(takeoff_pos_y)
-    return 'Takeoff Point, Height: {:0.1f} [m]'.format(takeoff_pos_y)
+    if takeoff_pos_y is '':
+        return 'Takeoff Point, Height: [m]'
+    else:
+        try:
+            takeoff_pos_y = float(takeoff_pos_y)
+            return 'Takeoff Point, Height: {:0.1f} [m]'.format(takeoff_pos_y)
+        except ValueError as err:
+            return 'Takeoff Point Value Error: {0}'.format(err)
 
 
 inputs_analysis = [
