@@ -164,7 +164,7 @@ takeoff_angle_widget = html.Div([
                20: '20 [deg]',
                30: '30 [deg]',
                40: '40 [deg]'},
-        )
+        ),
     ])
 
 layout = go.Layout(autosize=True,
@@ -464,39 +464,42 @@ analysis_takeoff_angle_widget = html.Div([
     html.H3('Takeoff Angle: [deg]',
             id='takeoff-text-analysis',
             style={'color': '#404756'}),
-
     dcc.Input(
         id='takeoff_angle_analysis',
         placeholder='0',
         type='text',
         value=''
-    )
+    ),
+    html.H5(id='takeoff-angle-error',
+            style={'color':'red'})
 ])
 
 analysis_takeoff_x_widget = html.Div([
     html.H3('Takeoff Point, Distance: [m]',
             id='takeoff-text-distance',
             style={'color': '#404756'}),
-
     dcc.Input(
         id='takeoff_pos_dist',
         placeholder='0',
         type='text',
         value=''
-    )
+    ),
+    html.H5(id='takeoff-dist-error',
+            style={'color':'red'})
 ])
 
 analysis_takeoff_y_widget = html.Div([
     html.H3('Takeoff Point, Height: [m]',
             id='takeoff-text-height',
             style={'color': '#404756'}),
-
     dcc.Input(
         id='takeoff_pos_height',
         placeholder='0',
         type='text',
         value=''
-    )
+    ),
+    html.H5(id='takeoff-height-error',
+            style={'color':'red'})
 ])
 
 def populated_efh_graph(surface, distance, efh):
@@ -573,6 +576,29 @@ def parse_contents(takeoff_angle, takeoff_point_x, takeoff_point_y, contents, fi
 
     return json.dumps(dic, cls=PlotlyJSONEncoder)
 
+def parse_contents_new(contents, filename):
+
+    content_type, content_string = contents.split(',')
+
+    decoded = b64decode(content_string)
+    try:
+        if 'csv' in filename:
+            # Assume that the user uploaded a CSV file
+            df = pd.read_csv(
+                StringIO(decoded.decode('utf-8')))
+        elif 'xls' in filename:
+            # Assume that the user uploaded an excel file
+            df = pd.read_excel(BytesIO(decoded))
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
+
+    dic = df.to_json(orient='index')
+
+    return json.dumps(dic, cls=PlotlyJSONEncoder)
+
 efh_graph_widget = html.Div([dcc.Graph(id='efh-graph',
                                        style={'width': '100%',
                                               'height': '0',
@@ -584,6 +610,12 @@ efh_graph_widget = html.Div([dcc.Graph(id='efh-graph',
                             className='twelve columns')
 
 table_widget = html.Div(id='datatable-upload')
+
+compute_button = html.A('Compute',
+                        id='compute-button',
+                        href='',
+                        className='btn btn-primary disabled',
+                        download='')
 
 analysis_title_row = html.Div([
     html.H1("Ski Jump Analysis",
@@ -614,8 +646,9 @@ analysis_graph_row = html.Div([
 ], className='row')
 
 analysis_table_row = html.Div([
-    table_widget
-])
+    html.Div([table_widget], className='col-md-9'),
+    html.Div([compute_button], className='col-md-3')
+], className='row shaded')
 
 markdown_text_analysis = """\
 # Explanation
@@ -819,8 +852,8 @@ layout_analysis = html.Div([nav_menu, analysis_title_row,
                             html.Div([ver_row,
                                       analysis_upload_row,
                                       analysis_takeoff_row,
-                                      analysis_graph_row,
                                       analysis_table_row,
+                                      analysis_graph_row,
                                       analysis_markdown_row,
                                       analysis_data_row
                                       ], className='container')
@@ -1138,11 +1171,20 @@ def update_takeoff_analysis(takeoff_angle):
     if takeoff_angle is '':
         return 'Takeoff Angle: [deg]'
     else:
+        takeoff_angle = float(takeoff_angle)
+        return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle)
+
+@app.callback(Output('takeoff-angle-error', 'children'),
+              [Input('takeoff_angle_analysis', 'value')])
+def update_takeoff_angle_error(takeoff_angle):
+    if takeoff_angle is '':
+        return ''
+    else:
         try:
             takeoff_angle = float(takeoff_angle)
-            return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle)
-        except ValueError as err:
-            return 'Takeoff Angle Value Error: {0}'.format(err)
+            return ''
+        except ValueError:
+            return 'Value must be a float or integer.'
 
 
 @app.callback(Output('takeoff-text-distance', 'children'),
@@ -1151,11 +1193,20 @@ def update_takeoff_xpos(takeoff_pos_x):
     if takeoff_pos_x is '':
         return 'Takeoff Point, Distance: [m]'
     else:
+        takeoff_pos_x = float(takeoff_pos_x)
+        return 'Takeoff Point, Distance: {:0.1f} [m]'.format(takeoff_pos_x)
+
+@app.callback(Output('takeoff-dist-error', 'children'),
+              [Input('takeoff_pos_dist', 'value')])
+def update_takeoff_xpos_error(takeoff_pos_x):
+    if takeoff_pos_x is '':
+        return ''
+    else:
         try:
             takeoff_pos_x = float(takeoff_pos_x)
-            return 'Takeoff Point, Distance: {:0.1f} [m]'.format(takeoff_pos_x)
-        except ValueError as err:
-            return 'Takeoff Point Value Error: {0}'.format(err)
+            return ''
+        except ValueError:
+            return 'Value must be a float or integer.'
 
 
 @app.callback(Output('takeoff-text-height', 'children'),
@@ -1164,35 +1215,54 @@ def update_takeoff_ypos(takeoff_pos_y):
     if takeoff_pos_y is '':
         return 'Takeoff Point, Height: [m]'
     else:
+        takeoff_pos_y = float(takeoff_pos_y)
+        return 'Takeoff Point, Height: {:0.1f} [m]'.format(takeoff_pos_y)
+
+@app.callback(Output('takeoff-height-error', 'children'),
+              [Input('takeoff_pos_height', 'value')])
+def update_takeoff_xpos_error(takeoff_pos_y):
+    if takeoff_pos_y is '':
+        return ''
+    else:
         try:
             takeoff_pos_y = float(takeoff_pos_y)
-            return 'Takeoff Point, Height: {:0.1f} [m]'.format(takeoff_pos_y)
-        except ValueError as err:
-            return 'Takeoff Point Value Error: {0}'.format(err)
-
-
-inputs_analysis = [
-    Input('takeoff_angle_analysis', 'value'),
-    Input('takeoff_pos_dist', 'value'),
-    Input('takeoff_pos_height', 'value'),
-    Input('upload-data', 'contents'),
-]
-
+            return ''
+        except ValueError:
+            return 'Value must be a float or integer.'
 
 @app.callback(Output('output-data-upload', 'children'),
-              inputs_analysis, [State('upload-data', 'filename')])
-def update_output(takeoff_angle, takeoff_pos_dist, takeoff_pos_height, contents, filename):
+              [Input('upload-data', 'contents')], [State('upload-data', 'filename')])
+def update_output(contents, filename):
     if contents is not None:
-
-        dic = parse_contents(takeoff_angle, takeoff_pos_dist, takeoff_pos_height, contents, filename)
+        dic = parse_contents_new(contents, filename)
         return dic
 
 
-@app.callback(Output('efh-graph', 'figure'), [Input('output-data-upload', 'children')])
-def update_efh_graph(json_data):
+inputs_analysis = [
+    Input('output-data-upload', 'children'),
+    Input('takeoff_angle_analysis', 'value'),
+    Input('takeoff_pos_dist', 'value'),
+    Input('takeoff_pos_height', 'value'),
+]
+
+
+@app.callback(Output('efh-graph', 'figure'), inputs_analysis)
+def update_efh_graph(json_data, takeoff_angle, takeoff_point_x, takeoff_point_y):
     dic = json.loads(json_data)
-    del dic['upload_data']
-    return dic
+    df = pd.read_json(dic, orient='index')
+
+    surface = Surface(df.iloc[:, 0].values, df.iloc[:, 1].values)
+    skier = Skier()
+    takeoff_angle = float(takeoff_angle)
+    takeoff_angle = np.deg2rad(takeoff_angle)
+    takeoff_point_x = float(takeoff_point_x)
+    takeoff_point_y = float(takeoff_point_y)
+    takeoff_point = (takeoff_point_x, takeoff_point_y)
+
+    distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point, skier)
+    update_graph = populated_efh_graph(surface, distance, efh)
+
+    return update_graph
 
 
 @app.callback(Output('datatable-upload', 'children'),
@@ -1202,15 +1272,17 @@ def update_table(contents, json_data):
         children_none = []
         return children_none
     dic = json.loads(json_data)
-    jump_upload = dic['upload_data']
-    df = pd.read_json(jump_upload, orient='index')
+    df = pd.read_json(dic, orient='index')
     children = [
         html.Div([
             dash_table.DataTable(
                 data=df.to_dict('rows'),
                 columns=[{'name': i, 'id': i} for i in df.columns],
                 n_fixed_rows=1,
-                style_table={'overflowY': 'scroll'},
+                style_table={
+                    'maxHeight': '200',
+                    'overflowY': 'scroll',
+                },
                 style_header={'backgroundColor': 'rgba(96, 164, 255, 0.0)'},
                 style_cell_conditional=[{
                     'if': {'row_index': 'odd'},
