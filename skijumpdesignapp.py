@@ -1,24 +1,21 @@
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-from dash.dependencies import Input, Output, State
-import dash_table
-
-import flask
-import base64
-import io
-
 import os
 import logging
 import textwrap
 import json
 import urllib
 import argparse
-from io import BytesIO
+from io import BytesIO, StringIO
+from base64 import b64decode
 
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
+import flask
+import dash
+import dash_table
+from dash.dependencies import Input, Output, State
+import dash_core_components as dcc
+import dash_html_components as html
 import plotly.graph_objs as go
 from plotly.utils import PlotlyJSONEncoder
 
@@ -27,7 +24,6 @@ from skijumpdesign.functions import make_jump
 from skijumpdesign.surfaces import Surface
 from skijumpdesign.skiers import Skier
 from skijumpdesign.utils import InvalidJumpError
-
 
 """
 Color Palette
@@ -89,11 +85,14 @@ app.css.append_css({'external_url': [BS_URL, CUS_URL]})
 app.title = TITLE
 server = app.server
 
-url_bar_and_content_div = html.Div([
-    dcc.Location(id='url', refresh=False),
-    html.Div(id='page-content')
-])
 
+@app.server.route('/static/<resource>')
+def serve_static(resource):
+    _, ext = os.path.splitext(resource)
+    if ext not in ['.css', '.js', '.png', 'svg']:
+        return 'Invalid File Extension'
+    else:
+        return flask.send_from_directory(STATIC_PATH, resource)
 
 approach_len_widget = html.Div([
     html.H3('Maximum Approach Length: 40 [m]',
@@ -110,8 +109,8 @@ approach_len_widget = html.Div([
                100: '100 [m]',
                150: '150 [m]',
                200: '200 [m]'},
-    )
-])
+        )
+    ])
 
 fall_height_widget = html.Div([
     html.H3('Equivalent Fall Height: 0.5 [m]',
@@ -128,8 +127,8 @@ fall_height_widget = html.Div([
                0.80: '0.80 [m]',
                1.15: '1.15 [m]',
                1.5: '1.5 [m]'},
-    )
-])
+        )
+    ])
 
 slope_angle_widget = html.Div([
     html.H3('Parent Slope Angle: 15 degrees',
@@ -147,8 +146,8 @@ slope_angle_widget = html.Div([
                25: '26 [deg]',
                32: '33 [deg]',
                40: '40 [deg]'},
-    )
-])
+        )
+    ])
 
 takeoff_angle_widget = html.Div([
     html.H3('Takeoff Angle: 25 degrees',
@@ -165,8 +164,8 @@ takeoff_angle_widget = html.Div([
                20: '20 [deg]',
                30: '30 [deg]',
                40: '40 [deg]'},
-    )
-])
+        )
+    ])
 
 layout = go.Layout(autosize=True,
                    hovermode='closest',
@@ -192,21 +191,22 @@ graph_widget = html.Div([dcc.Graph(id='my-graph',
                         className='col-md-12')
 
 row1 = html.Div([
-    html.H1(TITLE,
-            style={'text-align': 'center',
-                   'padding-top': '20px',
-                   'color': 'white'}),
-],
-    className='page-header',
-    style={
-        'height': 'auto',
-        'margin-top': '-20px',
-        'background': 'rgb(64, 71, 86)',
-    })
+                 html.H1(TITLE,
+                         style={'text-align': 'center',
+                                'padding-top': '20px',
+                                'color': 'white'}),
+                ],
+                className='page-header',
+                style={
+                       'height': 'auto',
+                       'margin-top': '-20px',
+                       'background': 'rgb(64, 71, 86)',
+                      })
+
 
 row2 = html.Div([
-    graph_widget
-], className='row')
+                 graph_widget
+                ], className='row')
 
 button = html.A('Download Profile',
                 id='download-button',
@@ -222,16 +222,16 @@ row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
                 )
 
 row4 = html.Div([
-    html.Div([slope_angle_widget], className='col-md-5'),
-    html.Div([], className='col-md-2'),
-    html.Div([approach_len_widget], className='col-md-5'),
-], className='row shaded')
+                 html.Div([slope_angle_widget], className='col-md-5'),
+                 html.Div([], className='col-md-2'),
+                 html.Div([approach_len_widget], className='col-md-5'),
+                 ], className='row shaded')
 
 row5 = html.Div([
-    html.Div([takeoff_angle_widget], className='col-md-5'),
-    html.Div([], className='col-md-2'),
-    html.Div([fall_height_widget], className='col-md-5'),
-], className='row shaded')
+                 html.Div([takeoff_angle_widget], className='col-md-5'),
+                 html.Div([], className='col-md-2'),
+                 html.Div([fall_height_widget], className='col-md-5'),
+                 ], className='row shaded')
 
 row6 = html.Div([
     html.Div([], className='col-md-3'),
@@ -375,22 +375,6 @@ parameters is provided here:
 - Inspect and view the graph of the resulting jump design using the menu bar
   and iterate design parameters. The third button allows zoom.
 - Download the jump design profile using the **Download Profile** button.
-"""
-
-markdown_text_home = """\
-# Explanation
-
-### Ski Jump Analysis
-This tool allows the analysis of a ski jump's equivalent fall height, for 
-all takeoff speeds. 
-
-### Ski Jump Design 
-This tool allows the design of a ski jump that limits landing impact (measured
-by a specified equivalent fall height[1]), for all takeoff speeds up to the
-design speed. The calculated landing surface shape ensures that the jumper
-always impacts the landing surface at the same perpendicular impact speed as if
-dropped vertically from the specified equivalent fall height onto a horizontal
-surface.
 
 # Colophon
 
@@ -422,7 +406,216 @@ Sports Engineering 20, no. 4 (December 2017): 283-92.
 [https://doi.org/10.1007/s12283-017-0253-y](https://doi.org/10.1007/s12283-017-0253-y)
 
 """
+row7 = html.Div([dcc.Markdown(markdown_text)],
+                className='row',
+                style={'background-color': 'rgb(64,71,86, 0.9)',
+                       'color': 'white',
+                       'padding-right': '20px',
+                       'padding-left': '20px',
+                       'margin-top': '40px',
+                       'text-shadow': '1px 1px black',
+                       })
 
+row8 = html.Div(id='data-store', style={'display': 'none'})
+
+ver_row = html.Div([html.P([html.Small(VERSION_STAMP)],
+                           style={'text-align': 'right'})],
+                   className='row')
+
+# Analysis
+
+upload_widget = html.Div([
+    dcc.Upload(
+        id='upload-data',
+        children=html.Div([
+            'Drag and Drop or ',
+            html.A('Select Files', style={'color': 'blue'})
+        ]),
+        style={
+            'width': '100%',
+            'height': '60px',
+            'lineHeight': '60px',
+            'borderWidth': '1px',
+            'borderStyle': 'dashed',
+            'borderRadius': '5px',
+            'textAlign': 'center',
+            'margin': '10px'
+        },
+        multiple=False
+    )
+])
+
+layout_efh = go.Layout(autosize=True,
+                   hovermode='closest',
+                   paper_bgcolor='rgba(96, 164, 255, 0.0)',  # transparent
+                   plot_bgcolor='rgba(255, 255, 255, 0.5)',  # white
+                   xaxis={'title': 'Distance [m]', 'zeroline': False},
+                   yaxis={'scaleanchor': 'x',  # equal aspect ratio
+                          'scaleratio': 1.0,  # equal aspect ratio
+                          'title': 'EFH [m]', 'zeroline': False},
+                   legend={'orientation': "h",
+                           'y': 1.15})
+
+analysis_filename_widget = html.Div([
+    html.H3(id='filename-text-analysis')
+])
+
+analysis_takeoff_angle_widget = html.Div([
+    html.H3('Takeoff Angle: [deg]',
+            id='takeoff-text-analysis',
+            style={'color': '#404756'}),
+
+    dcc.Input(
+        id='takeoff_angle_analysis',
+        placeholder='0',
+        type='text',
+        value=''
+    )
+])
+
+analysis_takeoff_x_widget = html.Div([
+    html.H3('Takeoff Point, Distance: [m]',
+            id='takeoff-text-distance',
+            style={'color': '#404756'}),
+
+    dcc.Input(
+        id='takeoff_pos_dist',
+        placeholder='0',
+        type='text',
+        value=''
+    )
+])
+
+analysis_takeoff_y_widget = html.Div([
+    html.H3('Takeoff Point, Height: [m]',
+            id='takeoff-text-height',
+            style={'color': '#404756'}),
+
+    dcc.Input(
+        id='takeoff_pos_height',
+        placeholder='0',
+        type='text',
+        value=''
+    )
+])
+
+def populated_efh_graph(surface, distance, efh):
+
+    recommend_efh = 0.5
+    maximum_efh = 1.5
+    distance_standards = np.ones(len(distance))
+
+    layout_efh['annotations'] = [
+        {
+            'x': 0,
+            'y': 0,
+            'xref': 'x',
+            'yref': 'y',
+            'text': 'Takeoff Point',
+        },
+    ]
+
+    return {'data': [
+        {'x': surface.x,
+         'y': surface.y,
+         'name': 'Jump Profile',
+         'line': {'color': '#8e690a', 'width': 4},
+         'mode': 'lines'},
+        {'x': distance,
+         'y': efh,
+         'name': 'Calculated EFH',
+         'type': 'bar',
+         'marker': {'color': '#c89b43'},
+         },
+        {'x': distance,
+         'y': distance_standards*recommend_efh,
+         'name': 'Recommended EFH',
+         'line': {'color': '#404756', 'dash': 'dash'}},
+        {'x': distance,
+         'y': distance_standards * maximum_efh,
+         'name': 'Maximum EFH',
+         'line': {'color': '#404756', 'dash': 'dot'}},
+    ],
+        'layout': layout_efh}
+
+
+def parse_contents(takeoff_angle, takeoff_point_x, takeoff_point_y, contents, filename):
+
+    content_type, content_string = contents.split(',')
+
+    decoded = b64decode(content_string)
+    try:
+        if 'csv' in filename:
+            # Assume that the user uploaded a CSV file
+            df = pd.read_csv(
+                StringIO(decoded.decode('utf-8')))
+        elif 'xls' in filename:
+            # Assume that the user uploaded an excel file
+            df = pd.read_excel(BytesIO(decoded))
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
+
+    surface = Surface(df.iloc[:, 0].values, df.iloc[:, 1].values)
+    skier = Skier()
+    takeoff_angle = float(takeoff_angle)
+    takeoff_angle = np.deg2rad(takeoff_angle)
+    takeoff_point_x = float(takeoff_point_x)
+    takeoff_point_y = float(takeoff_point_y)
+    takeoff_point = (takeoff_point_x, takeoff_point_y)
+
+    distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point, skier)
+
+    dic = populated_efh_graph(surface, distance, efh)
+    dic['upload_data'] = df.to_json(orient='index')
+
+    return json.dumps(dic, cls=PlotlyJSONEncoder)
+
+efh_graph_widget = html.Div([dcc.Graph(id='efh-graph',
+                                       style={'width': '100%',
+                                              'height': '0',
+                                              # NOTE : If less that 75% graphs may
+                                              # not have any height on a phone.
+                                              'padding-bottom': '75%'
+                                              },
+                                       figure=go.Figure(layout=layout_efh))],
+                            className='twelve columns')
+
+table_widget = html.Div(id='datatable-upload')
+
+analysis_title_row = html.Div([
+    html.H1("Ski Jump Analysis",
+            style={'text-align': 'center',
+                   'padding-top': '20px',
+                   'color': 'white'}),
+],
+    className='page-header',
+    style={
+        'height': 'auto',
+        'margin-top': '-20px',
+        'background': 'rgb(64, 71, 86)',
+    })
+
+analysis_upload_row = html.Div([
+    upload_widget
+], className='row')
+
+analysis_takeoff_row = html.Div([
+    html.Div([analysis_filename_widget], className='col-md-3'),
+    html.Div([analysis_takeoff_angle_widget], className='col-md-3'),
+    html.Div([analysis_takeoff_x_widget], className='col-md-3'),
+    html.Div([analysis_takeoff_y_widget], className='col-md-3'),
+], className='row shaded')
+
+analysis_graph_row = html.Div([
+    efh_graph_widget
+], className='row')
+
+analysis_table_row = html.Div([
+    table_widget
+])
 
 markdown_text_analysis = """\
 # Explanation
@@ -442,7 +635,7 @@ This tool allows the analysis of a ski jump that (Prof Hubbard words here).
   the takeoff point in meters.
 - **Takeoff Point, Height**: The height, relative to the vertical, of the 
   the takeoff point in meters.
-  
+
 ## Outputs
 
 *(all curves specified as x,y coordinates in a system with origin at the 
@@ -499,222 +692,6 @@ parameters is provided here:
 
 """
 
-row7 = html.Div([dcc.Markdown(markdown_text)],
-                className='row',
-                style={'background-color': 'rgb(64,71,86, 0.9)',
-                       'color': 'white',
-                       'padding-right': '20px',
-                       'padding-left': '20px',
-                       'margin-top': '40px',
-                       'text-shadow': '1px 1px black',
-                       })
-
-row8 = html.Div(id='data-store', style={'display': 'none'})
-
-ver_row = html.Div([html.P([html.Small(VERSION_STAMP)],
-                           style={'text-align': 'right'})],
-                   className='row')
-
-# Analysis
-
-upload_widget = html.Div([
-    dcc.Upload(
-        id='upload-data',
-        children=html.Div([
-            'Drag and Drop or ',
-            html.A('Select Files', style={'color': 'blue'})
-        ]),
-        style={
-            'width': '100%',
-            'height': '60px',
-            'lineHeight': '60px',
-            'borderWidth': '1px',
-            'borderStyle': 'dashed',
-            'borderRadius': '5px',
-            'textAlign': 'center',
-            'margin': '10px'
-        },
-        multiple=False
-    )
-])
-
-
-layout_efh = go.Layout(autosize=True,
-                   hovermode='closest',
-                   paper_bgcolor='rgba(96, 164, 255, 0.0)',  # transparent
-                   plot_bgcolor='rgba(255, 255, 255, 0.5)',  # white
-                   xaxis={'title': 'Distance [m]', 'zeroline': False},
-                   yaxis={'scaleanchor': 'x',  # equal aspect ratio
-                          'scaleratio': 1.0,  # equal aspect ratio
-                          'title': 'EFH [m]', 'zeroline': False},
-                   legend={'orientation': "h",
-                           'y': 1.15})
-
-analysis_filename_widget = html.Div([
-    html.H3(id='filename-text-analysis')
-])
-
-
-analysis_takeoff_angle_widget = html.Div([
-    html.H3('Takeoff Angle: [deg]',
-            id='takeoff-text-analysis',
-            style={'color': '#404756'}),
-
-    dcc.Input(
-        id='takeoff_angle_analysis',
-        placeholder='0',
-        type='text',
-        value=''
-    )
-])
-
-analysis_takeoff_x_widget = html.Div([
-    html.H3('Takeoff Point, Distance: [m]',
-            id='takeoff-text-distance',
-            style={'color': '#404756'}),
-
-    dcc.Input(
-        id='takeoff_pos_dist',
-        placeholder='0',
-        type='text',
-        value=''
-    )
-])
-
-analysis_takeoff_y_widget = html.Div([
-    html.H3('Takeoff Point, Height: [m]',
-            id='takeoff-text-height',
-            style={'color': '#404756'}),
-
-    dcc.Input(
-        id='takeoff_pos_height',
-        placeholder='0',
-        type='text',
-        value=''
-    )
-])
-
-
-def populated_efh_graph(surface, distance, efh):
-
-    recommend_efh = 0.5
-    maximum_efh = 1.5
-    distance_standards = np.ones(len(distance))
-
-    layout_efh['annotations'] = [
-        {
-            'x': 0,
-            'y': 0,
-            'xref': 'x',
-            'yref': 'y',
-            'text': 'Takeoff Point',
-        },
-    ]
-
-    return {'data': [
-        {'x': surface.x,
-         'y': surface.y,
-         'name': 'Jump Profile',
-         'line': {'color': '#8e690a', 'width': 4},
-         'mode': 'lines'},
-        {'x': distance,
-         'y': efh,
-         'name': 'Calculated EFH',
-         'type': 'bar',
-         'marker': {'color': '#c89b43'},
-         },
-        {'x': distance,
-         'y': distance_standards*recommend_efh,
-         'name': 'Recommended EFH',
-         'line': {'color': '#404756', 'dash': 'dash'}},
-        {'x': distance,
-         'y': distance_standards * maximum_efh,
-         'name': 'Maximum EFH',
-         'line': {'color': '#404756', 'dash': 'dot'}},
-    ],
-        'layout': layout_efh}
-
-
-def parse_contents(takeoff_angle, takeoff_point_x, takeoff_point_y, contents, filename):
-
-    content_type, content_string = contents.split(',')
-
-    decoded = base64.b64decode(content_string)
-    try:
-        if 'csv' in filename:
-            # Assume that the user uploaded a CSV file
-            df = pd.read_csv(
-                io.StringIO(decoded.decode('utf-8')))
-        elif 'xls' in filename:
-            # Assume that the user uploaded an excel file
-            df = pd.read_excel(io.BytesIO(decoded))
-    except Exception as e:
-        print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
-
-    surface = Surface(df.iloc[:, 0].values, df.iloc[:, 1].values)
-    skier = Skier()
-    takeoff_angle = float(takeoff_angle)
-    takeoff_angle = np.deg2rad(takeoff_angle)
-    takeoff_point_x = float(takeoff_point_x)
-    takeoff_point_y = float(takeoff_point_y)
-    takeoff_point = (takeoff_point_x, takeoff_point_y)
-
-    distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point, skier)
-
-    dic = populated_efh_graph(surface, distance, efh)
-    dic['upload_data'] = df.to_json(orient='index')
-
-    return json.dumps(dic, cls=PlotlyJSONEncoder)
-
-
-efh_graph_widget = html.Div([dcc.Graph(id='efh-graph',
-                                       style={'width': '100%',
-                                              'height': '0',
-                                              # NOTE : If less that 75% graphs may
-                                              # not have any height on a phone.
-                                              'padding-bottom': '75%'
-                                              },
-                                       figure=go.Figure(layout=layout_efh))],
-                            className='twelve columns')
-
-
-table_widget = html.Div(id='datatable-upload')
-
-analysis_title_row = html.Div([
-    html.H1("Ski Jump Analysis",
-            style={'text-align': 'center',
-                   'padding-top': '20px',
-                   'color': 'white'}),
-],
-    className='page-header',
-    style={
-        'height': 'auto',
-        'margin-top': '-20px',
-        'background': 'rgb(64, 71, 86)',
-    })
-
-analysis_upload_row = html.Div([
-    upload_widget
-], className='row')
-
-analysis_takeoff_row = html.Div([
-    html.Div([analysis_filename_widget], className='col-md-3'),
-    html.Div([analysis_takeoff_angle_widget], className='col-md-3'),
-    html.Div([analysis_takeoff_x_widget], className='col-md-3'),
-    html.Div([analysis_takeoff_y_widget], className='col-md-3'),
-], className='row shaded')
-
-analysis_graph_row = html.Div([
-    efh_graph_widget
-], className='row')
-
-analysis_table_row = html.Div([
-    table_widget
-])
-
 analysis_markdown_row = html.Div([dcc.Markdown(markdown_text_analysis)],
                                  className='row',
                                  style={'background-color': 'rgb(64,71,86, 0.9)',
@@ -741,6 +718,52 @@ home_title = html.Div([
         'background': 'rgb(64, 71, 86)',
     })
 
+markdown_text_home = """\
+# Explanation
+
+### Ski Jump Analysis
+This tool allows the analysis of a ski jump's equivalent fall height, for 
+all takeoff speeds. 
+
+### Ski Jump Design 
+This tool allows the design of a ski jump that limits landing impact (measured
+by a specified equivalent fall height[1]), for all takeoff speeds up to the
+design speed. The calculated landing surface shape ensures that the jumper
+always impacts the landing surface at the same perpendicular impact speed as if
+dropped vertically from the specified equivalent fall height onto a horizontal
+surface.
+
+# Colophon
+
+This website was designed by Jason K. Moore and Mont Hubbard based on
+theoretical and computational work detailed in [1]. A description of actual
+fabrication of such a jump is contained in [2].
+
+The software that powers the website is open source and information on it can
+be found here:
+
+- [Download from PyPi.org](https://pypi.org/project/skijumpdesign)
+- [Download from Anaconda.org](https://anaconda.org/conda-forge/skijumpdesign)
+- Documentation: [http://skijumpdesign.readthedocs.io](http://skijumpdesign.readthedocs.io)
+- Issue reports: [https://gitlab.com/moorepants/skijumpdesign/issues](https://gitlab.com/moorepants/skijumpdesign/issues)
+- Source code repository: [http://gitlab.com/moorepants/skijumpdesign](http://gitlab.com/moorepants/skijumpdesign)
+
+Contributions and issue reports are welcome!
+
+# References
+
+[1] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A Design
+Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall Height."
+Sports Engineering 18, no. 4 (December 2015): 227–39.
+[https://doi.org/10.1007/s12283-015-0182-6](https://doi.org/10.1007/s12283-015-0182-6)
+
+[2] Petrone, N., Cognolato, M., McNeil, J.A., Hubbard, M. “Designing, building,
+measuring and testing a constant equivalent fall height terrain park jump"
+Sports Engineering 20, no. 4 (December 2017): 283-92.
+[https://doi.org/10.1007/s12283-017-0253-y](https://doi.org/10.1007/s12283-017-0253-y)
+
+"""
+
 home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
 
                          className='row',
@@ -751,7 +774,6 @@ home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
                                 'margin-top': '40px',
                                 'text-shadow': '1px 1px black',
                                 })
-
 
 home_button_design = html.A('Ski Jump Design',
                             href='/Design',
@@ -765,7 +787,6 @@ home_buttons = html.Div([
     html.Div([home_button_design], style={'display': 'inline-block', 'padding': '15px'}),
     html.Div([home_button_analysis], style={'display': 'inline-block', 'padding': '15px'}),
 ], className='row shaded', style={'padding': '40px', 'display': 'flex', 'justify-content': 'center'})
-
 
 nav_menu = html.Div([
     html.Ul([
@@ -781,6 +802,7 @@ nav_menu = html.Div([
             ], className='nav navbar-nav')
 ], className='navbar navbar-expand-sm bg-info navbar-dark navbar-static-top')
 
+# Page Layouts
 
 layout_index = html.Div([nav_menu, home_title,
                          html.Div([
@@ -804,6 +826,10 @@ layout_analysis = html.Div([nav_menu, analysis_title_row,
                                       ], className='container')
                             ])
 
+url_bar_and_content_div = html.Div([
+    dcc.Location(id='url', refresh=False),
+    html.Div(id='page-content')
+])
 
 def serve_layout():
     if flask.has_request_context():
@@ -815,12 +841,9 @@ def serve_layout():
         layout_analysis,
     ])
 
-
 app.layout = serve_layout
 
-
-# Ski Jump Design
-
+# Ski Jump Design Callbacks
 
 @app.callback(Output('slope-text', 'children'),
               [Input('slope_angle', 'value')])
@@ -851,11 +874,11 @@ def update_fall_height_text(fall_height):
 
 
 inputs = [
-    Input('slope_angle', 'value'),
-    Input('approach_len', 'value'),
-    Input('takeoff_angle', 'value'),
-    Input('fall_height', 'value'),
-]
+          Input('slope_angle', 'value'),
+          Input('approach_len', 'value'),
+          Input('takeoff_angle', 'value'),
+          Input('fall_height', 'value'),
+         ]
 
 
 def blank_graph(msg):
@@ -863,28 +886,28 @@ def blank_graph(msg):
     if layout['annotations']:
         del layout['annotations']
     data = {'data': [
-        {'x': [0.0, 0.0], 'y': [0.0, 0.0], 'name': 'Parent Slope',
-         'text': ['Invalid Parameters<br>Error: {}'.format(msg)],
-         'mode': 'markers+text',
-         'textfont': {'size': 24},
-         'textposition': 'top',
-         'line': {'color': 'black', 'dash': 'dash'}},
-        {'x': nan_line, 'y': nan_line,
-         'name': 'Approach',
-         'line': {'color': '#404756', 'width': 4}},
-        {'x': nan_line, 'y': nan_line,
-         'name': 'Takeoff',
-         'line': {'color': '#a4abbd', 'width': 4}},
-        {'x': nan_line, 'y': nan_line,
-         'name': 'Landing',
-         'line': {'color': '#c89b43', 'width': 4}},
-        {'x': nan_line, 'y': nan_line,
-         'name': 'Landing Transition',
-         'line': {'color': '#8e690a', 'width': 4}},
-        {'x': nan_line, 'y': nan_line, 'name': 'Flight',
-         'line': {'color': 'black', 'dash': 'dot'}},
-    ],
-        'layout': layout}
+                     {'x': [0.0, 0.0], 'y': [0.0, 0.0], 'name': 'Parent Slope',
+                      'text': ['Invalid Parameters<br>Error: {}'.format(msg)],
+                      'mode': 'markers+text',
+                      'textfont': {'size': 24},
+                      'textposition': 'top',
+                      'line': {'color': 'black', 'dash': 'dash'}},
+                     {'x': nan_line, 'y': nan_line,
+                      'name': 'Approach',
+                      'line': {'color': '#404756', 'width': 4}},
+                     {'x': nan_line, 'y': nan_line,
+                      'name': 'Takeoff',
+                      'line': {'color': '#a4abbd', 'width': 4}},
+                     {'x': nan_line, 'y': nan_line,
+                      'name': 'Landing',
+                      'line': {'color': '#c89b43', 'width': 4}},
+                     {'x': nan_line, 'y': nan_line,
+                      'name': 'Landing Transition',
+                      'line': {'color': '#8e690a', 'width': 4}},
+                     {'x': nan_line, 'y': nan_line, 'name': 'Flight',
+                      'line': {'color': 'black', 'dash': 'dot'}},
+                    ],
+            'layout': layout}
     return data
 
 
@@ -894,11 +917,12 @@ def create_arc(x_cen, y_cen, radius, angle):
     x_start = x_cen + radius * np.cos(angle)
     x_end = x_cen + radius
     x = np.linspace(x_start, x_end)
-    y = -np.sqrt(radius ** 2 - (x - x_cen) ** 2) + y_cen
+    y = -np.sqrt(radius**2 - (x - x_cen)**2) + y_cen
     return x, y
 
 
 def populated_graph(surfs):
+
     slope, approach, takeoff, landing, trans, flight = surfs
 
     leader_len = (approach.x[-1] - approach.x[0]) / 3
@@ -907,68 +931,68 @@ def populated_graph(surfs):
 
     layout['annotations'] = [
         {
-            'x': takeoff.end[0],
-            'y': takeoff.end[1],
-            'xref': 'x',
-            'yref': 'y',
-            'text': 'Takeoff Point',
+         'x': takeoff.end[0],
+         'y': takeoff.end[1],
+         'xref': 'x',
+         'yref': 'y',
+         'text': 'Takeoff Point',
         },
         {
-            'x': arc_x[35],
-            'y': arc_y[35],
-            'xref': 'x',
-            'yref': 'y',
-            'text': 'Parent Slope Angle',
-            'ax': 80,
-            'ay': 0,
+         'x': arc_x[35],
+         'y': arc_y[35],
+         'xref': 'x',
+         'yref': 'y',
+         'text': 'Parent Slope Angle',
+         'ax': 80,
+         'ay': 0,
         },
     ]
 
     return {'data': [
-        {'x': [approach.x[0], approach.x[0] + leader_len],
-         'y': [approach.y[0], approach.y[0]],
-         'line': {'color': 'black', 'width': 1},
-         'mode': 'lines',
-         'hoverinfo': 'none',
-         'showlegend': False},
-        {'x': arc_x.tolist(),
-         'y': arc_y.tolist(),
-         'line': {'color': 'black'},
-         'mode': 'lines',
-         'hoverinfo': 'none',
-         'showlegend': False},
-        {'x': slope.x.tolist(), 'y': slope.y.tolist(),
-         'name': 'Parent Slope',
-         'line': {'color': 'black', 'dash': 'dash'}},
-        {'x': approach.x.tolist(), 'y': approach.y.tolist(),
-         'name': 'Approach',
-         'line': {'color': '#a4abbd', 'width': 4}},
-        {'x': takeoff.x.tolist(), 'y': takeoff.y.tolist(),
-         'name': 'Takeoff',
-         'text': ['Height above parent: {:1.1f} m'.format(v) for v
-                  in takeoff.height_above(slope)],
-         'shape': 'spline',
-         'line': {'color': '#8e690a', 'width': 4}},
-        {'x': landing.x.tolist(), 'y': landing.y.tolist(),
-         'name': 'Landing',
-         'text': ['Height above parent: {:1.1f} m'.format(v) for v
-                  in landing.height_above(slope)],
-         'line': {'color': '#404756', 'width': 4},
-         'shape': 'spline',
-         },
-        {'x': trans.x.tolist(), 'y': trans.y.tolist(),
-         'name': 'Landing Transition',
-         'text': ['Height above parent: {:1.1f} m'.format(v) for v
-                  in trans.height_above(slope)],
-         'shape': 'spline',
-         'line': {'color': '#c89b43', 'width': 4}},
-        {'x': flight.pos[:, 0].tolist(),
-         'y': flight.pos[:, 1].tolist(),
-         'shape': 'spline',
-         'name': 'Flight',
-         'line': {'color': 'black', 'dash': 'dot'}},
-    ],
-        'layout': layout}
+                     {'x': [approach.x[0], approach.x[0] + leader_len],
+                      'y': [approach.y[0], approach.y[0]],
+                      'line': {'color': 'black', 'width': 1},
+                      'mode': 'lines',
+                      'hoverinfo': 'none',
+                      'showlegend': False},
+                     {'x': arc_x.tolist(),
+                      'y': arc_y.tolist(),
+                      'line': {'color': 'black'},
+                      'mode': 'lines',
+                      'hoverinfo': 'none',
+                      'showlegend': False},
+                     {'x': slope.x.tolist(), 'y': slope.y.tolist(),
+                      'name': 'Parent Slope',
+                      'line': {'color': 'black', 'dash': 'dash'}},
+                     {'x': approach.x.tolist(), 'y': approach.y.tolist(),
+                      'name': 'Approach',
+                      'line': {'color': '#a4abbd', 'width': 4}},
+                     {'x': takeoff.x.tolist(), 'y': takeoff.y.tolist(),
+                      'name': 'Takeoff',
+                      'text': ['Height above parent: {:1.1f} m'.format(v) for v
+                               in takeoff.height_above(slope)],
+                      'shape': 'spline',
+                      'line': {'color': '#8e690a', 'width': 4}},
+                     {'x': landing.x.tolist(), 'y': landing.y.tolist(),
+                      'name': 'Landing',
+                      'text': ['Height above parent: {:1.1f} m'.format(v) for v
+                               in landing.height_above(slope)],
+                      'line': {'color': '#404756', 'width': 4},
+                      'shape': 'spline',
+                      },
+                     {'x': trans.x.tolist(), 'y': trans.y.tolist(),
+                      'name': 'Landing Transition',
+                      'text': ['Height above parent: {:1.1f} m'.format(v) for v
+                               in trans.height_above(slope)],
+                      'shape': 'spline',
+                      'line': {'color': '#c89b43', 'width': 4}},
+                     {'x': flight.pos[:, 0].tolist(),
+                      'y': flight.pos[:, 1].tolist(),
+                      'shape': 'spline',
+                      'name': 'Flight',
+                      'line': {'color': 'black', 'dash': 'dot'}},
+                    ],
+            'layout': layout}
 
 
 def generate_csv_data(surfs):
@@ -1001,6 +1025,7 @@ def generate_csv_data(surfs):
 
 @app.callback(Output('data-store', 'children'), inputs)
 def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
+
     if cmd_line_args.profile:
         profiler = Profiler()
         profiler.start()
@@ -1087,8 +1112,8 @@ def update_download_link(json_data):
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
 
+# Index Callbacks
 
-# Index callbacks
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
@@ -1099,8 +1124,7 @@ def display_page(pathname):
     else:
         return layout_index
 
-
-# Analysis callbacks
+# Analysis Callbacks
 
 @app.callback(Output('filename-text-analysis', 'children'),
               [Input('upload-data', 'filename')])
@@ -1196,7 +1220,6 @@ def update_table(contents, json_data):
         ])
     ]
     return children
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)
