@@ -457,7 +457,9 @@ layout_efh = go.Layout(autosize=True,
                            'y': 1.15})
 
 analysis_filename_widget = html.Div([
-    html.H3(id='filename-text-analysis')
+    html.H3(id='filename-text-analysis'),
+    html.H5(id='file-error',
+            style={'color': 'red'})
 ])
 
 analysis_takeoff_angle_widget = html.Div([
@@ -502,7 +504,7 @@ analysis_takeoff_y_widget = html.Div([
             style={'color':'red'})
 ])
 
-def populated_efh_graph(surface, distance, efh):
+def populated_efh_graph(takeoff_point, surface, distance, efh):
 
     recommend_efh = 0.5
     maximum_efh = 1.5
@@ -510,8 +512,8 @@ def populated_efh_graph(surface, distance, efh):
 
     layout_efh['annotations'] = [
         {
-            'x': 0,
-            'y': 0,
+            'x': takeoff_point[0],
+            'y': takeoff_point[1],
             'xref': 'x',
             'yref': 'y',
             'text': 'Takeoff Point',
@@ -542,11 +544,11 @@ def populated_efh_graph(surface, distance, efh):
         'layout': layout_efh}
 
 
-def parse_contents(takeoff_angle, takeoff_point_x, takeoff_point_y, contents, filename):
-
+def parse_contents(contents, filename):
     content_type, content_string = contents.split(',')
 
     decoded = b64decode(content_string)
+
     try:
         if 'csv' in filename:
             # Assume that the user uploaded a CSV file
@@ -557,43 +559,6 @@ def parse_contents(takeoff_angle, takeoff_point_x, takeoff_point_y, contents, fi
             df = pd.read_excel(BytesIO(decoded))
     except Exception as e:
         print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
-
-    surface = Surface(df.iloc[:, 0].values, df.iloc[:, 1].values)
-    skier = Skier()
-    takeoff_angle = float(takeoff_angle)
-    takeoff_angle = np.deg2rad(takeoff_angle)
-    takeoff_point_x = float(takeoff_point_x)
-    takeoff_point_y = float(takeoff_point_y)
-    takeoff_point = (takeoff_point_x, takeoff_point_y)
-
-    distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point, skier)
-
-    dic = populated_efh_graph(surface, distance, efh)
-    dic['upload_data'] = df.to_json(orient='index')
-
-    return json.dumps(dic, cls=PlotlyJSONEncoder)
-
-def parse_contents_new(contents, filename):
-
-    content_type, content_string = contents.split(',')
-
-    decoded = b64decode(content_string)
-    try:
-        if 'csv' in filename:
-            # Assume that the user uploaded a CSV file
-            df = pd.read_csv(
-                StringIO(decoded.decode('utf-8')))
-        elif 'xls' in filename:
-            # Assume that the user uploaded an excel file
-            df = pd.read_excel(BytesIO(decoded))
-    except Exception as e:
-        print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
 
     dic = df.to_json(orient='index')
 
@@ -1164,6 +1129,19 @@ def display_page(pathname):
 def update_filename(filename):
     return 'Filename: {}'.format(filename)
 
+@app.callback(Output('file-error', 'children'),
+              [Input('output-data-upload', 'children')])
+def update_file_error(json_data):
+    dic = json.loads(json_data)
+    df = pd.read_json(dic, orient='index')
+    if len(df.columns) > 2:
+        return 'Too many columns in file.'
+    elif df.isnull().sum().sum() > 0:
+        return 'File has missing values.'
+    elif type(df.columns[0]) != str or type(df.columns[1]) != str:
+        return 'Make sure file has a row header.'
+    else:
+        return ''
 
 @app.callback(Output('takeoff-text-analysis', 'children'),
               [Input('takeoff_angle_analysis', 'value')])
@@ -1234,7 +1212,7 @@ def update_takeoff_xpos_error(takeoff_pos_y):
               [Input('upload-data', 'contents')], [State('upload-data', 'filename')])
 def update_output(contents, filename):
     if contents is not None:
-        dic = parse_contents_new(contents, filename)
+        dic = parse_contents(contents, filename)
         return dic
 
 
@@ -1260,7 +1238,7 @@ def update_efh_graph(json_data, takeoff_angle, takeoff_point_x, takeoff_point_y)
     takeoff_point = (takeoff_point_x, takeoff_point_y)
 
     distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point, skier)
-    update_graph = populated_efh_graph(surface, distance, efh)
+    update_graph = populated_efh_graph(takeoff_point, surface, distance, efh)
 
     return update_graph
 
