@@ -543,6 +543,30 @@ def populated_efh_graph(takeoff_point, surface, distance, efh):
     ],
         'layout': layout_efh}
 
+def blank_efh_graph(msg):
+    nan_line = [np.nan]
+    if layout['annotations']:
+        del layout['annotations']
+    data = {'data': [
+                     {'x': [0.0, 0.0], 'y': [0.0, 0.0], 'name': 'Calculated EFH',
+                      'text': ['Invalid Parameters<br>Error: {}'.format(msg)],
+                      'mode': 'markers+text',
+                      'textfont': {'size': 24},
+                      'textposition': 'top',
+                      'line': {'color': '#c89b43'}},
+                     {'x': nan_line, 'y': nan_line,
+                      'name': 'Jump Profile',
+                      'line': {'color': '#8e690a', 'width': 4}},
+                     {'x': nan_line, 'y': nan_line,
+                      'name': 'Recommended EFH',
+                      'line': {'color': '#404756', 'dash': 'dash'}},
+                     {'x': nan_line, 'y': nan_line,
+                      'name': 'Maximum EFH',
+                      'line': {'color': '#404756', 'dash': 'dot'}},
+                    ],
+            'layout': layout_efh}
+    return data
+
 
 def parse_contents(contents, filename):
     content_type, content_string = contents.split(',')
@@ -576,11 +600,19 @@ efh_graph_widget = html.Div([dcc.Graph(id='efh-graph',
 
 table_widget = html.Div(id='datatable-upload')
 
-compute_button = html.A('Compute',
-                        id='compute-button',
-                        href='',
-                        className='btn btn-primary disabled',
-                        download='')
+compute_button = html.Div([
+    html.Button('Compute',
+                id='compute-button',
+                className='btn btn-primary',),
+    html.H5(id='compute-error',
+            style={'color': 'red'}),
+    html.A('Download EFH',
+           id='download-efh-button',
+           href='',
+           className='btn btn-primary',
+           target='_blank',
+           download='efh_profile.csv'),
+])
 
 analysis_title_row = html.Div([
     html.H1("Ski Jump Analysis",
@@ -795,10 +827,10 @@ nav_menu = html.Div([
                     dcc.Link('Ski Jump Design', href='/Design')
                     ]),
             html.Li([
-            dcc.Link('Ski Jump Analysis', href='/Analysis')
+                    dcc.Link('Ski Jump Analysis', href='/Analysis')
                     ]),
             ], className='nav navbar-nav')
-], className='navbar navbar-expand-sm bg-info navbar-dark navbar-static-top')
+], className='navbar navbar-expand-sm navbar-static-top', style={'background-color': 'rgb(64,71,86)'})
 
 # Page Layouts
 
@@ -1143,70 +1175,44 @@ def update_file_error(json_data):
     else:
         return ''
 
-@app.callback(Output('takeoff-text-analysis', 'children'),
-              [Input('takeoff_angle_analysis', 'value')])
-def update_takeoff_analysis(takeoff_angle):
-    if takeoff_angle is '':
-        return 'Takeoff Angle: [deg]'
-    else:
-        takeoff_angle = float(takeoff_angle)
-        return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle)
-
-@app.callback(Output('takeoff-angle-error', 'children'),
+@app.callback([Output('takeoff-text-analysis', 'children'),
+               Output('takeoff-angle-error', 'children'),],
               [Input('takeoff_angle_analysis', 'value')])
 def update_takeoff_angle_error(takeoff_angle):
     if takeoff_angle is '':
-        return ''
+        return 'Takeoff Angle: [deg]', ''
     else:
         try:
             takeoff_angle = float(takeoff_angle)
-            return ''
+            return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle), ''
         except ValueError:
-            return 'Value must be a float or integer.'
+            return 'Takeoff Angle: [deg]', 'Value must be a float or integer.'
 
-
-@app.callback(Output('takeoff-text-distance', 'children'),
-              [Input('takeoff_pos_dist', 'value')])
-def update_takeoff_xpos(takeoff_pos_x):
-    if takeoff_pos_x is '':
-        return 'Takeoff Point, Distance: [m]'
-    else:
-        takeoff_pos_x = float(takeoff_pos_x)
-        return 'Takeoff Point, Distance: {:0.1f} [m]'.format(takeoff_pos_x)
-
-@app.callback(Output('takeoff-dist-error', 'children'),
+@app.callback([Output('takeoff-text-distance', 'children'),
+               Output('takeoff-dist-error', 'children'),],
               [Input('takeoff_pos_dist', 'value')])
 def update_takeoff_xpos_error(takeoff_pos_x):
     if takeoff_pos_x is '':
-        return ''
+        return 'Takeoff Point, Distance: [m]', ''
     else:
         try:
             takeoff_pos_x = float(takeoff_pos_x)
-            return ''
+            return 'Takeoff Point, Distance: {:0.1f} [m]'.format(takeoff_pos_x), ''
         except ValueError:
-            return 'Value must be a float or integer.'
+            return 'Takeoff Point, Distance: [m]', 'Value must be a float or integer.'
 
-
-@app.callback(Output('takeoff-text-height', 'children'),
-              [Input('takeoff_pos_height', 'value')])
-def update_takeoff_ypos(takeoff_pos_y):
-    if takeoff_pos_y is '':
-        return 'Takeoff Point, Height: [m]'
-    else:
-        takeoff_pos_y = float(takeoff_pos_y)
-        return 'Takeoff Point, Height: {:0.1f} [m]'.format(takeoff_pos_y)
-
-@app.callback(Output('takeoff-height-error', 'children'),
+@app.callback([Output('takeoff-text-height', 'children'),
+               Output('takeoff-height-error', 'children'),],
               [Input('takeoff_pos_height', 'value')])
 def update_takeoff_xpos_error(takeoff_pos_y):
     if takeoff_pos_y is '':
-        return ''
+        return 'Takeoff Point, Height: [m]', ''
     else:
         try:
             takeoff_pos_y = float(takeoff_pos_y)
-            return ''
+            return 'Takeoff Point, Height: {:0.1f} [m]'.format(takeoff_pos_y), ''
         except ValueError:
-            return 'Value must be a float or integer.'
+            return 'Takeoff Point, Height: [m]', 'Value must be a float or integer.'
 
 @app.callback(Output('output-data-upload', 'children'),
               [Input('upload-data', 'contents')], [State('upload-data', 'filename')])
@@ -1216,31 +1222,48 @@ def update_output(contents, filename):
         return dic
 
 
-inputs_analysis = [
-    Input('output-data-upload', 'children'),
-    Input('takeoff_angle_analysis', 'value'),
-    Input('takeoff_pos_dist', 'value'),
-    Input('takeoff_pos_height', 'value'),
+states_analysis = [
+    State('output-data-upload', 'children'),
+    State('takeoff_angle_analysis', 'value'),
+    State('takeoff_pos_dist', 'value'),
+    State('takeoff_pos_height', 'value')
 ]
 
 
-@app.callback(Output('efh-graph', 'figure'), inputs_analysis)
-def update_efh_graph(json_data, takeoff_angle, takeoff_point_x, takeoff_point_y):
-    dic = json.loads(json_data)
-    df = pd.read_json(dic, orient='index')
+@app.callback([Output('efh-graph', 'figure'),
+               Output('compute-error', 'children'),
+               Output('download-efh-button', 'href'),],
+              [Input('compute-button', 'n_clicks')],
+              states_analysis)
+def update_efh_graph(n_clicks, json_data, takeoff_angle, takeoff_point_x, takeoff_point_y):
+    try:
+        dic = json.loads(json_data)
+        df = pd.read_json(dic, orient='index')
 
-    surface = Surface(df.iloc[:, 0].values, df.iloc[:, 1].values)
-    skier = Skier()
-    takeoff_angle = float(takeoff_angle)
-    takeoff_angle = np.deg2rad(takeoff_angle)
-    takeoff_point_x = float(takeoff_point_x)
-    takeoff_point_y = float(takeoff_point_y)
-    takeoff_point = (takeoff_point_x, takeoff_point_y)
+        surface = Surface(df.iloc[:, 0].values, df.iloc[:, 1].values)
+        skier = Skier()
+        takeoff_angle = float(takeoff_angle)
+        takeoff_angle = np.deg2rad(takeoff_angle)
+        takeoff_point_x = float(takeoff_point_x)
+        takeoff_point_y = float(takeoff_point_y)
+        takeoff_point = (takeoff_point_x, takeoff_point_y)
 
-    distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point, skier)
-    update_graph = populated_efh_graph(takeoff_point, surface, distance, efh)
+        distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point, skier)
+        update_graph = populated_efh_graph(takeoff_point, surface, distance, efh)
 
-    return update_graph
+        data = np.vstack((distance, efh)).T
+        # NOTE : StringIO() worked here for NumPy 1.14 but fails on NumPy 1.13,
+        # thus BytesIO() is used as per an answer here:
+        # https://stackoverflow.com/questions/22355026/numpy-savetxt-to-a-string
+        buf = BytesIO()
+        np.savetxt(buf, data, fmt='%.2f', delimiter=',', newline="\n")
+        header = 'Distance Along Slope [m],EFH [m]\n'
+        text = header + buf.getvalue().decode()
+        csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(text)
+
+        return update_graph, '', csv_string
+    except Exception as e:
+        return blank_efh_graph(e), 'There was an error processing this file.', ''
 
 
 @app.callback(Output('datatable-upload', 'children'),
