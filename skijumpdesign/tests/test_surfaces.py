@@ -156,7 +156,7 @@ def test_area_under():
                    rel_tol=1e-4)
 
 
-def test_calculate_efh():
+def test_calculate_efh(profile=False):
 
     slope_angle = -15.0
     approach_len = 40
@@ -167,8 +167,17 @@ def test_calculate_efh():
     slope, approach, takeoff, landing, landing_trans, flight, outputs = \
         make_jump(slope_angle, 0.0, approach_len, takeoff_angle, fall_height)
 
+    if profile:
+        from pyinstrument import Profiler
+        p = Profiler()
+        p.start()
+
     dist, efh = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end,
                                       skier)
+
+    if profile:
+        p.stop()
+        print(p.output_text(unicode=True, color=True))
 
     np.testing.assert_allclose(efh[0], 0.0)
     np.testing.assert_allclose(efh[1:], fall_height, rtol=0.0, atol=8e-3)
