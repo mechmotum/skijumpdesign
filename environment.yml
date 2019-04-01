@@ -19,4 +19,4 @@ dependencies:
   - dash-renderer ==0.20.0
   - dash-html-components ==0.14.0
   - dash-core-components ==0.44.0
-  - xlrd
+  - xlrd == 1.2.0
