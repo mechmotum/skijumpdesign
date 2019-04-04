@@ -446,15 +446,15 @@ upload_widget = html.Div([
 ])
 
 layout_efh = go.Layout(autosize=True,
-                   hovermode='closest',
-                   paper_bgcolor='rgba(96, 164, 255, 0.0)',  # transparent
-                   plot_bgcolor='rgba(255, 255, 255, 0.5)',  # white
-                   xaxis={'title': 'Distance [m]', 'zeroline': False},
-                   yaxis={'scaleanchor': 'x',  # equal aspect ratio
-                          'scaleratio': 1.0,  # equal aspect ratio
-                          'title': 'EFH [m]', 'zeroline': False},
-                   legend={'orientation': "h",
-                           'y': 1.15})
+                       hovermode='closest',
+                       paper_bgcolor='rgba(96, 164, 255, 0.0)',  # transparent
+                       plot_bgcolor='rgba(255, 255, 255, 0.5)',  # white
+                       xaxis={'title': 'Distance [m]', 'zeroline': False},
+                       yaxis={'scaleanchor': 'x',  # equal aspect ratio
+                              'scaleratio': 1.0,  # equal aspect ratio
+                              'title': 'EFH [m]', 'zeroline': False},
+                       legend={'orientation': "h",
+                               'y': 1})
 
 analysis_filename_widget = html.Div([
     html.H3(id='filename-text-analysis'),
@@ -470,7 +470,7 @@ analysis_takeoff_angle_widget = html.Div([
         id='takeoff_angle_analysis',
         placeholder='0',
         type='text',
-        value=''
+        value='0'
     ),
     html.H5(id='takeoff-angle-error',
             style={'color':'red'})
@@ -484,7 +484,7 @@ analysis_takeoff_x_widget = html.Div([
         id='takeoff_pos_dist',
         placeholder='0',
         type='text',
-        value=''
+        value='0'
     ),
     html.H5(id='takeoff-dist-error',
             style={'color':'red'})
@@ -498,7 +498,7 @@ analysis_takeoff_y_widget = html.Div([
         id='takeoff_pos_height',
         placeholder='0',
         type='text',
-        value=''
+        value='0'
     ),
     html.H5(id='takeoff-height-error',
             style={'color':'red'})
@@ -806,11 +806,11 @@ home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
                                 })
 
 home_button_design = html.A('Ski Jump Design',
-                            href='/Design',
+                            href='/design',
                             className='btn btn-primary btn-lg', style={'padding': '72px 72px'})
 
 home_button_analysis = html.A('Ski Jump Analysis',
-                              href='/Analysis',
+                              href='/analysis',
                               className='btn btn-primary btn-lg', style={'padding': '72px 72px'})
 
 home_buttons = html.Div([
@@ -824,10 +824,10 @@ nav_menu = html.Div([
                     dcc.Link('Home', href='/')
                     ], className='active'),
             html.Li([
-                    dcc.Link('Ski Jump Design', href='/Design')
+                    dcc.Link('Ski Jump Design', href='/design')
                     ]),
             html.Li([
-                    dcc.Link('Ski Jump Analysis', href='/Analysis')
+                    dcc.Link('Ski Jump Analysis', href='/analysis')
                     ]),
             ], className='nav navbar-nav')
 ], className='navbar navbar-expand-sm navbar-static-top', style={'background-color': 'rgb(64,71,86)'})
@@ -1147,9 +1147,9 @@ def update_download_link(json_data):
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
-    if pathname == "/Design":
+    if pathname == "/design":
         return layout_design
-    elif pathname == "/Analysis":
+    elif pathname == "/analysis":
         return layout_analysis
     else:
         return layout_index
@@ -1179,40 +1179,31 @@ def update_file_error(json_data):
                Output('takeoff-angle-error', 'children'),],
               [Input('takeoff_angle_analysis', 'value')])
 def update_takeoff_angle_error(takeoff_angle):
-    if takeoff_angle is '':
-        return 'Takeoff Angle: [deg]', ''
-    else:
-        try:
-            takeoff_angle = float(takeoff_angle)
-            return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle), ''
-        except ValueError:
-            return 'Takeoff Angle: [deg]', 'Value must be a float or integer.'
+    try:
+        takeoff_angle = float(takeoff_angle)
+        return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle), ''
+    except ValueError:
+        return 'Takeoff Angle: [deg]', 'Value must be a float or integer.'
 
 @app.callback([Output('takeoff-text-distance', 'children'),
                Output('takeoff-dist-error', 'children'),],
               [Input('takeoff_pos_dist', 'value')])
 def update_takeoff_xpos_error(takeoff_pos_x):
-    if takeoff_pos_x is '':
-        return 'Takeoff Point, Distance: [m]', ''
-    else:
-        try:
-            takeoff_pos_x = float(takeoff_pos_x)
-            return 'Takeoff Point, Distance: {:0.1f} [m]'.format(takeoff_pos_x), ''
-        except ValueError:
-            return 'Takeoff Point, Distance: [m]', 'Value must be a float or integer.'
+    try:
+        takeoff_pos_x = float(takeoff_pos_x)
+        return 'Takeoff Point, Distance: {:0.1f} [m]'.format(takeoff_pos_x), ''
+    except ValueError:
+        return 'Takeoff Point, Distance: [m]', 'Value must be a float or integer.'
 
 @app.callback([Output('takeoff-text-height', 'children'),
                Output('takeoff-height-error', 'children'),],
               [Input('takeoff_pos_height', 'value')])
 def update_takeoff_xpos_error(takeoff_pos_y):
-    if takeoff_pos_y is '':
-        return 'Takeoff Point, Height: [m]', ''
-    else:
-        try:
-            takeoff_pos_y = float(takeoff_pos_y)
-            return 'Takeoff Point, Height: {:0.1f} [m]'.format(takeoff_pos_y), ''
-        except ValueError:
-            return 'Takeoff Point, Height: [m]', 'Value must be a float or integer.'
+    try:
+        takeoff_pos_y = float(takeoff_pos_y)
+        return 'Takeoff Point, Height: {:0.1f} [m]'.format(takeoff_pos_y), ''
+    except ValueError:
+        return 'Takeoff Point, Height: [m]', 'Value must be a float or integer.'
 
 @app.callback(Output('output-data-upload', 'children'),
               [Input('upload-data', 'contents')], [State('upload-data', 'filename')])
