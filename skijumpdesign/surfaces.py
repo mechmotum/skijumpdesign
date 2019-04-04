@@ -148,10 +148,10 @@ class Surface(object):
         surface is above the provided surface."""
         return self.y - surface.interp_y(self.x)
 
-    def calculate_efh(self, takeoff_angle, takeoff_point, skier):
-        """Returns the equivalent fall height for the surface at 0.2 meter
-        intervals relative to the provided takeoff point or the start of the
-        surface.
+    def calculate_efh(self, takeoff_angle, takeoff_point, skier, increment=0.2):
+        """Returns the equivalent fall height for the surface at the specified
+        constant intervals relative to the provided takeoff point or the start
+        of the surface.
 
         Parameters
         ==========
@@ -162,26 +162,28 @@ class Surface(object):
             takeoff ramp.
         skier : Skier
             A skier instance.
+        increment : float, optional
+            x increment in meters between each calculated landing location.
 
         Returns
         =======
         distance_x : ndarray, shape(n,)
             Horizontal x locations of the equivalent fall height measures
-            spaced at 0.2 meter intervals relative to leftmost point on the
-            surface or the takeoff point, whichever is greater.
+            spaced at the specified meter intervals relative to leftmost point
+            on the surface or the takeoff point, whichever is greater.
         efh : ndarray, shape(n,)
             The equivalent fall height corresponding to each value in
             ``distance_x``.
 
         """
 
-        # NOTE : 0.2 meter intervals are desired but the x distance is not
-        # necessarily divisible by 0.2, so we drop the remainder so it is
+        # NOTE : intervals are desired but the x distance is not necessarily
+        # divisible by the increment, so we drop the remainder so it is
         # divisible and make the range inclusive.
 
-        remainder = (self.x[-1] - self.x[0]) % 0.2
+        remainder = (self.x[-1] - self.x[0]) % increment
         rnge = (self.x[0], self.x[-1] - remainder)
-        num_points = int((self.x[-1] - self.x[0] - remainder) / 0.2) + 1
+        num_points = int((self.x[-1] - self.x[0] - remainder) / increment) + 1
         distance_x = np.linspace(*rnge, num=num_points)
 
         slope = self.interp_slope(distance_x)
