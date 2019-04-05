@@ -5,6 +5,7 @@ import json
 import urllib
 import argparse
 from io import BytesIO, StringIO
+from xlrd import XLRDError
 from base64 import b64decode
 
 import numpy as np
@@ -568,23 +569,21 @@ def blank_efh_graph(msg):
     return data
 
 
-def parse_contents(contents, filename):
+def parse_contents(contents):
     content_type, content_string = contents.split(',')
 
     decoded = b64decode(content_string)
 
     try:
-        if 'csv' in filename:
-            # Assume that the user uploaded a CSV file
-            df = pd.read_csv(
-                StringIO(decoded.decode('utf-8')))
-        elif 'xls' in filename:
-            # Assume that the user uploaded an excel file
+        df = pd.read_csv(
+            StringIO(decoded.decode('utf-8')))
+        dic = df.to_json(orient='index')
+    except UnicodeDecodeError:
+        try:
             df = pd.read_excel(BytesIO(decoded))
-    except Exception as e:
-        print(e)
-
-    dic = df.to_json(orient='index')
+            dic = df.to_json(orient='index')
+        except XLRDError as e:
+            dic = blank_efh_graph('<br>'.join(textwrap.wrap(str(e), 30)))
 
     return json.dumps(dic, cls=PlotlyJSONEncoder)
 
@@ -1206,10 +1205,10 @@ def update_takeoff_xpos_error(takeoff_pos_y):
         return 'Takeoff Point, Height: [m]', 'Value must be a float or integer.'
 
 @app.callback(Output('output-data-upload', 'children'),
-              [Input('upload-data', 'contents')], [State('upload-data', 'filename')])
-def update_output(contents, filename):
+              [Input('upload-data', 'contents')])
+def update_output(contents):
     if contents is not None:
-        dic = parse_contents(contents, filename)
+        dic = parse_contents(contents)
         return dic
 
 
