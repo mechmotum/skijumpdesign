@@ -10,6 +10,7 @@ dependencies:
   - scipy >=1.0  # requires solve_ivp()
   - matplotlib
   - sympy
+  - pandas
   - cython
   - pycvodes
   - fastcache
@@ -24,3 +25,5 @@ dependencies:
   - dash-renderer
   - dash-html-components
   - dash-core-components
+  - dash-table
+  - xlrd
