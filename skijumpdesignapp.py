@@ -470,7 +470,7 @@ analysis_takeoff_angle_widget = html.Div([
     dcc.Input(
         id='takeoff_angle_analysis',
         placeholder='0',
-        type='text',
+        type='number',
         value='0'
     ),
     html.H5(id='takeoff-angle-error',
@@ -484,7 +484,7 @@ analysis_takeoff_x_widget = html.Div([
     dcc.Input(
         id='takeoff_pos_dist',
         placeholder='0',
-        type='text',
+        type='number',
         value='0'
     ),
     html.H5(id='takeoff-dist-error',
@@ -498,7 +498,7 @@ analysis_takeoff_y_widget = html.Div([
     dcc.Input(
         id='takeoff_pos_height',
         placeholder='0',
-        type='text',
+        type='number',
         value='0'
     ),
     html.H5(id='takeoff-height-error',
@@ -1174,35 +1174,23 @@ def update_file_error(json_data):
     else:
         return ''
 
-@app.callback([Output('takeoff-text-analysis', 'children'),
-               Output('takeoff-angle-error', 'children'),],
+@app.callback(Output('takeoff-text-analysis', 'children'),
               [Input('takeoff_angle_analysis', 'value')])
-def update_takeoff_angle_error(takeoff_angle):
-    try:
-        takeoff_angle = float(takeoff_angle)
-        return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle), ''
-    except ValueError:
-        return 'Takeoff Angle: [deg]', 'Value must be a float or integer.'
+def update_takeoff_angle(takeoff_angle):
+    takeoff_angle = float(takeoff_angle)
+    return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle), ''
 
-@app.callback([Output('takeoff-text-distance', 'children'),
-               Output('takeoff-dist-error', 'children'),],
+@app.callback(Output('takeoff-text-distance', 'children'),
               [Input('takeoff_pos_dist', 'value')])
-def update_takeoff_xpos_error(takeoff_pos_x):
-    try:
-        takeoff_pos_x = float(takeoff_pos_x)
-        return 'Takeoff Point, Distance: {:0.1f} [m]'.format(takeoff_pos_x), ''
-    except ValueError:
-        return 'Takeoff Point, Distance: [m]', 'Value must be a float or integer.'
+def update_takeoff_xpos(takeoff_pos_x):
+    takeoff_pos_x = float(takeoff_pos_x)
+    return 'Takeoff Point, Distance: {:0.1f} [m]'.format(takeoff_pos_x), ''
 
-@app.callback([Output('takeoff-text-height', 'children'),
-               Output('takeoff-height-error', 'children'),],
+@app.callback(Output('takeoff-text-height', 'children'),
               [Input('takeoff_pos_height', 'value')])
-def update_takeoff_xpos_error(takeoff_pos_y):
-    try:
-        takeoff_pos_y = float(takeoff_pos_y)
-        return 'Takeoff Point, Height: {:0.1f} [m]'.format(takeoff_pos_y), ''
-    except ValueError:
-        return 'Takeoff Point, Height: [m]', 'Value must be a float or integer.'
+def update_takeoff_ypos(takeoff_pos_y):
+    takeoff_y = float(takeoff_pos_y)
+    return 'Takeoff Point, Height: {:0.1f} [m]'.format(takeoff_y)
 
 @app.callback(Output('output-data-upload', 'children'),
               [Input('upload-data', 'contents')])
@@ -1262,26 +1250,27 @@ def update_table(contents, json_data):
     if contents is None:
         children_none = []
         return children_none
-    dic = json.loads(json_data)
-    df = pd.read_json(dic, orient='index')
-    children = [
-        html.Div([
-            dash_table.DataTable(
-                data=df.to_dict('rows'),
-                columns=[{'name': i, 'id': i} for i in df.columns],
-                n_fixed_rows=1,
-                style_table={
-                    'maxHeight': '200',
-                    'overflowY': 'scroll',
-                },
-                style_header={'backgroundColor': 'rgba(96, 164, 255, 0.0)'},
-                style_cell_conditional=[{
-                    'if': {'row_index': 'odd'},
-                    'backgroundColor': 'rgb(248, 248, 248)'
-                }]
-            ),
-        ])
-    ]
+    else:
+        dic = json.loads(json_data)
+        df = pd.read_json(dic, orient='index')
+        children = [
+            html.Div([
+                dash_table.DataTable(
+                    data=df.to_dict('rows'),
+                    columns=[{'name': i, 'id': i} for i in df.columns],
+                    n_fixed_rows=1,
+                    style_table={
+                        'maxHeight': '200',
+                        'overflowY': 'scroll',
+                    },
+                    style_header={'backgroundColor': 'rgba(96, 164, 255, 0.0)'},
+                    style_cell_conditional=[{
+                        'if': {'row_index': 'odd'},
+                        'backgroundColor': 'rgb(248, 248, 248)'
+                    }]
+                ),
+            ])
+        ]
     return children
 
 if __name__ == '__main__':
