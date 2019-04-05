@@ -377,35 +377,6 @@ parameters is provided here:
   and iterate design parameters. The third button allows zoom.
 - Download the jump design profile using the **Download Profile** button.
 
-# Colophon
-
-This website was designed by Jason K. Moore and Mont Hubbard based on
-theoretical and computational work detailed in [1]. A description of actual
-fabrication of such a jump is contained in [2].
-
-The software that powers the website is open source and information on it can
-be found here:
-
-- [Download from PyPi.org](https://pypi.org/project/skijumpdesign)
-- [Download from Anaconda.org](https://anaconda.org/conda-forge/skijumpdesign)
-- Documentation: [http://skijumpdesign.readthedocs.io](http://skijumpdesign.readthedocs.io)
-- Issue reports: [https://gitlab.com/moorepants/skijumpdesign/issues](https://gitlab.com/moorepants/skijumpdesign/issues)
-- Source code repository: [http://gitlab.com/moorepants/skijumpdesign](http://gitlab.com/moorepants/skijumpdesign)
-
-Contributions and issue reports are welcome!
-
-# References
-
-[1] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A Design
-Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall Height."
-Sports Engineering 18, no. 4 (December 2015): 227–39.
-[https://doi.org/10.1007/s12283-015-0182-6](https://doi.org/10.1007/s12283-015-0182-6)
-
-[2] Petrone, N., Cognolato, M., McNeil, J.A., Hubbard, M. “Designing, building,
-measuring and testing a constant equivalent fall height terrain park jump"
-Sports Engineering 20, no. 4 (December 2017): 283-92.
-[https://doi.org/10.1007/s12283-017-0253-y](https://doi.org/10.1007/s12283-017-0253-y)
-
 """
 row7 = html.Div([dcc.Markdown(markdown_text)],
                 className='row',
@@ -473,8 +444,6 @@ analysis_takeoff_angle_widget = html.Div([
         type='number',
         value='0'
     ),
-    html.H5(id='takeoff-angle-error',
-            style={'color':'red'})
 ])
 
 analysis_takeoff_x_widget = html.Div([
@@ -487,8 +456,6 @@ analysis_takeoff_x_widget = html.Div([
         type='number',
         value='0'
     ),
-    html.H5(id='takeoff-dist-error',
-            style={'color':'red'})
 ])
 
 analysis_takeoff_y_widget = html.Div([
@@ -501,8 +468,6 @@ analysis_takeoff_y_widget = html.Div([
         type='number',
         value='0'
     ),
-    html.H5(id='takeoff-height-error',
-            style={'color':'red'})
 ])
 
 def populated_efh_graph(takeoff_point, surface, distance, efh):
@@ -649,13 +614,17 @@ analysis_table_row = html.Div([
 markdown_text_analysis = """\
 # Explanation
 
-This tool allows the analysis of a ski jump that (Prof Hubbard words here).
+Every jump landing surface shape has an associated equivalent fall height 
+function h(x) that characterizes the severity of impact at every possible 
+landing point.  This tool allows the calculation of the function, once the 
+shape of the landing surface and the takeoff angle are specified, and thus 
+allows the evaluation of the surface from the point of impact severity.
 
 ## Inputs
 
 - **Upload**: An excel or csv file of the x-y coordinates, relative to the 
   horizontal, of the measured jump in meters. The first row of the data 
-  file must have be the column headers. The first column must be the distance 
+  file must be the column headers. The first column must be the distance 
   values of the jump along the horizontal and the second column must be the 
   height values of the jump along the vertical.
 - **Takeoff Angle**: The upward angle, relative to horizontal, at the end of
@@ -750,10 +719,6 @@ home_title = html.Div([
 markdown_text_home = """\
 # Explanation
 
-### Ski Jump Analysis
-This tool allows the analysis of a ski jump's equivalent fall height, for 
-all takeoff speeds. 
-
 ### Ski Jump Design 
 This tool allows the design of a ski jump that limits landing impact (measured
 by a specified equivalent fall height[1]), for all takeoff speeds up to the
@@ -761,6 +726,13 @@ design speed. The calculated landing surface shape ensures that the jumper
 always impacts the landing surface at the same perpendicular impact speed as if
 dropped vertically from the specified equivalent fall height onto a horizontal
 surface.
+
+### Ski Jump Analysis
+Every jump landing surface shape has an associated equivalent fall height 
+function h(x) that characterizes the severity of impact at every possible 
+landing point.  This tool allows the calculation of the function, once the 
+shape of the landing surface and the takeoff angle are specified, and thus 
+allows the evaluation of the surface from the point of impact severity.
 
 # Colophon
 
@@ -1163,11 +1135,11 @@ def update_filename(filename):
 @app.callback(Output('file-error', 'children'),
               [Input('output-data-upload', 'children')])
 def update_file_error(json_data):
+    if json_data is None:
+        return ''
     dic = json.loads(json_data)
     df = pd.read_json(dic, orient='index')
-    if len(df.columns) > 2:
-        return 'Too many columns in file.'
-    elif df.isnull().sum().sum() > 0:
+    if df.isnull().sum().sum() > 0:
         return 'File has missing values.'
     elif type(df.columns[0]) != str or type(df.columns[1]) != str:
         return 'Make sure file has a row header.'
@@ -1214,34 +1186,36 @@ states_analysis = [
               [Input('compute-button', 'n_clicks')],
               states_analysis)
 def update_efh_graph(n_clicks, json_data, takeoff_angle, takeoff_point_x, takeoff_point_y):
+    dic = json.loads(json_data)
+    df = pd.read_json(dic, orient='index')
+
+    surface = Surface(df.iloc[:, 0].values, df.iloc[:, 1].values)
+    skier = Skier()
+    takeoff_angle = float(takeoff_angle)
+    takeoff_angle = np.deg2rad(takeoff_angle)
+    takeoff_point_x = float(takeoff_point_x)
+    takeoff_point_y = float(takeoff_point_y)
+    takeoff_point = (takeoff_point_x, takeoff_point_y)
+
     try:
-        dic = json.loads(json_data)
-        df = pd.read_json(dic, orient='index')
-
-        surface = Surface(df.iloc[:, 0].values, df.iloc[:, 1].values)
-        skier = Skier()
-        takeoff_angle = float(takeoff_angle)
-        takeoff_angle = np.deg2rad(takeoff_angle)
-        takeoff_point_x = float(takeoff_point_x)
-        takeoff_point_y = float(takeoff_point_y)
-        takeoff_point = (takeoff_point_x, takeoff_point_y)
-
         distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point, skier)
         update_graph = populated_efh_graph(takeoff_point, surface, distance, efh)
-
         data = np.vstack((distance, efh)).T
-        # NOTE : StringIO() worked here for NumPy 1.14 but fails on NumPy 1.13,
-        # thus BytesIO() is used as per an answer here:
-        # https://stackoverflow.com/questions/22355026/numpy-savetxt-to-a-string
-        buf = BytesIO()
-        np.savetxt(buf, data, fmt='%.2f', delimiter=',', newline="\n")
-        header = 'Distance Along Slope [m],EFH [m]\n'
-        text = header + buf.getvalue().decode()
-        csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(text)
-
-        return update_graph, '', csv_string
+        error_text = ''
     except Exception as e:
-        return blank_efh_graph(e), 'There was an error processing this file.', ''
+        update_graph = blank_efh_graph(e)
+        data = np.vstack((np.nan, np.nan)).T
+        error_text = 'There was an error processing this file.'
+
+    # NOTE : StringIO() worked here for NumPy 1.14 but fails on NumPy 1.13,
+    # thus BytesIO() is used as per an answer here:
+    # https://stackoverflow.com/questions/22355026/numpy-savetxt-to-a-string
+    buf = BytesIO()
+    np.savetxt(buf, data, fmt='%.2f', delimiter=',', newline="\n")
+    header = 'Distance Along Slope [m],EFH [m]\n'
+    text = header + buf.getvalue().decode()
+    csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(text)
+    return update_graph, error_text, csv_string
 
 
 @app.callback(Output('datatable-upload', 'children'),
