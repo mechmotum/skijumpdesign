@@ -836,10 +836,10 @@ analysis_data_row = html.Div(id='output-data-upload', style={'display': 'none'})
 
 layout_analysis = html.Div([nav_menu, analysis_title_row,
                             html.Div([ver_row,
+                                      analysis_graph_row,
                                       analysis_upload_row,
                                       analysis_takeoff_row,
                                       analysis_table_row,
-                                      analysis_graph_row,
                                       analysis_markdown_row,
                                       analysis_data_row
                                       ], className='container')
