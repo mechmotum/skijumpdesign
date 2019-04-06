@@ -40,7 +40,7 @@ This was setup to match the color blue of the sky in the background image.
 
 """
 
-TITLE = "Ski Jump Design Tool for Specified Equivalent Fall Height"
+TITLE = "Ski Jump Design and Analysis Tool for Specified Equivalent Fall Height"
 VERSION_STAMP = 'skijumpdesign {}'.format(skijumpdesign.__version__)
 
 STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
@@ -396,7 +396,7 @@ ver_row = html.Div([html.P([html.Small(VERSION_STAMP)],
                            style={'text-align': 'right'})],
                    className='row')
 
-# Analysis
+# analysis
 
 upload_widget = html.Div([
     dcc.Upload(
@@ -707,7 +707,7 @@ analysis_data_row = html.Div(id='output-data-upload', style={'display': 'none'})
 # Home
 
 home_title = html.Div(
-    [html.H1("Ski Jump Design and Analysis Tool",
+    [html.H1(TITLE,
              style={'text-align': 'center',
                     'padding-top': '20px',
                     'color': 'white'}),
@@ -721,25 +721,31 @@ home_title = html.Div(
 markdown_text_home = """\
 # Explanation
 
-### Ski Jump Design
+This web application provides two tools to aid in the design and analysis of
+ski jumps when one considers minimizing and controlling for the landing impact
+speeds as defined by the "equivalent fall height" [1].
+
+## Ski Jump Design
+
 This tool allows the design of a ski jump that limits landing impact (measured
 by a specified equivalent fall height[1]), for all takeoff speeds up to the
 design speed. The calculated landing surface shape ensures that the jumper
 always impacts the landing surface at the same perpendicular impact speed as if
 dropped vertically from the specified equivalent fall height onto a horizontal
-surface.
+surface. This tool is described in [3].
 
-### Ski Jump Analysis
-Every jump landing surface shape has an associated equivalent fall height
-function h(x) that characterizes the severity of impact at every possible
-landing point.  This tool allows the calculation of the function, once the
-shape of the landing surface and the takeoff angle are specified, and thus
-allows the evaluation of the surface from the point of impact severity.
+## Ski Jump Analysis
+
+Every jump landing surface shape has an associated equivalent fall height that
+characterizes the severity of impact at every possible landing point. This tool
+allows the calculation of the equivalent fall height given the shape of the
+landing surface and the jump takeoff angle, and thus allows the evaluation of
+arbitrary surfaces from the point of impact severity.
 
 # Colophon
 
-This website was designed by Jason K. Moore and Mont Hubbard based on
-theoretical and computational work detailed in [1]. A description of actual
+This website was designed by Jason K. Moore, Mont Hubbard, and Bryn Cloud based
+on theoretical and computational work detailed in [1]. A description of actual
 fabrication of such a jump is contained in [2].
 
 The software that powers the website is open source and information on it can
@@ -747,9 +753,10 @@ be found here:
 
 - [Download from PyPi.org](https://pypi.org/project/skijumpdesign)
 - [Download from Anaconda.org](https://anaconda.org/conda-forge/skijumpdesign)
-- Documentation: [http://skijumpdesign.readthedocs.io](http://skijumpdesign.readthedocs.io)
-- Issue reports: [https://gitlab.com/moorepants/skijumpdesign/issues](https://gitlab.com/moorepants/skijumpdesign/issues)
-- Source code repository: [http://gitlab.com/moorepants/skijumpdesign](http://gitlab.com/moorepants/skijumpdesign)
+- [JOSS Journal Paper](https://doi.org/10.21105/joss.00818)
+- Documentation: [skijumpdesign.readthedocs.io](http://skijumpdesign.readthedocs.io)
+- Issue reports: [gitlab.com/moorepants/skijumpdesign/issues](https://gitlab.com/moorepants/skijumpdesign/issues)
+- Source code repository: [gitlab.com/moorepants/skijumpdesign](http://gitlab.com/moorepants/skijumpdesign)
 
 Contributions and issue reports are welcome!
 
@@ -764,6 +771,10 @@ Sports Engineering 18, no. 4 (December 2015): 227–39.
 measuring and testing a constant equivalent fall height terrain park jump"
 Sports Engineering 20, no. 4 (December 2017): 283-92.
 [https://doi.org/10.1007/s12283-017-0253-y](https://doi.org/10.1007/s12283-017-0253-y)
+
+[3] Moore, J. K. and Hubbard, M., (2018). skijumpdesign: A Ski Jump Design Tool
+for Specified Equivalent Fall Height. Journal of Open Source Software, 3(28),
+818, [https://doi.org/10.21105/joss.00818](https://doi.org/10.21105/joss.00818)
 
 """
 
