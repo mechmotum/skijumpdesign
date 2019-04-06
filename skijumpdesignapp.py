@@ -186,12 +186,14 @@ home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
 home_button_design = html.A('Ski Jump Design',
                             href='/design',
                             className='btn btn-primary btn-lg',
-                            style={'padding': '72px 72px'})
+                            style={'padding': '44px 44px',
+                                   'font-size': '36px'})
 
 home_button_analysis = html.A('Ski Jump Analysis',
                               href='/analysis',
                               className='btn btn-primary btn-lg',
-                              style={'padding': '72px 72px'})
+                              style={'padding': '44px 44px',
+                                     'font-size': '36px'})
 
 home_buttons = html.Div(
     [html.Div([home_button_design],
