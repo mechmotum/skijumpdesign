@@ -98,7 +98,7 @@ def serve_static(resource):
         return flask.send_from_directory(STATIC_PATH, resource)
 
 ###############################################################################
-# INDEX
+# INDEX LAYOUT
 ###############################################################################
 
 home_title = html.Div(
@@ -220,7 +220,7 @@ layout_index = html.Div([nav_menu, home_title,
                                   className='container')])
 
 ###############################################################################
-# DESIGN
+# DESIGN LAYOUT
 ###############################################################################
 
 approach_len_widget = html.Div([
@@ -524,7 +524,7 @@ layout_design = html.Div([nav_menu, row1,
                                    className='container')])
 
 ###############################################################################
-# ANALYSIS
+# ANALYSIS LAYOUT
 ###############################################################################
 
 upload_widget = html.Div([
@@ -863,7 +863,24 @@ def serve_layout():
 
 app.layout = serve_layout
 
-# Ski Jump Design Callbacks
+###############################################################################
+# INDEX FUNCTIONALITY
+###############################################################################
+
+
+@app.callback(Output('page-content', 'children'),
+              [Input('url', 'pathname')])
+def display_page(pathname):
+    if pathname == "/design":
+        return layout_design
+    elif pathname == "/analysis":
+        return layout_analysis
+    else:
+        return layout_index
+
+###############################################################################
+# DESIGN FUNCTIONALITY
+###############################################################################
 
 
 @app.callback(Output('slope-text', 'children'),
@@ -1133,20 +1150,9 @@ def update_download_link(json_data):
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
 
-# Index Callbacks
-
-
-@app.callback(Output('page-content', 'children'),
-              [Input('url', 'pathname')])
-def display_page(pathname):
-    if pathname == "/design":
-        return layout_design
-    elif pathname == "/analysis":
-        return layout_analysis
-    else:
-        return layout_index
-
-# Analysis Callbacks
+###############################################################################
+# ANALYSIS FUNCTIONALITY
+###############################################################################
 
 
 @app.callback(Output('filename-text-analysis', 'children'),
