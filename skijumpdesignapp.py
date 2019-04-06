@@ -50,6 +50,18 @@ STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+if 'ONHEROKU' in os.environ:
+    cmd_line_args = lambda x: None
+    cmd_line_args.profile = False
+else:
+    parser = argparse.ArgumentParser(description=TITLE)
+    parser.add_argument('-p', '--profile', action='store_true', default=False,
+                        help='Profile the main callback with pyinstrument.')
+    cmd_line_args = parser.parse_args()
+
+    if cmd_line_args.profile:
+        from pyinstrument import Profiler
+
 BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 
 # NOTE : Serve the file locally if it exists. Works for development and on
@@ -71,18 +83,6 @@ else:
     else:
         CUS_URL = URL_TEMP.format('v' + skijumpdesign.__version__)
 
-if 'ONHEROKU' in os.environ:
-    cmd_line_args = lambda x: None
-    cmd_line_args.profile = False
-else:
-    parser = argparse.ArgumentParser(description=TITLE)
-    parser.add_argument('-p', '--profile', action='store_true', default=False,
-                        help='Profile the main callback with pyinstrument.')
-    cmd_line_args = parser.parse_args()
-
-    if cmd_line_args.profile:
-        from pyinstrument import Profiler
-
 app = dash.Dash(__name__)
 app.css.append_css({'external_url': [BS_URL, CUS_URL]})
 app.title = TITLE
@@ -96,6 +96,132 @@ def serve_static(resource):
         return 'Invalid File Extension'
     else:
         return flask.send_from_directory(STATIC_PATH, resource)
+
+###############################################################################
+# INDEX
+###############################################################################
+
+home_title = html.Div(
+    [html.H1(TITLE,
+             style={'text-align': 'center',
+                    'padding-top': '20px',
+                    'color': 'white'}),
+     ],
+    className='page-header',
+    style={'height': 'auto',
+           'margin-top': '-20px',
+           'background': 'rgb(64, 71, 86)',
+           })
+
+markdown_text_home = """\
+# Explanation
+
+This web application provides two tools to aid in the design and analysis of
+ski jumps when one considers minimizing and controlling for the landing impact
+speeds as defined by the "equivalent fall height" [1].
+
+## Ski Jump Design
+
+This tool allows the design of a ski jump that limits landing impact (measured
+by a specified equivalent fall height[1]), for all takeoff speeds up to the
+design speed. The calculated landing surface shape ensures that the jumper
+always impacts the landing surface at the same perpendicular impact speed as if
+dropped vertically from the specified equivalent fall height onto a horizontal
+surface. This tool is described in [3].
+
+## Ski Jump Analysis
+
+Every jump landing surface shape has an associated equivalent fall height that
+characterizes the severity of impact at every possible landing point. This tool
+allows the calculation of the equivalent fall height given the shape of the
+landing surface and the jump takeoff angle, and thus allows the evaluation of
+arbitrary surfaces from the point of impact severity.
+
+# Colophon
+
+This website was designed by Jason K. Moore, Mont Hubbard, and Bryn Cloud based
+on theoretical and computational work detailed in [1]. A description of actual
+fabrication of such a jump is contained in [2].
+
+The software that powers the website is open source and information on it can
+be found here:
+
+- [Download from PyPi.org](https://pypi.org/project/skijumpdesign)
+- [Download from Anaconda.org](https://anaconda.org/conda-forge/skijumpdesign)
+- [JOSS Journal Paper](https://doi.org/10.21105/joss.00818)
+- Documentation: [skijumpdesign.readthedocs.io](http://skijumpdesign.readthedocs.io)
+- Issue reports: [gitlab.com/moorepants/skijumpdesign/issues](https://gitlab.com/moorepants/skijumpdesign/issues)
+- Source code repository: [gitlab.com/moorepants/skijumpdesign](http://gitlab.com/moorepants/skijumpdesign)
+
+Contributions and issue reports are welcome!
+
+# References
+
+[1] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A Design
+Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall Height."
+Sports Engineering 18, no. 4 (December 2015): 227–39.
+[https://doi.org/10.1007/s12283-015-0182-6](https://doi.org/10.1007/s12283-015-0182-6)
+
+[2] Petrone, N., Cognolato, M., McNeil, J.A., Hubbard, M. “Designing, building,
+measuring and testing a constant equivalent fall height terrain park jump"
+Sports Engineering 20, no. 4 (December 2017): 283-92.
+[https://doi.org/10.1007/s12283-017-0253-y](https://doi.org/10.1007/s12283-017-0253-y)
+
+[3] Moore, J. K. and Hubbard, M., (2018). skijumpdesign: A Ski Jump Design Tool
+for Specified Equivalent Fall Height. Journal of Open Source Software, 3(28),
+818, [https://doi.org/10.21105/joss.00818](https://doi.org/10.21105/joss.00818)
+
+"""
+
+home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
+                         className='row',
+                         style={'background-color': 'rgb(64,71,86, 0.9)',
+                                'color': 'white',
+                                'padding-right': '20px',
+                                'padding-left': '20px',
+                                'margin-top': '40px',
+                                'text-shadow': '1px 1px black',
+                                })
+
+home_button_design = html.A('Ski Jump Design',
+                            href='/design',
+                            className='btn btn-primary btn-lg',
+                            style={'padding': '72px 72px'})
+
+home_button_analysis = html.A('Ski Jump Analysis',
+                              href='/analysis',
+                              className='btn btn-primary btn-lg',
+                              style={'padding': '72px 72px'})
+
+home_buttons = html.Div(
+    [html.Div([home_button_design],
+              style={'display': 'inline-block', 'padding': '15px'}),
+     html.Div([home_button_analysis],
+              style={'display': 'inline-block', 'padding': '15px'}),
+     ],
+    className='row shaded',
+    style={'padding': '40px', 'display': 'flex', 'justify-content': 'center'})
+
+nav_menu = html.Div([
+    html.Ul([html.Li([dcc.Link('Home', href='/')], className='active'),
+             html.Li([dcc.Link('Ski Jump Design', href='/design')]),
+             html.Li([dcc.Link('Ski Jump Analysis', href='/analysis')]),
+             ], className='nav navbar-nav')
+     ],
+    className='navbar navbar-expand-sm navbar-static-top',
+    style={'background-color': 'rgb(64,71,86)'})
+
+ver_row = html.Div([html.P([html.Small(VERSION_STAMP)],
+                           style={'text-align': 'right'})],
+                   className='row')
+
+layout_index = html.Div([nav_menu, home_title,
+                         html.Div([ver_row, home_buttons, home_markdown],
+                                  className='container')])
+
+###############################################################################
+# DESIGN
+###############################################################################
 
 approach_len_widget = html.Div([
     html.H3('Maximum Approach Length: 40 [m]',
@@ -392,11 +518,14 @@ row7 = html.Div([dcc.Markdown(markdown_text)],
 
 row8 = html.Div(id='data-store', style={'display': 'none'})
 
-ver_row = html.Div([html.P([html.Small(VERSION_STAMP)],
-                           style={'text-align': 'right'})],
-                   className='row')
+layout_design = html.Div([nav_menu, row1,
+                          html.Div([ver_row, row2, row3, row4, row5, row6,
+                                    row7, row8],
+                                   className='container')])
 
-# analysis
+###############################################################################
+# ANALYSIS
+###############################################################################
 
 upload_widget = html.Div([
     dcc.Upload(
@@ -704,128 +833,6 @@ analysis_markdown_row = html.Div(
 
 analysis_data_row = html.Div(id='output-data-upload', style={'display': 'none'})
 
-# Home
-
-home_title = html.Div(
-    [html.H1(TITLE,
-             style={'text-align': 'center',
-                    'padding-top': '20px',
-                    'color': 'white'}),
-     ],
-    className='page-header',
-    style={'height': 'auto',
-           'margin-top': '-20px',
-           'background': 'rgb(64, 71, 86)',
-           })
-
-markdown_text_home = """\
-# Explanation
-
-This web application provides two tools to aid in the design and analysis of
-ski jumps when one considers minimizing and controlling for the landing impact
-speeds as defined by the "equivalent fall height" [1].
-
-## Ski Jump Design
-
-This tool allows the design of a ski jump that limits landing impact (measured
-by a specified equivalent fall height[1]), for all takeoff speeds up to the
-design speed. The calculated landing surface shape ensures that the jumper
-always impacts the landing surface at the same perpendicular impact speed as if
-dropped vertically from the specified equivalent fall height onto a horizontal
-surface. This tool is described in [3].
-
-## Ski Jump Analysis
-
-Every jump landing surface shape has an associated equivalent fall height that
-characterizes the severity of impact at every possible landing point. This tool
-allows the calculation of the equivalent fall height given the shape of the
-landing surface and the jump takeoff angle, and thus allows the evaluation of
-arbitrary surfaces from the point of impact severity.
-
-# Colophon
-
-This website was designed by Jason K. Moore, Mont Hubbard, and Bryn Cloud based
-on theoretical and computational work detailed in [1]. A description of actual
-fabrication of such a jump is contained in [2].
-
-The software that powers the website is open source and information on it can
-be found here:
-
-- [Download from PyPi.org](https://pypi.org/project/skijumpdesign)
-- [Download from Anaconda.org](https://anaconda.org/conda-forge/skijumpdesign)
-- [JOSS Journal Paper](https://doi.org/10.21105/joss.00818)
-- Documentation: [skijumpdesign.readthedocs.io](http://skijumpdesign.readthedocs.io)
-- Issue reports: [gitlab.com/moorepants/skijumpdesign/issues](https://gitlab.com/moorepants/skijumpdesign/issues)
-- Source code repository: [gitlab.com/moorepants/skijumpdesign](http://gitlab.com/moorepants/skijumpdesign)
-
-Contributions and issue reports are welcome!
-
-# References
-
-[1] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A Design
-Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall Height."
-Sports Engineering 18, no. 4 (December 2015): 227–39.
-[https://doi.org/10.1007/s12283-015-0182-6](https://doi.org/10.1007/s12283-015-0182-6)
-
-[2] Petrone, N., Cognolato, M., McNeil, J.A., Hubbard, M. “Designing, building,
-measuring and testing a constant equivalent fall height terrain park jump"
-Sports Engineering 20, no. 4 (December 2017): 283-92.
-[https://doi.org/10.1007/s12283-017-0253-y](https://doi.org/10.1007/s12283-017-0253-y)
-
-[3] Moore, J. K. and Hubbard, M., (2018). skijumpdesign: A Ski Jump Design Tool
-for Specified Equivalent Fall Height. Journal of Open Source Software, 3(28),
-818, [https://doi.org/10.21105/joss.00818](https://doi.org/10.21105/joss.00818)
-
-"""
-
-home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
-                         className='row',
-                         style={'background-color': 'rgb(64,71,86, 0.9)',
-                                'color': 'white',
-                                'padding-right': '20px',
-                                'padding-left': '20px',
-                                'margin-top': '40px',
-                                'text-shadow': '1px 1px black',
-                                })
-
-home_button_design = html.A('Ski Jump Design',
-                            href='/design',
-                            className='btn btn-primary btn-lg',
-                            style={'padding': '72px 72px'})
-
-home_button_analysis = html.A('Ski Jump Analysis',
-                              href='/analysis',
-                              className='btn btn-primary btn-lg',
-                              style={'padding': '72px 72px'})
-
-home_buttons = html.Div(
-    [html.Div([home_button_design],
-              style={'display': 'inline-block', 'padding': '15px'}),
-     html.Div([home_button_analysis],
-              style={'display': 'inline-block', 'padding': '15px'}),
-     ],
-    className='row shaded',
-    style={'padding': '40px', 'display': 'flex', 'justify-content': 'center'})
-
-nav_menu = html.Div([
-    html.Ul([html.Li([dcc.Link('Home', href='/')], className='active'),
-             html.Li([dcc.Link('Ski Jump Design', href='/design')]),
-             html.Li([dcc.Link('Ski Jump Analysis', href='/analysis')]),
-             ], className='nav navbar-nav')
-     ],
-    className='navbar navbar-expand-sm navbar-static-top',
-    style={'background-color': 'rgb(64,71,86)'})
-
-# Page Layouts
-
-layout_index = html.Div([nav_menu, home_title,
-                         html.Div([ver_row, home_buttons, home_markdown],
-                                  className='container')])
-
-layout_design = html.Div([nav_menu, row1,
-                          html.Div([ver_row, row2, row3, row4, row5, row6,
-                                    row7, row8],
-                                   className='container')])
 
 layout_analysis = html.Div([nav_menu, analysis_title_row,
                             html.Div([ver_row,
