@@ -1229,7 +1229,10 @@ def update_efh_graph(n_clicks, json_data, takeoff_angle, takeoff_point_x,
     x_vals = df.iloc[:, 0].values
     y_vals = df.iloc[:, 1].values
 
-    # NOTE : Don't calculate EHF for surfaces greater than 40 meters in length.
+    # TODO : Check that they at least have a data point every 0.5 meters.
+
+    # NOTE : Don't calculate EHF for surfaces greater than 40 meters in length
+    # from takeoff point.
     if x_vals[-1] > 40.0:
         idx = np.argmin(np.abs(x_vals - 40.0))
         error_text = 'Surface truncated to 40 meters in length.'
