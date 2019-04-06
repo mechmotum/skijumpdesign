@@ -5,20 +5,20 @@ import json
 import urllib
 import argparse
 from io import BytesIO, StringIO
-from xlrd import XLRDError
 from base64 import b64decode
 
 import numpy as np
-import pandas as pd
 from scipy.interpolate import interp1d
+import pandas as pd
+from xlrd import XLRDError
+import plotly.graph_objs as go
+from plotly.utils import PlotlyJSONEncoder
 import flask
 import dash
-import dash_table
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
-import plotly.graph_objs as go
-from plotly.utils import PlotlyJSONEncoder
+import dash_table
 
 import skijumpdesign
 from skijumpdesign.functions import make_jump
@@ -614,30 +614,30 @@ analysis_table_row = html.Div([
 markdown_text_analysis = """\
 # Explanation
 
-Every jump landing surface shape has an associated equivalent fall height 
-function h(x) that characterizes the severity of impact at every possible 
-landing point.  This tool allows the calculation of the function, once the 
-shape of the landing surface and the takeoff angle are specified, and thus 
+Every jump landing surface shape has an associated equivalent fall height
+function h(x) that characterizes the severity of impact at every possible
+landing point.  This tool allows the calculation of the function, once the
+shape of the landing surface and the takeoff angle are specified, and thus
 allows the evaluation of the surface from the point of impact severity.
 
 ## Inputs
 
-- **Upload**: An excel or csv file of the x-y coordinates, relative to the 
-  horizontal, of the measured jump in meters. The first row of the data 
-  file must be the column headers. The first column must be the distance 
-  values of the jump along the horizontal and the second column must be the 
+- **Upload**: An excel or csv file of the x-y coordinates, relative to the
+  horizontal, of the measured jump in meters. The first row of the data
+  file must be the column headers. The first column must be the distance
+  values of the jump along the horizontal and the second column must be the
   height values of the jump along the vertical.
 - **Takeoff Angle**: The upward angle, relative to horizontal, at the end of
   the takeoff ramp.
-- **Takeoff Point, Distance**: The distance, relative to the horizontal, of 
+- **Takeoff Point, Distance**: The distance, relative to the horizontal, of
   the takeoff point in meters.
-- **Takeoff Point, Height**: The height, relative to the vertical, of the 
+- **Takeoff Point, Height**: The height, relative to the vertical, of the
   the takeoff point in meters.
 
 ## Outputs
 
-*(all curves specified as x,y coordinates in a system with origin at the 
-takeoff point). All outputs are 2D curves. The complete jump profile 
+*(all curves specified as x,y coordinates in a system with origin at the
+takeoff point). All outputs are 2D curves. The complete jump profile
 consists of the surfaces input by the user.*
 
 ### Graph
@@ -647,12 +647,12 @@ consists of the surfaces input by the user.*
   can feel without serious injury according to (Prof Hubbard enter here).
 - **Recommended EFH**: This represents the 0.5 m recommended equivalent fall
   height recommended by (Prof Hubbard enter here).
-- **Calculated EFH**: This is the calculated equivalent fall height at 0.2 m 
-  intervals after the user specified takeoff point. 
+- **Calculated EFH**: This is the calculated equivalent fall height at 0.2 m
+  intervals after the user specified takeoff point.
 
 ### Table
 
-The table provides a look at the inputted csv or excel file that is used for 
+The table provides a look at the inputted csv or excel file that is used for
 efh calculations.
 
 ## Assumptions
@@ -677,13 +677,13 @@ parameters is provided here:
 
 # Instructions
 
-- Upload an excel or csv file of the x-y coordinates of the measured jump. The 
-  values must be in meters. The first row of the data file must have be the column 
-  headers. The first column must be the distance values of the jump along the 
-  horizontal  and the second column must be the height values of the jump along 
+- Upload an excel or csv file of the x-y coordinates of the measured jump. The
+  values must be in meters. The first row of the data file must have be the column
+  headers. The first column must be the distance values of the jump along the
+  horizontal  and the second column must be the height values of the jump along
   the vertical.
-- Set the takeoff angle of the ramp at the takeoff point. 
-- Set the coordinates of the takeoff point relative to the uploaded data file. 
+- Set the takeoff angle of the ramp at the takeoff point.
+- Set the coordinates of the takeoff point relative to the uploaded data file.
 - Inspect and view the graph of the resulting jump profile and the calculated
   equivalent fall height. The third button allows zoom.
 - Use the table to ensure the data file was uploaded properly.
@@ -719,7 +719,7 @@ home_title = html.Div([
 markdown_text_home = """\
 # Explanation
 
-### Ski Jump Design 
+### Ski Jump Design
 This tool allows the design of a ski jump that limits landing impact (measured
 by a specified equivalent fall height[1]), for all takeoff speeds up to the
 design speed. The calculated landing surface shape ensures that the jumper
@@ -728,10 +728,10 @@ dropped vertically from the specified equivalent fall height onto a horizontal
 surface.
 
 ### Ski Jump Analysis
-Every jump landing surface shape has an associated equivalent fall height 
-function h(x) that characterizes the severity of impact at every possible 
-landing point.  This tool allows the calculation of the function, once the 
-shape of the landing surface and the takeoff angle are specified, and thus 
+Every jump landing surface shape has an associated equivalent fall height
+function h(x) that characterizes the severity of impact at every possible
+landing point.  This tool allows the calculation of the function, once the
+shape of the landing surface and the takeoff angle are specified, and thus
 allows the evaluation of the surface from the point of impact severity.
 
 # Colophon
