@@ -45,6 +45,8 @@ VERSION_STAMP = 'skijumpdesign {}'.format(skijumpdesign.__version__)
 
 STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 
+# NOTE : Turn the logger on to INFO level by default so it is recorded in any
+# server logs.
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -470,6 +472,7 @@ analysis_takeoff_y_widget = html.Div([
     ),
 ])
 
+
 def populated_efh_graph(takeoff_point, surface, distance, efh):
 
     recommend_efh = 0.5
@@ -509,12 +512,14 @@ def populated_efh_graph(takeoff_point, surface, distance, efh):
     ],
         'layout': layout_efh}
 
+
 def blank_efh_graph(msg):
     nan_line = [np.nan]
     if layout['annotations']:
         del layout['annotations']
     data = {'data': [
-                     {'x': [0.0, 0.0], 'y': [0.0, 0.0], 'name': 'Calculated EFH',
+                     {'x': [0.0, 0.0], 'y': [0.0, 0.0],
+                      'name': 'Calculated EFH',
                       'text': ['Invalid Parameters<br>Error: {}'.format(msg)],
                       'mode': 'markers+text',
                       'textfont': {'size': 24},
@@ -552,15 +557,16 @@ def parse_contents(contents):
 
     return json.dumps(dic, cls=PlotlyJSONEncoder)
 
-efh_graph_widget = html.Div([dcc.Graph(id='efh-graph',
-                                       style={'width': '100%',
-                                              'height': '0',
-                                              # NOTE : If less that 75% graphs may
-                                              # not have any height on a phone.
-                                              'padding-bottom': '75%'
-                                              },
-                                       figure=go.Figure(layout=layout_efh))],
-                            className='twelve columns')
+efh_graph_widget = html.Div(
+    [dcc.Graph(id='efh-graph',
+               style={'width': '100%',
+                      'height': '0',
+                      # NOTE : If less that 75% graphs may
+                      # not have any height on a phone.
+                      'padding-bottom': '75%'
+                      },
+               figure=go.Figure(layout=layout_efh))],
+    className='twelve columns')
 
 table_widget = html.Div(id='datatable-upload')
 
@@ -591,9 +597,7 @@ analysis_title_row = html.Div([
         'background': 'rgb(64, 71, 86)',
     })
 
-analysis_upload_row = html.Div([
-    upload_widget
-], className='row')
+analysis_upload_row = html.Div([upload_widget], className='row')
 
 analysis_takeoff_row = html.Div([
     html.Div([analysis_filename_widget], className='col-md-3'),
@@ -602,9 +606,7 @@ analysis_takeoff_row = html.Div([
     html.Div([analysis_takeoff_y_widget], className='col-md-3'),
 ], className='row shaded')
 
-analysis_graph_row = html.Div([
-    efh_graph_widget
-], className='row')
+analysis_graph_row = html.Div([efh_graph_widget], className='row')
 
 analysis_table_row = html.Div([
     html.Div([table_widget], className='col-md-9'),
@@ -678,10 +680,10 @@ parameters is provided here:
 # Instructions
 
 - Upload an excel or csv file of the x-y coordinates of the measured jump. The
-  values must be in meters. The first row of the data file must have be the column
-  headers. The first column must be the distance values of the jump along the
-  horizontal  and the second column must be the height values of the jump along
-  the vertical.
+  values must be in meters. The first row of the data file must have be the
+  column headers. The first column must be the distance values of the jump
+  along the horizontal  and the second column must be the height values of the
+  jump along the vertical.
 - Set the takeoff angle of the ramp at the takeoff point.
 - Set the coordinates of the takeoff point relative to the uploaded data file.
 - Inspect and view the graph of the resulting jump profile and the calculated
@@ -690,31 +692,31 @@ parameters is provided here:
 
 """
 
-analysis_markdown_row = html.Div([dcc.Markdown(markdown_text_analysis)],
-                                 className='row',
-                                 style={'background-color': 'rgb(64,71,86, 0.9)',
-                                        'color': 'white', 'padding-right': '20px',
-                                        'padding-left': '20px',
-                                        'margin-top': '40px',
-                                        'text-shadow': '1px 1px black',
-                                        })
+analysis_markdown_row = html.Div(
+    [dcc.Markdown(markdown_text_analysis)],
+    className='row',
+    style={'background-color': 'rgb(64,71,86, 0.9)',
+           'color': 'white', 'padding-right': '20px',
+           'padding-left': '20px',
+           'margin-top': '40px',
+           'text-shadow': '1px 1px black',
+           })
 
 analysis_data_row = html.Div(id='output-data-upload', style={'display': 'none'})
 
 # Home
 
-home_title = html.Div([
-    html.H1("Ski Jump Tool",
-            style={'text-align': 'center',
-                   'padding-top': '20px',
-                   'color': 'white'}),
-],
+home_title = html.Div(
+    [html.H1("Ski Jump Design and Analysis Tool",
+             style={'text-align': 'center',
+                    'padding-top': '20px',
+                    'color': 'white'}),
+     ],
     className='page-header',
-    style={
-        'height': 'auto',
-        'margin-top': '-20px',
-        'background': 'rgb(64, 71, 86)',
-    })
+    style={'height': 'auto',
+           'margin-top': '-20px',
+           'background': 'rgb(64, 71, 86)',
+           })
 
 markdown_text_home = """\
 # Explanation
@@ -766,7 +768,6 @@ Sports Engineering 20, no. 4 (December 2017): 283-92.
 """
 
 home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
-
                          className='row',
                          style={'background-color': 'rgb(64,71,86, 0.9)',
                                 'color': 'white',
@@ -778,38 +779,37 @@ home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
 
 home_button_design = html.A('Ski Jump Design',
                             href='/design',
-                            className='btn btn-primary btn-lg', style={'padding': '72px 72px'})
+                            className='btn btn-primary btn-lg',
+                            style={'padding': '72px 72px'})
 
 home_button_analysis = html.A('Ski Jump Analysis',
                               href='/analysis',
-                              className='btn btn-primary btn-lg', style={'padding': '72px 72px'})
+                              className='btn btn-primary btn-lg',
+                              style={'padding': '72px 72px'})
 
-home_buttons = html.Div([
-    html.Div([home_button_design], style={'display': 'inline-block', 'padding': '15px'}),
-    html.Div([home_button_analysis], style={'display': 'inline-block', 'padding': '15px'}),
-], className='row shaded', style={'padding': '40px', 'display': 'flex', 'justify-content': 'center'})
+home_buttons = html.Div(
+    [html.Div([home_button_design],
+              style={'display': 'inline-block', 'padding': '15px'}),
+     html.Div([home_button_analysis],
+              style={'display': 'inline-block', 'padding': '15px'}),
+     ],
+    className='row shaded',
+    style={'padding': '40px', 'display': 'flex', 'justify-content': 'center'})
 
 nav_menu = html.Div([
-    html.Ul([
-            html.Li([
-                    dcc.Link('Home', href='/')
-                    ], className='active'),
-            html.Li([
-                    dcc.Link('Ski Jump Design', href='/design')
-                    ]),
-            html.Li([
-                    dcc.Link('Ski Jump Analysis', href='/analysis')
-                    ]),
-            ], className='nav navbar-nav')
-], className='navbar navbar-expand-sm navbar-static-top', style={'background-color': 'rgb(64,71,86)'})
+    html.Ul([html.Li([dcc.Link('Home', href='/')], className='active'),
+             html.Li([dcc.Link('Ski Jump Design', href='/design')]),
+             html.Li([dcc.Link('Ski Jump Analysis', href='/analysis')]),
+             ], className='nav navbar-nav')
+     ],
+    className='navbar navbar-expand-sm navbar-static-top',
+    style={'background-color': 'rgb(64,71,86)'})
 
 # Page Layouts
 
 layout_index = html.Div([nav_menu, home_title,
-                         html.Div([
-                             ver_row, home_buttons, home_markdown
-                         ], className='container')
-                        ])
+                         html.Div([ver_row, home_buttons, home_markdown],
+                                  className='container')])
 
 layout_design = html.Div([nav_menu, row1,
                           html.Div([ver_row, row2, row3, row4, row5, row6,
@@ -832,6 +832,7 @@ url_bar_and_content_div = html.Div([
     html.Div(id='page-content')
 ])
 
+
 def serve_layout():
     if flask.has_request_context():
         return url_bar_and_content_div
@@ -845,6 +846,7 @@ def serve_layout():
 app.layout = serve_layout
 
 # Ski Jump Design Callbacks
+
 
 @app.callback(Output('slope-text', 'children'),
               [Input('slope_angle', 'value')])
@@ -1115,6 +1117,7 @@ def update_download_link(json_data):
 
 # Index Callbacks
 
+
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
@@ -1127,10 +1130,12 @@ def display_page(pathname):
 
 # Analysis Callbacks
 
+
 @app.callback(Output('filename-text-analysis', 'children'),
               [Input('upload-data', 'filename')])
 def update_filename(filename):
     return 'Filename: {}'.format(filename)
+
 
 @app.callback(Output('file-error', 'children'),
               [Input('output-data-upload', 'children')])
@@ -1146,11 +1151,13 @@ def update_file_error(json_data):
     else:
         return ''
 
+
 @app.callback(Output('takeoff-text-analysis', 'children'),
               [Input('takeoff_angle_analysis', 'value')])
 def update_takeoff_angle(takeoff_angle):
     takeoff_angle = float(takeoff_angle)
     return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle), ''
+
 
 @app.callback(Output('takeoff-text-distance', 'children'),
               [Input('takeoff_pos_dist', 'value')])
@@ -1158,11 +1165,13 @@ def update_takeoff_xpos(takeoff_pos_x):
     takeoff_pos_x = float(takeoff_pos_x)
     return 'Takeoff Point, Distance: {:0.1f} [m]'.format(takeoff_pos_x), ''
 
+
 @app.callback(Output('takeoff-text-height', 'children'),
               [Input('takeoff_pos_height', 'value')])
 def update_takeoff_ypos(takeoff_pos_y):
     takeoff_y = float(takeoff_pos_y)
     return 'Takeoff Point, Height: {:0.1f} [m]'.format(takeoff_y)
+
 
 @app.callback(Output('output-data-upload', 'children'),
               [Input('upload-data', 'contents')])
@@ -1182,10 +1191,11 @@ states_analysis = [
 
 @app.callback([Output('efh-graph', 'figure'),
                Output('compute-error', 'children'),
-               Output('download-efh-button', 'href'),],
+               Output('download-efh-button', 'href')],
               [Input('compute-button', 'n_clicks')],
               states_analysis)
-def update_efh_graph(n_clicks, json_data, takeoff_angle, takeoff_point_x, takeoff_point_y):
+def update_efh_graph(n_clicks, json_data, takeoff_angle, takeoff_point_x,
+                     takeoff_point_y):
     dic = json.loads(json_data)
     df = pd.read_json(dic, orient='index')
 
@@ -1198,8 +1208,10 @@ def update_efh_graph(n_clicks, json_data, takeoff_angle, takeoff_point_x, takeof
     takeoff_point = (takeoff_point_x, takeoff_point_y)
 
     try:
-        distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point, skier)
-        update_graph = populated_efh_graph(takeoff_point, surface, distance, efh)
+        distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point,
+                                              skier)
+        update_graph = populated_efh_graph(takeoff_point, surface, distance,
+                                           efh)
         data = np.vstack((distance, efh)).T
         error_text = ''
     except Exception as e:
@@ -1219,7 +1231,8 @@ def update_efh_graph(n_clicks, json_data, takeoff_angle, takeoff_point_x, takeof
 
 
 @app.callback(Output('datatable-upload', 'children'),
-              [Input('upload-data', 'contents'), Input('output-data-upload', 'children')])
+              [Input('upload-data', 'contents'),
+               Input('output-data-upload', 'children')])
 def update_table(contents, json_data):
     if contents is None:
         children_none = []
