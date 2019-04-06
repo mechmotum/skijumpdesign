@@ -10,17 +10,12 @@ from scipy.integrate import solve_ivp, trapz, quad
 from .utils import InvalidJumpError
 from .utils import GRAV_ACC, EPS
 from .utils import compute_dist_from_flat, vel2speed
-from .skiers import Skier
 
 
 if 'ONHEROKU' in os.environ:
     plt = None
 else:
     import matplotlib.pyplot as plt
-
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-logger.setLevel(logging.INFO)
 
 
 class Surface(object):
