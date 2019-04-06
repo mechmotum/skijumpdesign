@@ -557,7 +557,8 @@ layout_efh = go.Layout(autosize=True,
                        xaxis={'title': 'Distance [m]', 'zeroline': False},
                        yaxis={'scaleanchor': 'x',  # equal aspect ratio
                               'scaleratio': 1.0,  # equal aspect ratio
-                              'title': 'EFH [m]', 'zeroline': False},
+                              'title': 'Equivalent Fall Height [m]',
+                              'zeroline': False},
                        legend={'orientation': "h",
                                'y': 1})
 
