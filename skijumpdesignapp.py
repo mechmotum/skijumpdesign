@@ -838,10 +838,10 @@ analysis_data_row = html.Div(id='output-data-upload', style={'display': 'none'})
 
 layout_analysis = html.Div([nav_menu, analysis_title_row,
                             html.Div([ver_row,
+                                      analysis_graph_row,
                                       analysis_upload_row,
                                       analysis_takeoff_row,
                                       analysis_table_row,
-                                      analysis_graph_row,
                                       analysis_markdown_row,
                                       analysis_data_row
                                       ], className='container')
@@ -1222,24 +1222,35 @@ states_analysis = [
               states_analysis)
 def update_efh_graph(n_clicks, json_data, takeoff_angle, takeoff_point_x,
                      takeoff_point_y):
+    takeoff_angle = np.deg2rad(float(takeoff_angle))
+    takeoff_point = (float(takeoff_point_x), float(takeoff_point_y))
+
     dic = json.loads(json_data)
     df = pd.read_json(dic, orient='index')
 
-    surface = Surface(df.iloc[:, 0].values, df.iloc[:, 1].values)
+    x_vals = df.iloc[:, 0].values
+    y_vals = df.iloc[:, 1].values
+
+    # TODO : Check that they at least have a data point every 0.5 meters.
+
+    # NOTE : Don't calculate EHF for surfaces greater than 40 meters in length
+    # from takeoff point.
+    if x_vals[-1] > 40.0:
+        idx = np.argmin(np.abs(x_vals - 40.0))
+        error_text = 'Surface truncated to 40 meters in length.'
+    else:
+        idx = -1
+        error_text = ''
+
+    surface = Surface(x_vals[:idx], y_vals[:idx])
     skier = Skier()
-    takeoff_angle = float(takeoff_angle)
-    takeoff_angle = np.deg2rad(takeoff_angle)
-    takeoff_point_x = float(takeoff_point_x)
-    takeoff_point_y = float(takeoff_point_y)
-    takeoff_point = (takeoff_point_x, takeoff_point_y)
 
     try:
         distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point,
-                                              skier)
+                                              skier, increment=0.5)
         update_graph = populated_efh_graph(takeoff_point, surface, distance,
                                            efh)
         data = np.vstack((distance, efh)).T
-        error_text = ''
     except Exception as e:
         update_graph = blank_efh_graph(e)
         data = np.vstack((np.nan, np.nan)).T
