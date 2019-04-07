@@ -131,11 +131,12 @@ surface. This tool is described in [3].
 
 ## Ski Jump Analysis
 
-Every jump landing surface shape has an associated equivalent fall height that
-characterizes the severity of impact at every possible landing point. This tool
-allows the calculation of the equivalent fall height given the shape of the
-landing surface and the jump takeoff angle, and thus allows the evaluation of
-arbitrary surfaces from the point of impact severity.
+Every jump landing surface shape has an associated equivalent fall height 
+function h(x) that characterizes the severity of impact at every possible 
+landing point with horizontal coordinate x.  This tool allows calculation 
+of this function, once the shape of the landing surface and the takeoff 
+angle are specified, and thus allows the evaluation of the surface from 
+the point of view of impact severity.
 
 # Colophon
 
@@ -563,7 +564,8 @@ layout_efh = go.Layout(autosize=True,
                                'y': 1})
 
 analysis_filename_widget = html.Div([
-    html.H3(id='filename-text-analysis'),
+    html.H3('Filename:'),
+    html.H4(id='filename-text-analysis'),
     html.H5(id='file-error',
             style={'color': 'red'})
 ])
@@ -574,30 +576,6 @@ analysis_takeoff_angle_widget = html.Div([
             style={'color': '#404756'}),
     dcc.Input(
         id='takeoff_angle_analysis',
-        placeholder='0',
-        type='number',
-        value='0'
-    ),
-])
-
-analysis_takeoff_x_widget = html.Div([
-    html.H3('Takeoff Point, Distance: [m]',
-            id='takeoff-text-distance',
-            style={'color': '#404756'}),
-    dcc.Input(
-        id='takeoff_pos_dist',
-        placeholder='0',
-        type='number',
-        value='0'
-    ),
-])
-
-analysis_takeoff_y_widget = html.Div([
-    html.H3('Takeoff Point, Height: [m]',
-            id='takeoff-text-height',
-            style={'color': '#404756'}),
-    dcc.Input(
-        id='takeoff_pos_height',
         placeholder='0',
         type='number',
         value='0'
@@ -635,11 +613,11 @@ def populated_efh_graph(takeoff_point, surface, distance, efh):
          },
         {'x': distance,
          'y': distance_standards*recommend_efh,
-         'name': 'Recommended EFH',
+         'name': 'Possible Soft Landing EFH',
          'line': {'color': '#404756', 'dash': 'dash'}},
         {'x': distance,
          'y': distance_standards * maximum_efh,
-         'name': 'Maximum EFH',
+         'name': 'Knee Collapse EFH',
          'line': {'color': '#404756', 'dash': 'dot'}},
     ],
         'layout': layout_efh}
@@ -703,18 +681,22 @@ efh_graph_widget = html.Div(
 table_widget = html.Div(id='datatable-upload')
 
 compute_button = html.Div([
-    html.Button('Compute',
+    html.Div([html.Button('Compute',
                 id='compute-button',
                 className='btn btn-primary',),
-    html.H5(id='compute-error',
-            style={'color': 'red'}),
-    html.A('Download EFH',
-           id='download-efh-button',
-           href='',
-           className='btn btn-primary',
-           target='_blank',
-           download='efh_profile.csv'),
+              html.H5(id='compute-error',
+                      style={'color': 'red'}),
+              ], style={'display': 'inline-block', 'padding': '20px'}),
 ])
+
+download_efh_button = html.Div([
+    html.Div([html.A('Download EFH',
+              id='download-efh-button',
+              href='',
+              className='btn btn-primary',
+              target='_blank',
+              download='efh_profile.csv')],
+             style={'display': 'inline-block', 'padding': '10px'})])
 
 analysis_title_row = html.Div([
     html.H1("Ski Jump Analysis",
@@ -729,65 +711,59 @@ analysis_title_row = html.Div([
         'background': 'rgb(64, 71, 86)',
     })
 
-analysis_upload_row = html.Div([upload_widget], className='row')
-
-analysis_takeoff_row = html.Div([
-    html.Div([analysis_filename_widget], className='col-md-3'),
-    html.Div([analysis_takeoff_angle_widget], className='col-md-3'),
-    html.Div([analysis_takeoff_x_widget], className='col-md-3'),
-    html.Div([analysis_takeoff_y_widget], className='col-md-3'),
+analysis_input_row = html.Div([
+    html.Div([upload_widget, analysis_filename_widget, table_widget],
+             className='col-md-6'),
+    html.Div([], className='col-md-2'),
+    html.Div([analysis_takeoff_angle_widget, compute_button, download_efh_button],
+             className = 'col-md-4'),
 ], className='row shaded')
 
 analysis_graph_row = html.Div([efh_graph_widget], className='row')
 
-analysis_table_row = html.Div([
-    html.Div([table_widget], className='col-md-9'),
-    html.Div([compute_button], className='col-md-3')
-], className='row shaded')
-
 markdown_text_analysis = """\
 # Explanation
 
-Every jump landing surface shape has an associated equivalent fall height
-function h(x) that characterizes the severity of impact at every possible
-landing point.  This tool allows the calculation of the function, once the
-shape of the landing surface and the takeoff angle are specified, and thus
-allows the evaluation of the surface from the point of impact severity.
+Every jump landing surface shape has an associated equivalent fall height 
+function h(x) that characterizes the severity of impact at every possible 
+landing point with horizontal coordinate x.  This tool allows calculation 
+of this function, once the shape of the landing surface and the takeoff 
+angle are specified, and thus allows the evaluation of the surface from 
+the point of view of impact severity.
 
 ## Inputs
 
-- **Upload**: An excel or csv file of the x-y coordinates, relative to the
-  horizontal, of the measured jump in meters. The first row of the data
-  file must be the column headers. The first column must be the distance
-  values of the jump along the horizontal and the second column must be the
-  height values of the jump along the vertical.
+- **Upload**: An Excel or csv file of the xy coordinates of the landing surface
+  shape. The first row of the data file must be the column headers. The 
+  first column must be the x coordinates of the jump along the horizontal 
+  in meters. The second column must be the y coordinates of the jump along 
+  the vertical in meters. It is assumed that the origin of the coordinate 
+  system in which the jump shape is expressed is located at the takeoff point.
 - **Takeoff Angle**: The upward angle, relative to horizontal, at the end of
   the takeoff ramp.
-- **Takeoff Point, Distance**: The distance, relative to the horizontal, of
-  the takeoff point in meters.
-- **Takeoff Point, Height**: The height, relative to the vertical, of the
-  the takeoff point in meters.
+  
+### Table
 
-## Outputs
-
-*(all curves specified as x,y coordinates in a system with origin at the
-takeoff point). All outputs are 2D curves. The complete jump profile
-consists of the surfaces input by the user.*
+The table allows inspection of the contents of the inputted csv or Excel file defining the
+landing surface shape.
 
 ### Graph
 
-- **Jump Profile**: The jump profile displays the data uploaded by the user.
-- **Maximum EFH**: This represents the maximum equivalent fall height a skier
-  can feel without serious injury according to (Prof Hubbard enter here).
-- **Recommended EFH**: This represents the 0.5 m recommended equivalent fall
-  height recommended by (Prof Hubbard enter here).
-- **Calculated EFH**: This is the calculated equivalent fall height at 0.2 m
-  intervals after the user specified takeoff point.
+- **Jump Profile**: The jump profile displays the landing surface shape uploaded 
+  by the user.
+- **Knee Collapse EFH**: This is the value of EFH (1.5 m) above which even elite ski 
+  jumpers are unable to prevent knee collapse. See Ref. [38](Minetti, et al., 2010)
+  contained in Ref. [1] on the Home page.”
+- **Possible Soft Landing EFH**: This represents the 0.5 m recommended equivalent fall
+  height for a possible soft landing EFH.
+- **Calculated EFH**: This is the calculated equivalent fall height at 0.2 m 
+  horizontal intervals along the landing surface.
 
-### Table
+## Outputs
 
-The table provides a look at the inputted csv or excel file that is used for
-efh calculations.
+The output is a table of calculated EFH as a function of the horizontal 
+coordinate x of the landing point. This is plotted on the graph and can 
+be downloaded as a file named “efh_profile.csv” using the “Download EFH” button.
 
 ## Assumptions
 
@@ -811,16 +787,13 @@ parameters is provided here:
 
 # Instructions
 
-- Upload an excel or csv file of the x-y coordinates of the measured jump. The
-  values must be in meters. The first row of the data file must have be the
-  column headers. The first column must be the distance values of the jump
-  along the horizontal  and the second column must be the height values of the
-  jump along the vertical.
-- Set the takeoff angle of the ramp at the takeoff point.
-- Set the coordinates of the takeoff point relative to the uploaded data file.
+- Upload an Excel or csv file containing the xy coordinates of the measured 
+  or proposed jump landing surface. The units of the surface coordinates must 
+  be meters.
+- Use the table to ensure the data file was uploaded properly.
+- Set the angle of the takeoff ramp at the takeoff point.
 - Inspect and view the graph of the resulting jump profile and the calculated
   equivalent fall height. The third button allows zoom.
-- Use the table to ensure the data file was uploaded properly.
 
 """
 
@@ -840,9 +813,7 @@ analysis_data_row = html.Div(id='output-data-upload', style={'display': 'none'})
 layout_analysis = html.Div([nav_menu, analysis_title_row,
                             html.Div([ver_row,
                                       analysis_graph_row,
-                                      analysis_upload_row,
-                                      analysis_takeoff_row,
-                                      analysis_table_row,
+                                      analysis_input_row,
                                       analysis_markdown_row,
                                       analysis_data_row
                                       ], className='container')
@@ -1161,7 +1132,7 @@ def update_download_link(json_data):
 @app.callback(Output('filename-text-analysis', 'children'),
               [Input('upload-data', 'filename')])
 def update_filename(filename):
-    return 'Filename: {}'.format(filename)
+    return '{}'.format(filename)
 
 
 @app.callback(Output('file-error', 'children'),
@@ -1186,20 +1157,6 @@ def update_takeoff_angle(takeoff_angle):
     return 'Takeoff Angle: {:0.1f} [deg]'.format(takeoff_angle), ''
 
 
-@app.callback(Output('takeoff-text-distance', 'children'),
-              [Input('takeoff_pos_dist', 'value')])
-def update_takeoff_xpos(takeoff_pos_x):
-    takeoff_pos_x = float(takeoff_pos_x)
-    return 'Takeoff Point, Distance: {:0.1f} [m]'.format(takeoff_pos_x), ''
-
-
-@app.callback(Output('takeoff-text-height', 'children'),
-              [Input('takeoff_pos_height', 'value')])
-def update_takeoff_ypos(takeoff_pos_y):
-    takeoff_y = float(takeoff_pos_y)
-    return 'Takeoff Point, Height: {:0.1f} [m]'.format(takeoff_y)
-
-
 @app.callback(Output('output-data-upload', 'children'),
               [Input('upload-data', 'contents')])
 def update_output(contents):
@@ -1210,9 +1167,7 @@ def update_output(contents):
 
 states_analysis = [
     State('output-data-upload', 'children'),
-    State('takeoff_angle_analysis', 'value'),
-    State('takeoff_pos_dist', 'value'),
-    State('takeoff_pos_height', 'value')
+    State('takeoff_angle_analysis', 'value')
 ]
 
 
@@ -1221,11 +1176,8 @@ states_analysis = [
                Output('download-efh-button', 'href')],
               [Input('compute-button', 'n_clicks')],
               states_analysis)
-def update_efh_graph(n_clicks, json_data, takeoff_angle, takeoff_point_x,
-                     takeoff_point_y):
-    takeoff_angle = np.deg2rad(float(takeoff_angle))
-    takeoff_point = (float(takeoff_point_x), float(takeoff_point_y))
 
+def update_efh_graph(n_clicks, json_data, takeoff_angle):
     dic = json.loads(json_data)
     df = pd.read_json(dic, orient='index')
 
@@ -1245,6 +1197,9 @@ def update_efh_graph(n_clicks, json_data, takeoff_angle, takeoff_point_x,
 
     surface = Surface(x_vals[:idx], y_vals[:idx])
     skier = Skier()
+    takeoff_angle = float(takeoff_angle)
+    takeoff_angle = np.deg2rad(takeoff_angle)
+    takeoff_point = (0, 0)
 
     try:
         distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point,
