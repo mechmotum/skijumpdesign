@@ -131,11 +131,11 @@ surface. This tool is described in [3].
 
 ## Ski Jump Analysis
 
-Every jump landing surface shape has an associated equivalent fall height 
-function h(x) that characterizes the severity of impact at every possible 
-landing point with horizontal coordinate x.  This tool allows calculation 
-of this function, once the shape of the landing surface and the takeoff 
-angle are specified, and thus allows the evaluation of the surface from 
+Every jump landing surface shape has an associated equivalent fall height
+function h(x) that characterizes the severity of impact at every possible
+landing point with horizontal coordinate x.  This tool allows calculation
+of this function, once the shape of the landing surface and the takeoff
+angle are specified, and thus allows the evaluation of the surface from
 the point of view of impact severity.
 
 # Colophon
@@ -202,7 +202,7 @@ home_buttons = html.Div(
      html.Div([home_button_analysis],
               style={'display': 'inline-block', 'padding': '15px'}),
      ],
-    className='row shaded',
+    className='row',
     style={'padding': '40px', 'display': 'flex', 'justify-content': 'center'})
 
 nav_menu = html.Div([
@@ -724,24 +724,24 @@ analysis_graph_row = html.Div([efh_graph_widget], className='row')
 markdown_text_analysis = """\
 # Explanation
 
-Every jump landing surface shape has an associated equivalent fall height 
-function h(x) that characterizes the severity of impact at every possible 
-landing point with horizontal coordinate x.  This tool allows calculation 
-of this function, once the shape of the landing surface and the takeoff 
-angle are specified, and thus allows the evaluation of the surface from 
+Every jump landing surface shape has an associated equivalent fall height
+function h(x) that characterizes the severity of impact at every possible
+landing point with horizontal coordinate x.  This tool allows calculation
+of this function, once the shape of the landing surface and the takeoff
+angle are specified, and thus allows the evaluation of the surface from
 the point of view of impact severity.
 
 ## Inputs
 
 - **Upload**: An Excel or csv file of the xy coordinates of the landing surface
-  shape. The first row of the data file must be the column headers. The 
-  first column must be the x coordinates of the jump along the horizontal 
-  in meters. The second column must be the y coordinates of the jump along 
-  the vertical in meters. It is assumed that the origin of the coordinate 
+  shape. The first row of the data file must be the column headers. The
+  first column must be the x coordinates of the jump along the horizontal
+  in meters. The second column must be the y coordinates of the jump along
+  the vertical in meters. It is assumed that the origin of the coordinate
   system in which the jump shape is expressed is located at the takeoff point.
 - **Takeoff Angle**: The upward angle, relative to horizontal, at the end of
   the takeoff ramp.
-  
+
 ### Table
 
 The table allows inspection of the contents of the inputted csv or Excel file defining the
@@ -749,20 +749,20 @@ landing surface shape.
 
 ### Graph
 
-- **Jump Profile**: The jump profile displays the landing surface shape uploaded 
+- **Jump Profile**: The jump profile displays the landing surface shape uploaded
   by the user.
-- **Knee Collapse EFH**: This is the value of EFH (1.5 m) above which even elite ski 
+- **Knee Collapse EFH**: This is the value of EFH (1.5 m) above which even elite ski
   jumpers are unable to prevent knee collapse. See Ref. [38](Minetti, et al., 2010)
   contained in Ref. [1] on the Home page.”
 - **Possible Soft Landing EFH**: This represents the 0.5 m recommended equivalent fall
   height for a possible soft landing EFH.
-- **Calculated EFH**: This is the calculated equivalent fall height at 0.2 m 
+- **Calculated EFH**: This is the calculated equivalent fall height at 0.2 m
   horizontal intervals along the landing surface.
 
 ## Outputs
 
-The output is a table of calculated EFH as a function of the horizontal 
-coordinate x of the landing point. This is plotted on the graph and can 
+The output is a table of calculated EFH as a function of the horizontal
+coordinate x of the landing point. This is plotted on the graph and can
 be downloaded as a file named “efh_profile.csv” using the “Download EFH” button.
 
 ## Assumptions
@@ -787,8 +787,8 @@ parameters is provided here:
 
 # Instructions
 
-- Upload an Excel or csv file containing the xy coordinates of the measured 
-  or proposed jump landing surface. The units of the surface coordinates must 
+- Upload an Excel or csv file containing the xy coordinates of the measured
+  or proposed jump landing surface. The units of the surface coordinates must
   be meters.
 - Use the table to ensure the data file was uploaded properly.
 - Set the angle of the takeoff ramp at the takeoff point.
