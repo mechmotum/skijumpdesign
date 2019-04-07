@@ -683,14 +683,17 @@ compute_button = html.Div([
                 className='btn btn-primary',),
               html.H5(id='compute-error',
                       style={'color': 'red'}),
-              ]),
+              ], style={'display': 'inline-block', 'padding': '20px'}),
+])
+
+download_efh_button = html.Div([
     html.Div([html.A('Download EFH',
               id='download-efh-button',
               href='',
               className='btn btn-primary',
               target='_blank',
-              download='efh_profile.csv'),])
-])
+              download='efh_profile.csv')],
+             style={'display': 'inline-block', 'padding': '10px'})])
 
 analysis_title_row = html.Div([
     html.H1("Ski Jump Analysis",
@@ -705,16 +708,12 @@ analysis_title_row = html.Div([
         'background': 'rgb(64, 71, 86)',
     })
 
-analysis_upload_row = html.Div([upload_widget], className='row')
-
-analysis_takeoff_row = html.Div([
-    html.Div([analysis_filename_widget],
-             className='col-md-2'),
-    html.Div([table_widget],
-             className='col-md-4'),
-    html.Div([analysis_takeoff_angle_widget],
-             className = 'col-md-3'),
-    html.Div([compute_button], className='col-md-2')
+analysis_input_row = html.Div([
+    html.Div([upload_widget, analysis_filename_widget, table_widget],
+             className='col-md-6'),
+    html.Div([], className='col-md-2'),
+    html.Div([analysis_takeoff_angle_widget, compute_button, download_efh_button],
+             className = 'col-md-4'),
 ], className='row shaded')
 
 analysis_graph_row = html.Div([efh_graph_widget], className='row')
@@ -811,8 +810,7 @@ analysis_data_row = html.Div(id='output-data-upload', style={'display': 'none'})
 layout_analysis = html.Div([nav_menu, analysis_title_row,
                             html.Div([ver_row,
                                       analysis_graph_row,
-                                      analysis_upload_row,
-                                      analysis_takeoff_row,
+                                      analysis_input_row,
                                       analysis_markdown_row,
                                       analysis_data_row
                                       ], className='container')
