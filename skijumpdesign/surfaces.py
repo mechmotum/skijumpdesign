@@ -172,18 +172,24 @@ class Surface(object):
 
         """
 
+        isGreaterTakeoff = self.x > takeoff_point[0]
+        x = self.x[isGreaterTakeoff]
+        y = self.y[isGreaterTakeoff]
+
         # NOTE : intervals are desired but the x distance is not necessarily
         # divisible by the increment, so we drop the remainder so it is
         # divisible and make the range inclusive.
 
-        remainder = (self.x[-1] - self.x[0]) % increment
-        rnge = (self.x[0], self.x[-1] - remainder)
-        num_points = int((self.x[-1] - self.x[0] - remainder) / increment) + 1
+        remainder = (x[-1] - x[0]) % increment
+        rnge = (x[0], x[-1] - remainder)
+        num_points = int((x[-1] - x[0] - remainder) / increment) + 1
         distance_x = np.linspace(*rnge, num=num_points)
 
         slope = self.interp_slope(distance_x)
         slope_angle = np.arctan(slope)
-        height_y = self.interp_y(distance_x)
+        kwargs = {'fill_value': 'extrapolate'}
+        interp_y_efh = interp1d(x, y, **kwargs)
+        height_y = interp_y_efh(distance_x)
 
         # NOTE : Create a surface under the surface that the skier will impact
         # if they pass over the primary surface (self).
