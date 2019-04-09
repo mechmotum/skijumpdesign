@@ -1200,15 +1200,23 @@ def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
         # NOTE : Creates a default jump to plot, takeoff_angel of 10 degrees is
         # taken from default setting of input box.
         slope_angle, approach_len, fall_height = -15.0, 40.0, 0.8
-        _, approach, takeoff, landing, landing_trans, _, _ = \
-            make_jump(slope_angle, 0.0, approach_len, takeoff_angle,
-                      fall_height)
-        delx = -(takeoff.end[0] - approach.start[0])
-        dely = -(takeoff.end[1] - approach.start[1])
-        landing.shift_coordinates(delx, dely)
-        landing_trans.shift_coordinates(delx, dely)
-        x_vals = np.hstack((landing.x, landing_trans.x[1:]))
-        y_vals = np.hstack((landing.y, landing_trans.y[1:]))
+
+        try:
+            _, approach, takeoff, landing, landing_trans, _, _ = \
+                make_jump(slope_angle, 0.0, approach_len, takeoff_angle,
+                          fall_height)
+        except InvalidJumpError as e:
+            # NOTE : Should cause Surface to fail below.
+            # TODO : Improve this, currently a poor workaround.
+            x_vals = np.array([0.0, 1.0])
+            y_vals = np.array([0.0, -1.0])
+        else:
+            delx = -(takeoff.end[0] - approach.start[0])
+            dely = -(takeoff.end[1] - approach.start[1])
+            landing.shift_coordinates(delx, dely)
+            landing_trans.shift_coordinates(delx, dely)
+            x_vals = np.hstack((landing.x, landing_trans.x[1:]))
+            y_vals = np.hstack((landing.y, landing_trans.y[1:]))
     else:
         dic = json.loads(json_data)
         df = pd.read_json(dic, orient='index')
@@ -1226,12 +1234,13 @@ def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
         idx = -1
         error_text = ''
 
-    surface = Surface(x_vals[:idx], y_vals[:idx])
-    skier = Skier()
     takeoff_angle = np.deg2rad(takeoff_angle)
     takeoff_point = (0, 0)
 
+    skier = Skier()
+
     try:
+        surface = Surface(x_vals[:idx], y_vals[:idx])
         distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point,
                                               skier, increment=0.5)
         update_graph = populated_efh_graph(takeoff_point, surface, distance,
@@ -1240,7 +1249,7 @@ def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
     except Exception as e:
         update_graph = blank_efh_graph(e)
         data = np.vstack((np.nan, np.nan)).T
-        error_text = 'There was an error processing this file.'
+        error_text = 'There was an error processing this file: {}.'.format(e)
 
     # NOTE : StringIO() worked here for NumPy 1.14 but fails on NumPy 1.13,
     # thus BytesIO() is used as per an answer here:
