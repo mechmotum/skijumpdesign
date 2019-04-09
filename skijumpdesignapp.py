@@ -736,10 +736,13 @@ markdown_text_analysis = """\
 
 Every jump landing surface shape has an associated equivalent fall height
 function h(x) that characterizes the severity of impact at every possible
-landing point with horizontal coordinate x.  This tool allows calculation
+landing point with horizontal coordinate x. This tool allows calculation
 of this function, once the shape of the landing surface and the takeoff
 angle are specified, and thus allows the evaluation of the surface from
-the point of view of impact severity.
+the point of view of impact severity. A default jump is shown above that
+happens to have a constant equivalent fall height for the primary landing
+surface. Other jump designs can be uploaded and analyzed by following the
+instructions below.
 
 ## Inputs
 
