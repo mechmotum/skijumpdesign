@@ -831,7 +831,6 @@ layout_analysis = html.Div([nav_menu, analysis_title_row,
                                       analysis_input_row,
                                       analysis_markdown_row,
                                       analysis_data_row,
-                                      html.Div(id='dummy_div'),
                                       ], className='container')
                             ])
 
@@ -1196,17 +1195,6 @@ states_analysis = [
 def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
 
     takeoff_angle = float(takeoff_angle)
-    import traceback
-    import warnings
-    import sys
-
-    def warn_with_traceback(message, category, filename, lineno, file=None, line=None):
-
-        log = file if hasattr(file,'write') else sys.stderr
-        traceback.print_stack(file=log)
-        log.write(warnings.formatwarning(message, category, filename, lineno, line))
-
-    warnings.showwarning = warn_with_traceback
 
     if json_data is None:  # no json_data on initial load
         # NOTE : Creates a default jump to plot, takeoff_angel of 10 degrees is
