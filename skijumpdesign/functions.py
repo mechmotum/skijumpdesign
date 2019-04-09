@@ -54,7 +54,7 @@ def snow_budget(parent_slope, takeoff, landing, landing_trans):
     return np.abs(A - B)
 
 
-@clru_cache(maxsize=128)
+#@clru_cache(maxsize=128)
 def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
               plot=False):
     """Returns a set of surfaces and output values that define the equivalent

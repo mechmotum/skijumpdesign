@@ -1191,17 +1191,27 @@ states_analysis = [
                Output('compute-error', 'children'),
                Output('download-efh-button', 'href')],
               [Input('compute-button', 'n_clicks'),
-               Input('dummy_div', 'children')],
+               Input('compute-button', 'children')],  # runs on load
               states_analysis)
-def update_efh_graph(n_clicks, x, json_data, takeoff_angle):
-    try:
-        dic = json.loads(json_data)
-    except TypeError:  # no json_data on initial load
-        # NOTE : Creates a default jump to plot
-        slope_angle = -15.0
-        approach_len = 40
-        takeoff_angle = 10.0
-        fall_height = 0.8
+def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
+
+    takeoff_angle = float(takeoff_angle)
+    import traceback
+    import warnings
+    import sys
+
+    def warn_with_traceback(message, category, filename, lineno, file=None, line=None):
+
+        log = file if hasattr(file,'write') else sys.stderr
+        traceback.print_stack(file=log)
+        log.write(warnings.formatwarning(message, category, filename, lineno, line))
+
+    warnings.showwarning = warn_with_traceback
+
+    if json_data is None:  # no json_data on initial load
+        # NOTE : Creates a default jump to plot, takeoff_angel of 10 degrees is
+        # taken from default setting of input box.
+        slope_angle, approach_len, fall_height = -15.0, 40.0, 0.8
         _, approach, takeoff, landing, landing_trans, _, _ = \
             make_jump(slope_angle, 0.0, approach_len, takeoff_angle,
                       fall_height)
@@ -1212,6 +1222,7 @@ def update_efh_graph(n_clicks, x, json_data, takeoff_angle):
         x_vals = np.hstack((landing.x, landing_trans.x[1:]))
         y_vals = np.hstack((landing.y, landing_trans.y[1:]))
     else:
+        dic = json.loads(json_data)
         df = pd.read_json(dic, orient='index')
         x_vals = df.iloc[:, 0].values
         y_vals = df.iloc[:, 1].values
@@ -1229,7 +1240,6 @@ def update_efh_graph(n_clicks, x, json_data, takeoff_angle):
 
     surface = Surface(x_vals[:idx], y_vals[:idx])
     skier = Skier()
-    takeoff_angle = float(takeoff_angle)
     takeoff_angle = np.deg2rad(takeoff_angle)
     takeoff_point = (0, 0)
 
