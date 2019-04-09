@@ -588,7 +588,7 @@ analysis_takeoff_angle_widget = html.Div([
         id='takeoff_angle_analysis',
         placeholder='0',
         type='number',
-        value='0'
+        value='10'
     ),
 ])
 
@@ -830,7 +830,8 @@ layout_analysis = html.Div([nav_menu, analysis_title_row,
                                       analysis_graph_row,
                                       analysis_input_row,
                                       analysis_markdown_row,
-                                      analysis_data_row
+                                      analysis_data_row,
+                                      html.Div(id='dummy_div'),
                                       ], className='container')
                             ])
 
@@ -1189,15 +1190,31 @@ states_analysis = [
 @app.callback([Output('efh-graph', 'figure'),
                Output('compute-error', 'children'),
                Output('download-efh-button', 'href')],
-              [Input('compute-button', 'n_clicks')],
+              [Input('compute-button', 'n_clicks'),
+               Input('dummy_div', 'children')],
               states_analysis)
-
-def update_efh_graph(n_clicks, json_data, takeoff_angle):
-    dic = json.loads(json_data)
-    df = pd.read_json(dic, orient='index')
-
-    x_vals = df.iloc[:, 0].values
-    y_vals = df.iloc[:, 1].values
+def update_efh_graph(n_clicks, x, json_data, takeoff_angle):
+    try:
+        dic = json.loads(json_data)
+    except TypeError:  # no json_data on initial load
+        # NOTE : Creates a default jump to plot
+        slope_angle = -15.0
+        approach_len = 40
+        takeoff_angle = 10.0
+        fall_height = 0.8
+        _, approach, takeoff, landing, landing_trans, _, _ = \
+            make_jump(slope_angle, 0.0, approach_len, takeoff_angle,
+                      fall_height)
+        delx = -(takeoff.end[0] - approach.start[0])
+        dely = -(takeoff.end[1] - approach.start[1])
+        landing.shift_coordinates(delx, dely)
+        landing_trans.shift_coordinates(delx, dely)
+        x_vals = np.hstack((landing.x, landing_trans.x[1:]))
+        y_vals = np.hstack((landing.y, landing_trans.y[1:]))
+    else:
+        df = pd.read_json(dic, orient='index')
+        x_vals = df.iloc[:, 0].values
+        y_vals = df.iloc[:, 1].values
 
     # TODO : Check that they at least have a data point every 0.5 meters.
 
