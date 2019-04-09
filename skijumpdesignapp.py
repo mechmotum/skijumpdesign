@@ -172,6 +172,11 @@ Sports Engineering 20, no. 4 (December 2017): 283-92.
 for Specified Equivalent Fall Height. Journal of Open Source Software, 3(28),
 818, [https://doi.org/10.21105/joss.00818](https://doi.org/10.21105/joss.00818)
 
+# Feedback
+
+Bug reports, feature requests, and other general feedback can be submitted to
+the [Gitlab issue tracker](https://gitlab.com/moorepants/skijumpdesign/issues)
+or emailed directly to the authors at <feedback@skijumpdesign.info>.
 """
 
 home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
@@ -323,7 +328,7 @@ graph_widget = html.Div([dcc.Graph(id='my-graph',
                         className='col-md-12')
 
 row1 = html.Div([
-                 html.H1(TITLE,
+                 html.H1(TITLE.replace(' and Analysis', ''),
                          style={'text-align': 'center',
                                 'padding-top': '20px',
                                 'color': 'white'}),
@@ -508,6 +513,11 @@ parameters is provided here:
   and iterate design parameters. The third button allows zoom.
 - Download the jump design profile using the **Download Profile** button.
 
+# Feedback
+
+Bug reports, feature requests, and other general feedback can be submitted to
+the [Gitlab issue tracker](https://gitlab.com/moorepants/skijumpdesign/issues)
+or emailed directly to the authors at <feedback@skijumpdesign.info>.
 """
 row7 = html.Div([dcc.Markdown(markdown_text)],
                 className='row',
@@ -699,7 +709,7 @@ download_efh_button = html.Div([
              style={'display': 'inline-block', 'padding': '10px'})])
 
 analysis_title_row = html.Div([
-    html.H1("Ski Jump Analysis",
+    html.H1(TITLE.replace('Design and', ''),
             style={'text-align': 'center',
                    'padding-top': '20px',
                    'color': 'white'}),
@@ -744,18 +754,18 @@ the point of view of impact severity.
 
 ### Table
 
-The table allows inspection of the contents of the inputted csv or Excel file defining the
-landing surface shape.
+The table allows inspection of the contents of the inputted csv or Excel file
+defining the landing surface shape.
 
 ### Graph
 
 - **Jump Profile**: The jump profile displays the landing surface shape uploaded
   by the user.
-- **Knee Collapse EFH**: This is the value of EFH (1.5 m) above which even elite ski
-  jumpers are unable to prevent knee collapse. See Ref. [38](Minetti, et al., 2010)
-  contained in Ref. [1] on the Home page.”
-- **Possible Soft Landing EFH**: This represents the 0.5 m recommended equivalent fall
-  height for a possible soft landing EFH.
+- **Knee Collapse EFH**: This is the value of EFH (1.5 m) above which even
+  elite ski jumpers are unable to prevent knee collapse. See Ref. [38](Minetti,
+  et al., 2010) contained in Ref. [1] on the Home page.”
+- **Possible Soft Landing EFH**: This represents the 0.5 m recommended
+  equivalent fall height for a possible soft landing EFH.
 - **Calculated EFH**: This is the calculated equivalent fall height at 0.2 m
   horizontal intervals along the landing surface.
 
@@ -795,6 +805,11 @@ parameters is provided here:
 - Inspect and view the graph of the resulting jump profile and the calculated
   equivalent fall height. The third button allows zoom.
 
+# Feedback
+
+Bug reports, feature requests, and other general feedback can be submitted to
+the [Gitlab issue tracker](https://gitlab.com/moorepants/skijumpdesign/issues)
+or emailed directly to the authors at <feedback@skijumpdesign.info>.
 """
 
 analysis_markdown_row = html.Div(
