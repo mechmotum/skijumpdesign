@@ -588,7 +588,7 @@ analysis_takeoff_angle_widget = html.Div([
         id='takeoff_angle_analysis',
         placeholder='0',
         type='number',
-        value='0'
+        value='10'
     ),
 ])
 
@@ -736,10 +736,13 @@ markdown_text_analysis = """\
 
 Every jump landing surface shape has an associated equivalent fall height
 function h(x) that characterizes the severity of impact at every possible
-landing point with horizontal coordinate x.  This tool allows calculation
+landing point with horizontal coordinate x. This tool allows calculation
 of this function, once the shape of the landing surface and the takeoff
 angle are specified, and thus allows the evaluation of the surface from
-the point of view of impact severity.
+the point of view of impact severity. A default jump is shown above that
+happens to have a constant equivalent fall height for the primary landing
+surface. Other jump designs can be uploaded and analyzed by following the
+instructions below.
 
 ## Inputs
 
@@ -830,7 +833,7 @@ layout_analysis = html.Div([nav_menu, analysis_title_row,
                                       analysis_graph_row,
                                       analysis_input_row,
                                       analysis_markdown_row,
-                                      analysis_data_row
+                                      analysis_data_row,
                                       ], className='container')
                             ])
 
@@ -1189,15 +1192,39 @@ states_analysis = [
 @app.callback([Output('efh-graph', 'figure'),
                Output('compute-error', 'children'),
                Output('download-efh-button', 'href')],
-              [Input('compute-button', 'n_clicks')],
+              [Input('compute-button', 'n_clicks'),
+               Input('compute-button', 'children')],  # runs on load
               states_analysis)
+def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
 
-def update_efh_graph(n_clicks, json_data, takeoff_angle):
-    dic = json.loads(json_data)
-    df = pd.read_json(dic, orient='index')
+    takeoff_angle = float(takeoff_angle)
 
-    x_vals = df.iloc[:, 0].values
-    y_vals = df.iloc[:, 1].values
+    if json_data is None:  # no json_data on initial load
+        # NOTE : Creates a default jump to plot, takeoff_angel of 10 degrees is
+        # taken from default setting of input box.
+        slope_angle, approach_len, fall_height = -15.0, 40.0, 0.8
+
+        try:
+            _, approach, takeoff, landing, landing_trans, _, _ = \
+                make_jump(slope_angle, 0.0, approach_len, takeoff_angle,
+                          fall_height)
+        except InvalidJumpError as e:
+            # NOTE : Should cause Surface to fail below.
+            # TODO : Improve this, currently a poor workaround.
+            x_vals = np.array([0.0, 1.0])
+            y_vals = np.array([0.0, -1.0])
+        else:
+            delx = -(takeoff.end[0] - approach.start[0])
+            dely = -(takeoff.end[1] - approach.start[1])
+            landing.shift_coordinates(delx, dely)
+            landing_trans.shift_coordinates(delx, dely)
+            x_vals = np.hstack((landing.x, landing_trans.x[1:]))
+            y_vals = np.hstack((landing.y, landing_trans.y[1:]))
+    else:
+        dic = json.loads(json_data)
+        df = pd.read_json(dic, orient='index')
+        x_vals = df.iloc[:, 0].values
+        y_vals = df.iloc[:, 1].values
 
     # TODO : Check that they at least have a data point every 0.5 meters.
 
@@ -1210,13 +1237,13 @@ def update_efh_graph(n_clicks, json_data, takeoff_angle):
         idx = -1
         error_text = ''
 
-    surface = Surface(x_vals[:idx], y_vals[:idx])
-    skier = Skier()
-    takeoff_angle = float(takeoff_angle)
     takeoff_angle = np.deg2rad(takeoff_angle)
     takeoff_point = (0, 0)
 
+    skier = Skier()
+
     try:
+        surface = Surface(x_vals[:idx], y_vals[:idx])
         distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point,
                                               skier, increment=0.5)
         update_graph = populated_efh_graph(takeoff_point, surface, distance,
@@ -1225,7 +1252,7 @@ def update_efh_graph(n_clicks, json_data, takeoff_angle):
     except Exception as e:
         update_graph = blank_efh_graph(e)
         data = np.vstack((np.nan, np.nan)).T
-        error_text = 'There was an error processing this file.'
+        error_text = 'There was an error processing this file: {}.'.format(e)
 
     # NOTE : StringIO() worked here for NumPy 1.14 but fails on NumPy 1.13,
     # thus BytesIO() is used as per an answer here:
