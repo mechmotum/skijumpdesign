@@ -163,6 +163,17 @@ accommodates all takeoff speeds below the maximum takeoff (design) speed above.
    ax = landing_trans.plot(ax=ax, color='#d62728')
    landing.plot(ax=ax, color='#2ca02c')
 
+The equivalent fall height of the landing surface can be recalculated at constant
+intervals relative to the provided takeoff point or start of the surface. This is
+best used to analyze a measured landing surface.
+
+.. plot::
+   :include-source: True
+   :context: close-figs
+   :width: 600px
+
+   dist, efh = landing.calculate_efh(takeoff_ang, takeoff.end, skier, increment=0.2)
+
 Entire Jump
 ===========
 
