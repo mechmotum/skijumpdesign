@@ -88,6 +88,11 @@ app.css.append_css({'external_url': [BS_URL, CUS_URL]})
 app.title = TITLE
 server = app.server
 
+if 'DYNO' in os.environ:
+    app.scripts.config.serve_locally = False
+    app.scripts.append_script({
+        'external_url': 'https://gitlab.com/bryncloud/skijumpdesign/raw/add-goog-analytics/gtag.js'
+    })
 
 @app.server.route('/static/<resource>')
 def serve_static(resource):
