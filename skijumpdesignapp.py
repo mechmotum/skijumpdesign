@@ -91,7 +91,7 @@ server = app.server
 if 'DYNO' in os.environ:
     app.scripts.config.serve_locally = False
     app.scripts.append_script({
-        'external_url': 'https://gitlab.com/bryncloud/skijumpdesign/raw/add-goog-analytics/gtag.js'
+        'external_url': 'https://gitlab.com/moorepants/skijumpdesign/raw/master/gtag.js'
     })
 
 @app.server.route('/static/<resource>')
