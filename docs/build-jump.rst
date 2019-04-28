@@ -173,6 +173,7 @@ best used to analyze a measured landing surface.
    :width: 600px
 
    dist, efh = landing.calculate_efh(takeoff_ang, takeoff.end, skier, increment=0.2)
+   landing.plot_efh(dist,efh)
 
 Entire Jump
 ===========
