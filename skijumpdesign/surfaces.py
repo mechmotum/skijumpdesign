@@ -267,6 +267,8 @@ class Surface(object):
                 **plot_kwargs)
         ax.legend()
 
+        ax.set_aspect(1.0/ax.get_data_ratio()*0.4)
+
         return ax
 
 
