@@ -227,50 +227,6 @@ class Surface(object):
 
         return ax
 
-    def plot_efh(self, distance_x, efh, ax=None, **plot_kwargs):
-        """Returns a matplotlib axes containing a plot of the surface.
-
-        Parameters
-        ==========
-        distance_x : ndarray, shape(n,)
-            Horizontal x locations of the equivalent fall height measures
-            spaced at the specified meter intervals relative to leftmost point
-            on the surface or the takeoff point, whichever is greater.
-        efh : ndarray, shape(n,)
-            The equivalent fall height corresponding to each value in
-            ``distance_x``.
-        takeoff_point : 2-tuple of floats
-            x and y coordinates of the point at which the skier leaves the
-            takeoff ramp.
-        ax : Axes
-            An existing matplotlib axes to plot to.
-        plot_kwargs : dict
-            Arguments to be passed to Axes.plot().
-
-        """
-        if ax is None:
-            fix, ax = plt.subplots(1, 1)
-            ax.set_ylabel('Equivalent Fall Height [m]')
-            ax.set_xlabel('Horizontal Position [m]')
-
-        soft_landing_efh = 0.5
-        knee_collapse_efh = 1.5
-        distance_standards = np.ones(len(distance_x))
-
-        ax.bar(distance_x, efh, label='Calculated EFH', align='center', width=0.1,
-               color='#c89b43', **plot_kwargs)
-        ax.plot(distance_x, distance_standards * soft_landing_efh,
-                label='Possible Soft Landing EFH, 0.5m', color='#404756',
-                linestyle='--', **plot_kwargs)
-        ax.plot(distance_x, distance_standards * knee_collapse_efh,
-                label='Knee Collapse EFH, 1.5m', color='#404756', linestyle=':',
-                **plot_kwargs)
-        ax.legend()
-
-        ax.set_aspect(1.0/ax.get_data_ratio()*0.4)
-
-        return ax
-
 
 class HorizontalSurface(Surface):
     def __init__(self, height, length, start=0.0, num_points=100):

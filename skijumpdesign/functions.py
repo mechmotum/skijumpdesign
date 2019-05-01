@@ -199,3 +199,44 @@ def plot_jump(slope, approach, takeoff, landing, landing_trans, flight):
     ax.grid()
     ax.legend()
     return ax
+
+def plot_efh(x, efh, ax=None, **plot_kwargs):
+    """Returns a matplotlib axes containing a plot of the surface.
+
+    Parameters
+    ==========
+    x : ndarray, shape(n,)
+        Horizontal x locations of the equivalent fall height measures
+        spaced at the specified meter intervals relative to leftmost point
+        on the surface or the takeoff point, whichever is greater.
+    efh : ndarray, shape(n,)
+        The equivalent fall height corresponding to each value in
+        ``distance_x``.
+    ax : Axes
+        An existing matplotlib axes to plot to.
+    plot_kwargs : dict
+        Arguments to be passed to Axes.plot().
+
+    """
+    if ax is None:
+        fix, ax = plt.subplots(1, 1)
+        ax.set_ylabel('Equivalent Fall Height [m]')
+        ax.set_xlabel('Horizontal Position [m]')
+
+    soft_landing_efh = 0.5
+    knee_collapse_efh = 1.5
+    distance_standards = np.ones(len(x))
+
+    ax.bar(x, efh, label='Calculated EFH', align='center', width=0.1,
+           color='#c89b43', **plot_kwargs)
+    ax.plot(x, distance_standards * soft_landing_efh,
+            label='Possible Soft Landing EFH, 0.5m', color='#404756',
+            linestyle='--', **plot_kwargs)
+    ax.plot(x, distance_standards * knee_collapse_efh,
+            label='Knee Collapse EFH, 1.5m', color='#404756', linestyle=':',
+            **plot_kwargs)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.35), shadow=True, ncol=2)
+
+    ax.set_aspect(1.0/ax.get_data_ratio()*0.4)
+
+    return ax
