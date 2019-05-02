@@ -45,6 +45,11 @@ VERSION_STAMP = 'skijumpdesign {}'.format(skijumpdesign.__version__)
 
 STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 
+GTAG_URL = ('https://glcdn.githack.com/moorepants/skijumpdesign/raw/' 
+            '{}/static/gtag.js')
+
+app = dash.Dash(__name__)
+
 # NOTE : Turn the logger on to INFO level by default so it is recorded in any
 # server logs.
 logger = logging.getLogger()
@@ -53,6 +58,7 @@ logger.setLevel(logging.INFO)
 if 'ONHEROKU' in os.environ:
     cmd_line_args = lambda x: None
     cmd_line_args.profile = False
+    app.scripts.append_script({'external_url': [GTAG_URL]})
 else:
     parser = argparse.ArgumentParser(description=TITLE)
     parser.add_argument('-p', '--profile', action='store_true', default=False,
@@ -74,29 +80,18 @@ BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 if os.path.exists(os.path.join(STATIC_PATH, 'skijump.css')):
     logging.info('Local css file found.')
     CUS_URL = '/static/skijump.css'
-    GTAG_URL = '/static/gtag.js'
 else:
     logging.info('Local css file not found, loading from CDN.')
     URL_TEMP = ('https://glcdn.githack.com/moorepants/skijumpdesign/raw/'
                 '{}/static/skijump.css')
-    GTAG_URL = ('https://glcdn.githack.com/moorepants/skijumpdesign/raw/'
-                 '{}/static/gtag.js')
     if 'dev' in skijumpdesign.__version__:  # unlikely case
         CUS_URL = URL_TEMP.format('master')
     else:
         CUS_URL = URL_TEMP.format('v' + skijumpdesign.__version__)
 
-app = dash.Dash(__name__)
 app.css.append_css({'external_url': [BS_URL, CUS_URL]})
-app.scripts.append_script({'external_url': [GTAG_URL]})
 app.title = TITLE
 server = app.server
-
-if 'ONHEROKU' in os.environ:
-    # app.scripts.config.serve_locally = False
-    app.scripts.append_script({
-        'external_url': 'https://gitlab.com/moorepants/skijumpdesign/raw/master/gtag.js'
-    })
 
 @app.server.route('/static/<resource>')
 def serve_static(resource):
