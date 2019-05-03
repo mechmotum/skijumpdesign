@@ -216,8 +216,9 @@ def plot_efh(surface, takeoff_angle, takeoff_point, show_knee_collapse_line=True
         x and y coordinates of the point at which the skier leaves the
         takeoff ramp.
     show_knee_collapse_line : bool
-        Value of EFH (1.5 m) above which even elite ski jumpers are
-        unable to prevent knee collapse. See reference in Notes.
+        Displays value on plot of EFH (1.5 m) above which even elite
+        ski jumpers are unable to prevent knee collapse. See reference
+        in Notes.
     ax : Axes
         An existing matplotlib axes to plot to.
     plot_kwargs : dict
