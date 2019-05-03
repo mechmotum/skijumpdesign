@@ -172,7 +172,10 @@ class Surface(object):
 
         """
 
-        isGreaterTakeoff = self.x >= takeoff_point[0]
+        isGreaterTakeoff = self.x > takeoff_point[0]
+        if not any(isGreaterTakeoff):
+            return np.nan, np.nan
+
         x = self.x[isGreaterTakeoff]
         y = self.y[isGreaterTakeoff]
 
