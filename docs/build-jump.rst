@@ -165,7 +165,8 @@ accommodates all takeoff speeds below the maximum takeoff (design) speed above.
 
 The equivalent fall height of the landing surface can be recalculated at constant
 intervals relative to the provided takeoff point or start of the surface. This is
-best used to analyze a measured landing surface.
+best used to analyze a measured landing surface and explained in
+:ref:`analyze-jump <analyze-jump>`.
 
 .. plot::
    :include-source: True
