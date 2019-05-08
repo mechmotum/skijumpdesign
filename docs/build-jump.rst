@@ -165,16 +165,18 @@ accommodates all takeoff speeds below the maximum takeoff (design) speed above.
 
 The equivalent fall height of the landing surface can be recalculated at constant
 intervals relative to the provided takeoff point or start of the surface. This is
-best used to analyze a measured landing surface and explained in
-:ref:`analyze-jump <analyze-jump>`.
+best used to analyze a measured landing surface and explained in the example of how
+to analyze a jump.
 
 .. plot::
    :include-source: True
    :context: close-figs
    :width: 600px
 
+   from skijumpdesign.functions import plot_efh
+
    dist, efh = landing.calculate_efh(takeoff_ang, takeoff.end, skier, increment=0.2)
-   landing.plot_efh(dist,efh)
+   plot_efh(landing, takeoff_ang, takeoff.end)
 
 Entire Jump
 ===========
