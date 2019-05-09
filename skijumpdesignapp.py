@@ -43,6 +43,16 @@ This was setup to match the color blue of the sky in the background image.
 TITLE = "Ski Jump Design and Analysis Tool for Specified Equivalent Fall Height"
 VERSION_STAMP = 'skijumpdesign {}'.format(skijumpdesign.__version__)
 
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-15966419-11"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-15966419-11');
+</script>
+
 STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 
 app = dash.Dash(__name__)
@@ -74,7 +84,7 @@ if 'ONHEROKU' in os.environ:
         with open('static/gtag.js', 'w') as f:
             f.write(new_text)
         GTAG_URL = '/static/gtag.js'
-        app.scripts.append_script({'external_url': [GTAG_URL]})
+        app.head = [html.Script(src=GTAG_URL)]
         msg = 'Loaded google analytics script for {}.'.format(ga_tracking_id)
         logger.info(msg)
 else:
