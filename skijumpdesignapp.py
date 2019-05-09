@@ -65,9 +65,9 @@ if 'ONHEROKU' in os.environ:
     # running on.
     if 'GATRACKINGID' in os.environ:
         ga_track_id = os.environ['GATRACKINGID']
-        with open('static/gtag_template.js') as f:
+        with open('static/gtag_template.js', 'r') as f:
             ga_script_text = f.read()
-        with open('static/gtag.js') as f:
+        with open('static/gtag.js', 'w') as f:
             f.write(ga_script_text.format(
                 ga_tracking_id=os.environ['GATRACKINGID']))
         GTAG_URL = '/static/gtag.js'
