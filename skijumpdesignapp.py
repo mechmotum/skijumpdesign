@@ -1025,10 +1025,11 @@ def populated_graph(surfs):
             'layout': layout}
 
 
-def generate_csv_data(surfs):
+def generate_csv_data(surfs, input_params):
     """Returns a csv string containing the height above the parent slope of the
     jump at one meter intervals along the slope from the top of the jump."""
     slope, approach, takeoff, landing, trans, flight = surfs
+    slope_angle, approach_len, takeoff_angle, fall_height = input_params
 
     x = np.hstack((takeoff.x, landing.x, trans.x))
     y = np.hstack((takeoff.y, landing.y, trans.y))
@@ -1082,7 +1083,8 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
         for surface in surfs:
             surface.shift_coordinates(-new_origin[0], -new_origin[1])
         dic = populated_graph(surfs)
-        outputs['download'] = generate_csv_data(surfs)
+        input_params = [slope_angle, approach_len, takeoff_angle, fall_height]
+        outputs['download'] = generate_csv_data(surfs, input_params)
         dic['outputs'] = outputs
 
     if cmd_line_args.profile:
