@@ -74,7 +74,8 @@ if 'ONHEROKU' in os.environ:
         with open('static/gtag.js', 'w') as f:
             f.write(new_text)
         GTAG_URL = '/static/gtag.js'
-        app.head = [html.Script(src=GTAG_URL)]
+        # TODO : Use dash's new assets folder capatility instead of all this
+        # mess. The google code needs to be in the header.
         msg = 'Loaded google analytics script for {}.'.format(ga_tracking_id)
         logger.info(msg)
 else:
