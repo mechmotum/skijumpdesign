@@ -52,13 +52,21 @@ app = dash.Dash(__name__)
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+# NOTE : ONHEROKU is a custom env variable that needs to be set via the app
+# settings on heroku.com. This should be set as TRUE for the primary and
+# staging apps.
 if 'ONHEROKU' in os.environ:
     cmd_line_args = lambda x: None
     cmd_line_args.profile = False
-    if "skijumpdesign.info" in flask.request.url_root:
+
+    # NOTE : SKIJUMPDESIGN is a custom env variable that needs to be set via
+    # the app settings on heroku.com. This should be set as TRUE for only the
+    # primary app.
+    if 'SKIJUMPDESIGN' in os.environ:
         logger.info('Loading google analytics script.')
         GTAG_URL = '/static/gtag.js'
         app.scripts.append_script({'external_url': [GTAG_URL]})
+
 else:
     parser = argparse.ArgumentParser(description=TITLE)
     parser.add_argument('-p', '--profile', action='store_true', default=False,
