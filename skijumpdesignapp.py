@@ -59,14 +59,21 @@ if 'ONHEROKU' in os.environ:
     cmd_line_args = lambda x: None
     cmd_line_args.profile = False
 
-    # NOTE : SKIJUMPDESIGN is a custom env variable that needs to be set via
-    # the app settings on heroku.com. This should be set as TRUE for only the
-    # primary app.
-    if 'SKIJUMPDESIGN' in os.environ:
-        logger.info('Loading google analytics script.')
+    # NOTE : GATRACKINGID is a custom env variable that needs to be set via the
+    # app settings on heroku.com. This should be set to a string corresponding
+    # to the Google Analytics tracking id associated with the URL the app is
+    # running on.
+    if 'GATRACKINGID' in os.environ:
+        ga_track_id = os.environ['GATRACKINGID']
+        with open('static/gtag_template.js') as f:
+            ga_script_text = f.read()
+        with open('static/gtag.js') as f:
+            f.write(ga_script_text.format(
+                ga_tracking_id=os.environ['GATRACKINGID']))
         GTAG_URL = '/static/gtag.js'
         app.scripts.append_script({'external_url': [GTAG_URL]})
-
+        msg = 'Loaded google analytics script for {}.'.format(ga_track_id)
+        logger.info(msg)
 else:
     parser = argparse.ArgumentParser(description=TITLE)
     parser.add_argument('-p', '--profile', action='store_true', default=False,
