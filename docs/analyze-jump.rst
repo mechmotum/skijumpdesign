@@ -22,6 +22,7 @@ into horizontal (x) and vertical (y) components.
    :width: 600px
 
    from skijumpdesign import Surface
+   import numpy as np
 
    takeoff_ang = np.deg2rad(10)  # radians
    takeoff_point = (0,0)  # meters
@@ -136,7 +137,7 @@ There is a convenience function for plotting the calculated efh.
    :context: close-figs
    :width: 600px
 
-   from skijumpdesign import plot_efh
+   from skijumpdesign.functions import plot_efh
 
-   plot_efh(dist,efh)
+   plot_efh(measured_surf, takeoff_ang, takeoff_point)
 
