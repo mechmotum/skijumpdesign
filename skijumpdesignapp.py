@@ -1050,8 +1050,11 @@ def generate_csv_data(surfs, input_params):
     # https://stackoverflow.com/questions/22355026/numpy-savetxt-to-a-string
     buf = BytesIO()
     np.savetxt(buf, data, fmt='%.2f', delimiter=',', newline="\n")
+    input_text = "Slope Angle: {}deg,Approach Length: {}m,Takeoff Angle: {}deg," \
+                 "Fall Height: {}m\n".format(slope_angle, approach_len,
+                                            takeoff_angle, fall_height)
     header = 'Distance Along Slope [m],Height Above Slope [m]\n'
-    return header + buf.getvalue().decode()
+    return input_text + header + buf.getvalue().decode()
 
 
 @app.callback(Output('data-store', 'children'), inputs)
