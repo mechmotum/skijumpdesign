@@ -68,6 +68,7 @@ if 'ONHEROKU' in os.environ:
         logging.info(ga_tracking_id)
         with open('static/gtag_template.js', 'r') as f:
             ga_script_text = f.read()
+        logging.info(ga_script_text)
         new_text = ga_script_text.format(ga_tracking_id=ga_tracking_id)
         logging.info(new_text)
         with open('static/gtag.js', 'w') as f:
