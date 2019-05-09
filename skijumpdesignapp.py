@@ -56,6 +56,7 @@ if 'ONHEROKU' in os.environ:
     cmd_line_args = lambda x: None
     cmd_line_args.profile = False
     if "skijumpdesign.info" in flask.request.url_root:
+        logger.info('Loading google analytics script.')
         GTAG_URL = '/static/gtag.js'
         app.scripts.append_script({'external_url': [GTAG_URL]})
 else:
