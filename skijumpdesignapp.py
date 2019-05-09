@@ -64,15 +64,17 @@ if 'ONHEROKU' in os.environ:
     # to the Google Analytics tracking id associated with the URL the app is
     # running on.
     if 'GATRACKINGID' in os.environ:
-        ga_track_id = os.environ['GATRACKINGID']
+        ga_tracking_id = os.environ['GATRACKINGID']
+        logging.info(ga_tracking_id)
         with open('static/gtag_template.js', 'r') as f:
             ga_script_text = f.read()
+        new_text = ga_script_text.format(ga_tracking_id=ga_tracking_id)
+        logging.info(new_text)
         with open('static/gtag.js', 'w') as f:
-            f.write(ga_script_text.format(
-                ga_tracking_id=os.environ['GATRACKINGID']))
+            f.write(new_text)
         GTAG_URL = '/static/gtag.js'
         app.scripts.append_script({'external_url': [GTAG_URL]})
-        msg = 'Loaded google analytics script for {}.'.format(ga_track_id)
+        msg = 'Loaded google analytics script for {}.'.format(ga_tracking_id)
         logger.info(msg)
 else:
     parser = argparse.ArgumentParser(description=TITLE)
