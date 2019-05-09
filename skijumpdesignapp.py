@@ -45,6 +45,8 @@ VERSION_STAMP = 'skijumpdesign {}'.format(skijumpdesign.__version__)
 
 STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 
+app = dash.Dash(__name__)
+
 # NOTE : Turn the logger on to INFO level by default so it is recorded in any
 # server logs.
 logger = logging.getLogger()
@@ -53,6 +55,9 @@ logger.setLevel(logging.INFO)
 if 'ONHEROKU' in os.environ:
     cmd_line_args = lambda x: None
     cmd_line_args.profile = False
+    if "skijumpdesign.info" in flask.request.url_root:
+        GTAG_URL = '/static/gtag.js'
+        app.scripts.append_script({'external_url': [GTAG_URL]})
 else:
     parser = argparse.ArgumentParser(description=TITLE)
     parser.add_argument('-p', '--profile', action='store_true', default=False,
@@ -83,11 +88,9 @@ else:
     else:
         CUS_URL = URL_TEMP.format('v' + skijumpdesign.__version__)
 
-app = dash.Dash(__name__)
 app.css.append_css({'external_url': [BS_URL, CUS_URL]})
 app.title = TITLE
 server = app.server
-
 
 @app.server.route('/static/<resource>')
 def serve_static(resource):

@@ -33,6 +33,12 @@ license:
    Tool for Specified Equivalent Fall Height. Journal of Open Source Software,
    3(28), 818, https://doi.org/10.21105/joss.00818
 
+The gtag.js file is licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
 See the included ``LICENSE`` file for more details.
 
 Installation
