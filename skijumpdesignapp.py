@@ -350,7 +350,7 @@ button = html.A('Download Profile',
                 href='',
                 className='btn btn-primary',
                 target='_blank',
-                download='profile.csv')
+                download='')
 
 row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
                 id='error-bar',
@@ -1025,11 +1025,10 @@ def populated_graph(surfs):
             'layout': layout}
 
 
-def generate_csv_data(surfs, input_params):
+def generate_csv_data(surfs):
     """Returns a csv string containing the height above the parent slope of the
     jump at one meter intervals along the slope from the top of the jump."""
     slope, approach, takeoff, landing, trans, flight = surfs
-    slope_angle, approach_len, takeoff_angle, fall_height = input_params
 
     x = np.hstack((takeoff.x, landing.x, trans.x))
     y = np.hstack((takeoff.y, landing.y, trans.y))
@@ -1050,11 +1049,8 @@ def generate_csv_data(surfs, input_params):
     # https://stackoverflow.com/questions/22355026/numpy-savetxt-to-a-string
     buf = BytesIO()
     np.savetxt(buf, data, fmt='%.2f', delimiter=',', newline="\n")
-    input_text = "Slope Angle: {}deg,Approach Length: {}m,Takeoff Angle: {}deg," \
-                 "Fall Height: {}m\n".format(slope_angle, approach_len,
-                                            takeoff_angle, fall_height)
     header = 'Distance Along Slope [m],Height Above Slope [m]\n'
-    return input_text + header + buf.getvalue().decode()
+    return header + buf.getvalue().decode()
 
 
 @app.callback(Output('data-store', 'children'), inputs)
@@ -1075,6 +1071,7 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
         logging.error('Graph update error:', exc_info=e)
         dic = blank_graph('<br>'.join(textwrap.wrap(str(e), 30)))
         dic['outputs'] = {'download': '#',
+                          'filename': 'profile.csv',
                           'Takeoff Speed': 0.0,
                           'Snow Budget': 0.0,
                           'Flight Time': 0.0,
@@ -1087,7 +1084,8 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
             surface.shift_coordinates(-new_origin[0], -new_origin[1])
         dic = populated_graph(surfs)
         input_params = [slope_angle, approach_len, takeoff_angle, fall_height]
-        outputs['download'] = generate_csv_data(surfs, input_params)
+        outputs['download'] = generate_csv_data(surfs)
+        outputs['filename'] = "profile-sa{}-al{}-ta{}-efh{}.csv".format(*input_params)
         dic['outputs'] = outputs
 
     if cmd_line_args.profile:
@@ -1146,6 +1144,13 @@ def update_download_link(json_data):
     csv_string = dic['outputs']['download']
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
+
+@app.callback(Output('download-button', 'download'),
+              [Input('data-store', 'children')])
+def update_download_link(json_data):
+    dic = json.loads(json_data)
+    filename = dic['outputs']['filename']
+    return filename
 
 ###############################################################################
 # ANALYSIS FUNCTIONALITY
