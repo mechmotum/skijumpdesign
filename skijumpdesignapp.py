@@ -466,7 +466,9 @@ The table provides a set of outputs about the currently visible jump design:
 ### Profile
 
 The **Download Profile** button returns a comma separated value text file with
-two columns. The first column provides the distance from the top of the jump
+two columns. The filename of the profile has the input parameters for the jump;
+slope angle (sa), approach length (al), takeoff angle (ta), and equivalent fall
+height (efh). The first column provides the distance from the top of the jump
 (start of the takeoff curve) at every meter along the slope and corresponding
 values of the height above the parent slope in the second column. Both columns
 are in meters. This data is primarily useful in building the actual jump, see
@@ -1083,7 +1085,7 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
         for surface in surfs:
             surface.shift_coordinates(-new_origin[0], -new_origin[1])
         dic = populated_graph(surfs)
-        input_params = [slope_angle, approach_len, takeoff_angle, fall_height]
+        input_params = [-slope_angle, approach_len, takeoff_angle, fall_height]
         outputs['download'] = generate_csv_data(surfs)
         outputs['filename'] = "profile-sa{}-al{}-ta{}-efh{}.csv".format(*input_params)
         dic['outputs'] = outputs
