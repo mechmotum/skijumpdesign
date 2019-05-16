@@ -244,7 +244,7 @@ def plot_efh(surface, takeoff_angle, takeoff_point, show_knee_collapse_line=True
     if skier is None:
         skier = Skier()
 
-    takeoff_ang = np.rad2deg(takeoff_angle)
+    takeoff_ang = np.deg2rad(takeoff_angle)
     dist, efh = surface.calculate_efh(takeoff_ang, takeoff_point, skier, increment)
 
     if show_knee_collapse_line is True:
