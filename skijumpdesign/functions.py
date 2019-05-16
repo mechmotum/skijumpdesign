@@ -222,8 +222,9 @@ def plot_efh(surface, takeoff_angle, takeoff_point, show_knee_collapse_line=True
         A skier instance.
     increment : float , optional
             x increment in meters between each calculated landing location.
-    ax : Axes , optional
-        An existing matplotlib axes to plot to.
+    ax : array of Axes , shape(2,), optional
+        An existing matplotlib axes to plot to - ax[0] equivalent fall height,
+        ax[1] surface profile
     plot_kwargs : dict , optional
         Arguments to be passed to Axes.plot().
 
