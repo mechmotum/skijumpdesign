@@ -201,3 +201,16 @@ def test_calculate_efh(profile=False):
     np.testing.assert_allclose(efh[0], 0.0)
     np.testing.assert_allclose(efh[1:], fall_height, rtol=0.0, atol=8e-3)
     np.testing.assert_allclose(np.diff(dist), 0.2 * np.ones(len(dist) - 1))
+
+    # Test function when takeoff point is in the first quadrant relative to
+    # initial takeoff point (takeoff.end)
+    takeoff_quad1 = (takeoff.end[0] + 2, takeoff.end[1] + 2)
+
+    # Test function quadrant 2
+    takeoff_quad2 = (takeoff.end[0] - 2, takeoff.end[1] + 2)
+
+    # Test function quadrant 3
+    takeoff_quad3 = (takeoff.end[0] - 2, takeoff.end[1] - 2)
+
+    # Test function quadrant 4
+    takeoff_quad4 = (takeoff.end[0] + 2, takeoff.end[1] - 2)
