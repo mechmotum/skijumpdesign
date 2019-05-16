@@ -172,8 +172,8 @@ class Surface(object):
 
         """
 
-        isGreaterTakeoff = self.x > takeoff_point[0]
-        if not any(isGreaterTakeoff):
+        isGreaterTakeoff = self.x >= takeoff_point[0]
+        if sum(isGreaterTakeoff) < 2:
             return np.nan, np.nan
 
         x = self.x[isGreaterTakeoff]
@@ -196,7 +196,7 @@ class Surface(object):
 
         # NOTE : Create a surface under the surface that the skier will impact
         # if they pass over the primary surface (self).
-        catch_surf = HorizontalSurface(np.min(height_y) - 0.1,
+        catch_surf = HorizontalSurface(np.nanmin(height_y) - 0.1,
                                        self.x[0] - self.x[-1] + 2.0,
                                        start=self.x[0] - 1.0)
 
@@ -210,6 +210,8 @@ class Surface(object):
             efh_coord = (impact_speed ** 2 * np.sin(m - impact_angle) ** 2 /
                          (2 * GRAV_ACC))
             efh.append(efh_coord)
+
+        efh = np.nan_to_num(efh)
 
         return distance_x, np.array(efh)
 
