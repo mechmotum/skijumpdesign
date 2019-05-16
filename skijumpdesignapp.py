@@ -45,14 +45,39 @@ VERSION_STAMP = 'skijumpdesign {}'.format(skijumpdesign.__version__)
 
 STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 
+app = dash.Dash(__name__)
+
 # NOTE : Turn the logger on to INFO level by default so it is recorded in any
 # server logs.
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+# NOTE : ONHEROKU is a custom env variable that needs to be set via the app
+# settings on heroku.com. This should be set as TRUE for the primary and
+# staging apps.
 if 'ONHEROKU' in os.environ:
     cmd_line_args = lambda x: None
     cmd_line_args.profile = False
+
+    # NOTE : GATRACKINGID is a custom env variable that needs to be set via the
+    # app settings on heroku.com. This should be set to a string corresponding
+    # to the Google Analytics tracking id associated with the URL the app is
+    # running on.
+    if 'GATRACKINGID' in os.environ:
+        ga_tracking_id = os.environ['GATRACKINGID']
+        logging.info(ga_tracking_id)
+        with open('static/gtag_template.js', 'r') as f:
+            ga_script_text = f.read()
+        logging.info(ga_script_text)
+        new_text = ga_script_text.format(ga_tracking_id=ga_tracking_id)
+        logging.info(new_text)
+        with open('static/gtag.js', 'w') as f:
+            f.write(new_text)
+        GTAG_URL = '/static/gtag.js'
+        # TODO : Use dash's new assets folder capatility instead of all this
+        # mess. The google code needs to be in the header.
+        msg = 'Loaded google analytics script for {}.'.format(ga_tracking_id)
+        logger.info(msg)
 else:
     parser = argparse.ArgumentParser(description=TITLE)
     parser.add_argument('-p', '--profile', action='store_true', default=False,
@@ -83,11 +108,9 @@ else:
     else:
         CUS_URL = URL_TEMP.format('v' + skijumpdesign.__version__)
 
-app = dash.Dash(__name__)
 app.css.append_css({'external_url': [BS_URL, CUS_URL]})
 app.title = TITLE
 server = app.server
-
 
 @app.server.route('/static/<resource>')
 def serve_static(resource):
