@@ -217,8 +217,7 @@ def plot_efh(surface, takeoff_angle, takeoff_point, show_knee_collapse_line=True
         takeoff ramp.
     show_knee_collapse_line : bool , optional
         Displays value on plot of EFH (1.5 m) above which even elite
-        ski jumpers are unable to prevent knee collapse. See reference
-        in Notes.
+        ski jumpers are unable to prevent knee collapse [Minetti]_.
     skier : Skier , optional
         A skier instance.
     increment : float , optional
@@ -228,13 +227,12 @@ def plot_efh(surface, takeoff_angle, takeoff_point, show_knee_collapse_line=True
     plot_kwargs : dict , optional
         Arguments to be passed to Axes.plot().
 
-    Notes
-    =====
-    The knee collapse value is referenced from:
-        Minetti AE, Ardigo LP, Susta D, Cotelli F (2010) Using leg
-        muscles as shock absorbers: theoretical predictions and
+
+    ..  [Minetti] Minetti AE, Ardigo LP, Susta D, Cotelli F (2010)
+        Using leg muscles as shock absorbers: theoretical predictions and
         experimental results of drop landing performance.
         Ergonomics 41(12):1771–1791
+
 
     """
     if ax is None:
