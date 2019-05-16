@@ -224,7 +224,7 @@ def plot_efh(surface, takeoff_angle, takeoff_point, show_knee_collapse_line=True
             x increment in meters between each calculated landing location.
     ax : array of Axes , shape(2,), optional
         An existing matplotlib axes to plot to - ax[0] equivalent fall height,
-        ax[1] surface profile
+        ax[1] surface profile.
     plot_kwargs : dict , optional
         Arguments to be passed to Axes.plot().
 
