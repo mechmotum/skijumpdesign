@@ -202,7 +202,7 @@ def plot_jump(slope, approach, takeoff, landing, landing_trans, flight):
 
 
 def plot_efh(surface, takeoff_angle, takeoff_point, show_knee_collapse_line=True,
-             ax=None, **plot_kwargs):
+             skier=None, increment=0.2, ax=None, **plot_kwargs):
     """Returns a matplotlib axes containing a plot of the surface.
 
     Parameters
@@ -211,17 +211,21 @@ def plot_efh(surface, takeoff_angle, takeoff_point, show_knee_collapse_line=True
         A Surface for a 2D curve expressed in a standard Cartesian
         coordinate system.
     takeoff_angle : float
-        Takeoff angle in radians.
+        Takeoff angle in degrees.
     takeoff_point : 2-tuple of floats
         x and y coordinates of the point at which the skier leaves the
         takeoff ramp.
-    show_knee_collapse_line : bool
+    show_knee_collapse_line : bool , optional
         Displays value on plot of EFH (1.5 m) above which even elite
         ski jumpers are unable to prevent knee collapse. See reference
         in Notes.
-    ax : Axes
+    skier : Skier , optional
+        A skier instance.
+    increment : float , optional
+            x increment in meters between each calculated landing location.
+    ax : Axes , optional
         An existing matplotlib axes to plot to.
-    plot_kwargs : dict
+    plot_kwargs : dict , optional
         Arguments to be passed to Axes.plot().
 
     Notes
@@ -234,21 +238,23 @@ def plot_efh(surface, takeoff_angle, takeoff_point, show_knee_collapse_line=True
 
     """
     if ax is None:
-        fix, ax = plt.subplots(2, 1, sharex=True)
+        _, ax = plt.subplots(2, 1, sharex=True)
         ax[0].set_ylabel('Equivalent Fall Height [m]')
         ax[1].set_xlabel('Horizontal Position [m]')
         ax[1].set_ylabel('Vertical Position [m]')
 
-    skier = Skier()
-    dist, efh = surface.calculate_efh(takeoff_angle, takeoff_point, skier, increment=0.2)
+    if skier is None:
+        skier = Skier()
+
+    takeoff_ang = np.rad2deg(takeoff_angle)
+    dist, efh = surface.calculate_efh(takeoff_ang, takeoff_point, skier, increment)
 
     if show_knee_collapse_line is True:
         knee_collapse_efh = 1.5
-        distance_standards = np.ones(len(dist))
-        ax[0].plot(dist, distance_standards*knee_collapse_efh,
-                   label='Knee Collapse EFH, 1.5m', linestyle=':', **plot_kwargs)
+        ax[0].axhline(knee_collapse_efh, label='Knee Collapse EFH, 1.5m',
+                      linestyle=':', **plot_kwargs)
 
-    ax[0].bar(dist, efh, label='Calculated EFH', align='center', width=0.1,
+    ax[0].bar(dist, efh, label='Calculated EFH', align='center', width=increment/2,
               color='C1', **plot_kwargs)
     ax[1].plot(surface.x, surface.y, label='Surface Profile', color='C2', **plot_kwargs)
     ax[1].scatter(*zip(takeoff_point), label='Takeoff Point', color='C3', **plot_kwargs)
