@@ -21,15 +21,14 @@ from skijumpdesign import __version__
 
 # -- Project information -----------------------------------------------------
 
-project = 'skijumpdesign'
-copyright = '2018, Jason K. Moore, Mont Hubbard'
-author = 'Jason K. Moore, Mont Hubbard'
-
 # The short X.Y version
 version = '.'.join(__version__.split('.')[:2])
 # The full version, including alpha/beta/rc tags
 release = __version__
 
+project = 'skijumpdesign[{}]'.format(release)
+author = 'Jason K. Moore, Mont Hubbard, Bryn Cloud'
+copyright = '2018-2019, ' + author
 
 # -- General configuration ---------------------------------------------------
 
@@ -147,8 +146,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'skijumpdesign.tex', 'skijumpdesign Documentation',
-     'Jason K. Moore, Mont Hubbard', 'manual'),
+    (master_doc, 'skijumpdesign.tex', 'skijumpdesign Documentation', author,
+     'manual'),
 ]
 
 
