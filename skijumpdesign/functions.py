@@ -201,9 +201,11 @@ def plot_jump(slope, approach, takeoff, landing, landing_trans, flight):
     return ax
 
 
-def plot_efh(surface, takeoff_angle, takeoff_point, show_knee_collapse_line=True,
-             skier=None, increment=0.2, ax=None, **plot_kwargs):
-    """Returns a matplotlib axes containing a plot of the surface.
+def plot_efh(surface, takeoff_angle, takeoff_point,
+             show_knee_collapse_line=True, skier=None, increment=0.2, ax=None,
+             **plot_kwargs):
+    """Returns a matplotlib axes containing a plot of the surface and its
+    corresponding equivalent fall height.
 
     Parameters
     ==========
@@ -213,21 +215,25 @@ def plot_efh(surface, takeoff_angle, takeoff_point, show_knee_collapse_line=True
     takeoff_angle : float
         Takeoff angle in degrees.
     takeoff_point : 2-tuple of floats
-        x and y coordinates of the point at which the skier leaves the
-        takeoff ramp.
-    show_knee_collapse_line : bool , optional
-        Displays value on plot of EFH (1.5 m) above which even elite
-        ski jumpers are unable to prevent knee collapse [Minetti]_.
-    skier : Skier , optional
-        A skier instance.
-    increment : float , optional
-            x increment in meters between each calculated landing location.
-    ax : array of Axes , shape(2,), optional
+        x and y coordinates relative to the surface's coordinate system of the
+        point at which the skier leaves the takeoff ramp.
+    show_knee_collapse_line : bool, optional
+        Displays a line on the EFH plot indicating the EHF above which even
+        elite ski jumpers are unable to prevent knee collapse. This value is
+        taken from [Minetti]_.
+    skier : Skier, optional
+        A skier instance. This is passed to ``calculate_efh``.
+    increment : float, optional
+        x increment in meters between each calculated landing location. This is
+        passed to ``calculate_efh``.
+    ax : array of Axes, shape(2,), optional
         An existing matplotlib axes to plot to - ax[0] equivalent fall height,
         ax[1] surface profile.
-    plot_kwargs : dict , optional
+    plot_kwargs : dict, optional
         Arguments to be passed to Axes.plot().
 
+    References
+    ==========
 
     ..  [Minetti] Minetti AE, Ardigo LP, Susta D, Cotelli F (2010)
         Using leg muscles as shock absorbers: theoretical predictions and
@@ -236,27 +242,31 @@ def plot_efh(surface, takeoff_angle, takeoff_point, show_knee_collapse_line=True
 
 
     """
-    if ax is None:
-        _, ax = plt.subplots(2, 1, sharex=True)
-        ax[0].set_ylabel('Equivalent Fall Height [m]')
-        ax[1].set_xlabel('Horizontal Position [m]')
-        ax[1].set_ylabel('Vertical Position [m]')
-
     if skier is None:
         skier = Skier()
 
-    takeoff_ang = np.rad2deg(takeoff_angle)
-    dist, efh = surface.calculate_efh(takeoff_ang, takeoff_point, skier, increment)
+    if ax is None:
+        _, ax = plt.subplots(2, 1, sharex=True)
 
-    if show_knee_collapse_line is True:
+    ax[0].set_ylabel('Equivalent Fall Height [m]')
+    ax[1].set_xlabel('Horizontal Position [m]')
+    ax[1].set_ylabel('Vertical Position [m]')
+
+    takeoff_ang = np.deg2rad(takeoff_angle)
+    dist, efh = surface.calculate_efh(takeoff_ang, takeoff_point, skier,
+                                      increment)
+
+    if show_knee_collapse_line:
         knee_collapse_efh = 1.5
         ax[0].axhline(knee_collapse_efh, label='Knee Collapse EFH, 1.5m',
                       linestyle=':', **plot_kwargs)
 
-    ax[0].bar(dist, efh, label='Calculated EFH', align='center', width=increment/2,
-              color='C1', **plot_kwargs)
-    ax[1].plot(surface.x, surface.y, label='Surface Profile', color='C2', **plot_kwargs)
-    ax[1].scatter(*zip(takeoff_point), label='Takeoff Point', color='C3', **plot_kwargs)
+    ax[0].bar(dist, efh, label='Calculated EFH', align='center',
+              width=increment/2, color='C1', **plot_kwargs)
+    ax[1].plot(surface.x, surface.y, label='Surface Profile', color='C2',
+               **plot_kwargs)
+    ax[1].scatter(*zip(takeoff_point), label='Takeoff Point', color='C3',
+                  **plot_kwargs)
 
     ax[0].legend()
     ax[1].legend()
