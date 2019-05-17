@@ -1,6 +1,6 @@
-=======================
-Example EFH Jump Design
-=======================
+========================
+Example: Design EFH Jump
+========================
 
 The following page describes how to construct a constant equivalent fall height
 ski jump landing surface using the ``skijumpdesign`` API. Make sure to :ref:`install <install>`
@@ -24,7 +24,6 @@ resulting surface can be visualized with the ``FlatSurface.plot()`` method.
    approach_len = 25.0  # meters
 
    approach = FlatSurface(approach_ang, approach_len)
-
    approach.plot()
 
 Now that a surface has been created, a skier can be created. The skier can "ski"
@@ -176,8 +175,9 @@ calculates the equivalent fall height for the surface that was produced.
 
    from skijumpdesign.functions import plot_efh
 
-   dist, efh = landing.calculate_efh(takeoff_ang, takeoff.end, skier, increment=0.2)
-   plot_efh(landing, takeoff_ang, takeoff.end)
+   dist, efh = landing.calculate_efh(takeoff_ang, takeoff.end,
+                                     skier, increment=0.2)
+   plot_efh(landing, np.rad2deg(takeoff_ang), takeoff.end)
 
 Entire Jump
 ===========
