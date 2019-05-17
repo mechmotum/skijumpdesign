@@ -111,7 +111,12 @@ Heroku Installation
 When installing into a Heroku instance, the application will make use of the
 ``requirements.txt`` file included in the source code which installs all of the
 dependencies needed to run the software on a live Heroku instance. Note that
-this currently only runs on the deprecated cedar-14 stack.
+this currently only runs on the deprecated cedar-14 stack. You need to set some
+environment variables for the Heroku app:
+
+- ``ONHEROKU=true``: Lets the app know if it is running on Heroku.
+- ``GATRACKINGID``: Set the value as a string with your Google Analytics
+  tracking id.
 
 .. [1] Note that you likely want to install into a user directory with
    pip/setuptools. See the pip and setuptools documentation on how to do this.
