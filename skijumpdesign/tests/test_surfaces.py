@@ -187,10 +187,10 @@ def test_calculate_efh(profile=False):
                                     skier, increment=0.1)
     np.testing.assert_allclose(np.diff(dist), 0.1 * np.ones(len(dist) - 1))
 
-    # Check if a surface that is before the takeoff point gives a nan EFH
-    dist, _ = takeoff.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end,
-                                    skier)
-    np.testing.assert_allclose(dist, [np.nan])
+    # Check if a surface that is before the takeoff point gives an error
+    with pytest.raises(InvalidJumpError):
+        dist, _ = takeoff.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end,
+                                        skier)
 
     # Create a surface with takeoff and landing to check if function only
     # calculates takeoff point and beyond
