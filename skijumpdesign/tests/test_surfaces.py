@@ -228,7 +228,7 @@ def test_calculate_efh(profile=False):
                  1.39619489, 1.3851331, 1.37427177, 1.36358857, 1.3531055,
                  1.34279368, 1.33250341, 1.32236275, 1.31250295, 1.30299843,
                  1.29359953, 1.28436784, 1.27530281, 1.26640151, 1.25789669])
-    np.testing.assert_allclose(expected_quad1, efh1, rtol=1e-5)
+    np.testing.assert_allclose(expected_quad1, efh1, rtol=1e-3)
 
     # Test function quadrant 2, negative takeoff angle
     takeoff_quad2 = (takeoff.end[0] - 2, takeoff.end[1] + 2)
@@ -257,7 +257,7 @@ def test_calculate_efh(profile=False):
                   0.98004604, 0.96871201, 0.95768052, 0.94693535, 0.93648955,
                   0.92630525, 0.91624628, 0.90642318, 0.8969507, 0.88788671,
                   0.87900833, 0.87036115, 0.86194071, 0.85374213, 0.84588294])
-    np.testing.assert_allclose(expected_quad2, efh2, rtol=1e-5)
+    np.testing.assert_allclose(expected_quad2, efh2, rtol=1e-3)
 
     # Test function quadrant 3
     takeoff_quad3 = (takeoff.end[0] - 2, takeoff.end[1] - 2)
