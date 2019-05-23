@@ -214,3 +214,6 @@ def test_calculate_efh(profile=False):
 
     # Test function quadrant 4
     takeoff_quad4 = (takeoff.end[0] + 2, takeoff.end[1] - 2)
+    with pytest.raises(InvalidJumpError):
+        dist, _ = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff_quad4,
+                                        skier, increment=0.2)
