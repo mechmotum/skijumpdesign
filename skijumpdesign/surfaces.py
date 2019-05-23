@@ -174,11 +174,16 @@ class Surface(object):
 
         isGreaterTakeoff = self.x >= takeoff_point[0]
         if sum(isGreaterTakeoff) < 2:
-            msg = ('Takeoff point must be before the surface.')
+            msg = ('Takeoff point cannot be downhill from surface.')
             raise InvalidJumpError(msg)
 
         if any(np.diff(self.x) < 0):
             msg = ('Distance coordinates are not monotonic.')
+            raise InvalidJumpError(msg)
+
+        check_takeoff = self.interp_y(takeoff_point[0])
+        if takeoff_point[1] - check_takeoff < 0:
+            msg = ('Takeoff point must be above the surface.')
             raise InvalidJumpError(msg)
 
         # NOTE : If the takeoff point is before the start of the surface and below the
@@ -222,7 +227,7 @@ class Surface(object):
                 skier.speed_to_land_at((x, y), takeoff_point, takeoff_angle,
                                        catch_surf)
             impact_speed, impact_angle = vel2speed(*impact_vel)
-            if impact_speed > 44: # Skier has reached 100 miles per hour
+            if takeoff_speed > 44: # Skier has reached 100 miles per hour (44m/s)
                 msg = ('Woah there! Slow down, your skier has reached 100mph.')
                 raise InvalidJumpError(msg)
             efh_coord = (impact_speed ** 2 * np.sin(m - impact_angle) ** 2 /
