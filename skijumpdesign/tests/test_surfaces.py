@@ -202,15 +202,30 @@ def test_calculate_efh(profile=False):
     np.testing.assert_allclose(efh[1:], fall_height, rtol=0.0, atol=8e-3)
     np.testing.assert_allclose(np.diff(dist), 0.2 * np.ones(len(dist) - 1))
 
+    # Create a surface where distance values are not monotonic
+    nonmonotonic_surf = Surface([2, 1, 3], [2, 4, 5])
+    with pytest.raises(InvalidJumpError):
+        nonmonotonic_surf.calculate_efh(np.deg2rad(takeoff_angle), (0, 0), skier)
+
     # Test function when takeoff point is in the first quadrant relative to
     # initial takeoff point (takeoff.end)
     takeoff_quad1 = (takeoff.end[0] + 2, takeoff.end[1] + 2)
 
-    # Test function quadrant 2
+    # Test function quadrant 2, negative takeoff angle
     takeoff_quad2 = (takeoff.end[0] - 2, takeoff.end[1] + 2)
+    with pytest.raises(InvalidJumpError):
+        dist, _ = landing.calculate_efh(np.deg2rad(-takeoff_angle), takeoff_quad2,
+                                        skier, increment=0.2)
+
+    # Test quadrant 2, positive takeoff angle
+    dist2, efh2 = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff_quad2,
+                                        skier, increment=0.2)
 
     # Test function quadrant 3
     takeoff_quad3 = (takeoff.end[0] - 2, takeoff.end[1] - 2)
+    with pytest.raises(InvalidJumpError):
+        dist, _ = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff_quad3,
+                                        skier, increment=0.2)
 
     # Test function quadrant 4
     takeoff_quad4 = (takeoff.end[0] + 2, takeoff.end[1] - 2)

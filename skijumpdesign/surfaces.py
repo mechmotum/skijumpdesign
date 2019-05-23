@@ -181,10 +181,6 @@ class Surface(object):
             msg = ('Distance coordinates are not monotonic.')
             raise InvalidJumpError(msg)
 
-        check_takeoff = self.interp_y(takeoff_point[0])
-        if takeoff_point[1] - check_takeoff < 0:
-            msg = ('Takeoff point must be above the surface.')
-            raise InvalidJumpError(msg)
 
         # NOTE : If the takeoff point is before the start of the surface and below the
         # height of the first surface point, the slope between the takeoff point
@@ -213,6 +209,12 @@ class Surface(object):
         kwargs = {'fill_value': 'extrapolate'}
         interp_y_efh = interp1d(x, y, **kwargs)
         height_y = interp_y_efh(distance_x)
+
+        if self.x[0] < takeoff_point[0] < self.x[-1]:
+            check_takeoff = interp_y_efh(takeoff_point[0])
+            if takeoff_point[1] - check_takeoff < 0:
+                msg = ('Takeoff point must be above the surface.')
+                raise InvalidJumpError(msg)
 
         # NOTE : Create a surface under the surface that the skier will impact
         # if they pass over the primary surface (self).
