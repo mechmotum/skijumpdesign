@@ -1,15 +1,15 @@
-=======================
-Example EFH Jump Design
-=======================
+========================
+Example: Design EFH Jump
+========================
 
-The following page describes how to construct a typical equivalent fall height
+The following page describes how to construct a constant equivalent fall height
 ski jump landing surface using the ``skijumpdesign`` API. Make sure to :ref:`install <install>`
 the library first.
 
 Approach
 ========
 
-Start by creating a 20 meter length of an approach surface (also called the
+Start by creating a 25 meter length of an approach path (also called the
 in-run) which is flat and has a downward slope angle of 20 degrees. The
 resulting surface can be visualized with the ``FlatSurface.plot()`` method.
 
@@ -21,10 +21,9 @@ resulting surface can be visualized with the ``FlatSurface.plot()`` method.
    from skijumpdesign import FlatSurface
 
    approach_ang = -np.deg2rad(20)  # radians
-   approach_len = 20.0  # meters
+   approach_len = 25.0  # meters
 
    approach = FlatSurface(approach_ang, approach_len)
-
    approach.plot()
 
 Now that a surface has been created, a skier can be created. The skier can "ski"
@@ -44,12 +43,11 @@ skiing simulation trajectory.
 
    approach_traj.plot_time_series()
 
-Takeoff
-=======
+Approach-Takeoff Transition
+===========================
 
-The takeoff ramp is constructed with a clothoid-circle-clothoid-flat surface to
-transition from the approach parent slope angle to the desired takeoff angle, in this case 15
-degrees.
+The approach-takeoff transition is constructed with a clothoid-circle-clothoid-flat surface to
+transition from the parent slope angle to the desired takeoff angle, in this case 15 degrees.
 
 .. plot::
    :include-source: True
@@ -97,7 +95,8 @@ Once the skier leaves the takeoff ramp at the maximum (design) speed they will b
 
    flight.plot_time_series()
 
-The design speed flight trajectory can be plotted alongside the surfaces.
+The design speed flight trajectory can be plotted as an extension of the approach and takeoff
+surfaces.
 
 .. plot::
    :include-source: True
@@ -116,8 +115,8 @@ equation and provide the desired equivalent fall height. The algorithm selects
 the one of these that is closest to the parent slope, and hence is least expensive 
 to build, but which still is able to transition back to the parent slope with 
 slope continuity and simultaneously is constrained to experience limited normal acceleration. 
-The final part of this step is to determine the landing transition curve which 
-connects the optimum (cheapest) constant efh landing surface to the parent slope.
+The final part of this step is to determine the landing transition curve (shown in red below)
+which connects the optimum (cheapest) constant efh landing surface to the parent slope.
 
 .. plot::
    :include-source: True
@@ -136,11 +135,13 @@ connects the optimum (cheapest) constant efh landing surface to the parent slope
    ax = flight.plot(ax=ax, color='#9467bd')
    landing_trans.plot(ax=ax, color='#d62728')
 
-Landing
-=======
+Constant EFH Landing
+====================
 
-Finally, the equivalent fall height landing surface can be generated which
-accommodates all takeoff speeds below the maximum takeoff (design) speed above.
+Finally, the cheapest equivalent fall height landing surface (shown in green below)
+can be calculated. This surface is continuous in slope with the landing transition
+surface at the impact point. It accommodates all takeoff speeds below the maximum
+takeoff (design) speed above.
 
 .. plot::
    :include-source: True
@@ -162,6 +163,21 @@ accommodates all takeoff speeds below the maximum takeoff (design) speed above.
    ax = flight.plot(ax=ax, color='#9467bd')
    ax = landing_trans.plot(ax=ax, color='#d62728')
    landing.plot(ax=ax, color='#2ca02c')
+
+The design calculates a landing surface shape that produces a constant equivalent
+fall height. This can be verified using the ``landing.calculate_efh()`` function that
+calculates the equivalent fall height for the surface that was produced.
+
+.. plot::
+   :include-source: True
+   :context: close-figs
+   :width: 600px
+
+   from skijumpdesign.functions import plot_efh
+
+   dist, efh = landing.calculate_efh(takeoff_ang, takeoff.end,
+                                     skier, increment=0.2)
+   plot_efh(landing, np.rad2deg(takeoff_ang), takeoff.end)
 
 Entire Jump
 ===========

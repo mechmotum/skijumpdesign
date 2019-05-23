@@ -240,6 +240,7 @@ def plot_efh(surface, takeoff_angle, takeoff_point,
         experimental results of drop landing performance.
         Ergonomics 41(12):1771–1791
 
+
     """
     if skier is None:
         skier = Skier()
