@@ -62,6 +62,7 @@ class Surface(object):
         self.interp_curvature = interp1d(self.x, self.curvature, **kwargs)
 
     def _check_monotonic(self):
+        # NOTE: eps solution only works when adding to 0.
         eps = np.finfo(float).eps
         while any(np.diff(self.x) == 0):
             idx = np.array(np.where(np.diff(self.x) == 0), dtype=np.int32)
@@ -189,8 +190,6 @@ class Surface(object):
             msg = ('Takeoff point cannot be downhill from surface.')
             raise InvalidJumpError(msg)
 
-
-
         # NOTE : If the takeoff point is before the start of the surface and below the
         # height of the first surface point, the slope between the takeoff point
         # and the left-most surface point must be less than the takeoff angle.
@@ -229,9 +228,9 @@ class Surface(object):
 
         # NOTE : Create a surface under the surface that the skier will impact
         # if they pass over the primary surface (self).
-        catch_surf = HorizontalSurface(np.nanmin(height_y) - 0.1,
-                                       self.x[0] - self.x[-1] + 2.0,
-                                       start=self.x[0] - 1.0)
+        catch_surf = HorizontalSurface(np.min(height_y) - 0.1,
+                                       abs(distance_x[0] - distance_x[-1] + 2.0),
+                                       start=distance_x[-1] - 1.0)
 
         efh = []
 
