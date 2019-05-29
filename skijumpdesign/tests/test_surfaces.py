@@ -203,9 +203,8 @@ def test_calculate_efh(profile=False):
     np.testing.assert_allclose(np.diff(dist), 0.2 * np.ones(len(dist) - 1))
 
     # Create a surface where distance values are not monotonic
-    nonmonotonic_surf = Surface([2, 1, 3], [2, 4, 5])
     with pytest.raises(InvalidJumpError):
-        nonmonotonic_surf.calculate_efh(np.deg2rad(takeoff_angle), (0, 0), skier)
+        nonmonotonic_surf = Surface([2, 1, 3], [2, 4, 5])
 
     # Test function when takeoff point is in the first quadrant relative to
     # initial takeoff point (takeoff.end)
