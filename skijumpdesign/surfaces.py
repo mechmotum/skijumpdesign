@@ -64,9 +64,14 @@ class Surface(object):
     def _check_monotonic(self):
         # NOTE: eps solution only works when adding to 0.
         eps = np.finfo(float).eps
+        count = 0
         while any(np.diff(self.x) == 0):
             idx = np.array(np.where(np.diff(self.x) == 0), dtype=np.int32)
-            self.x[idx+1] += eps
+            self.x[idx+1] += 20*eps
+            count += 1
+            if count > 10:
+                msg = ('While loop ran for too long: epsilon error')
+                raise InvalidJumpError(msg)
         if any(np.diff(self.x) < 0):
             msg = ('Distance coordinates are not monotonic.')
             raise InvalidJumpError(msg)
