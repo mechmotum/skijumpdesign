@@ -190,6 +190,10 @@ class Surface(object):
         Give user feedback on the app that the nan values are ----
         """
 
+        if abs(takeoff_angle) > np.pi/2:
+            msg = ('Takeoff angle must be between -pi/2 and pi/2.')
+            raise InvalidJumpError(msg)
+
         isGreaterTakeoff = self.x >= takeoff_point[0]
         if sum(isGreaterTakeoff) < 2:
             msg = ('Takeoff point cannot be downhill from surface.')
