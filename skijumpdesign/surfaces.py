@@ -44,6 +44,7 @@ class Surface(object):
 
     def _initialize_surface(self):
 
+        self._check_monotonic()
         self._initialize_gradients()
         self._initialize_interpolators()
 
@@ -59,6 +60,15 @@ class Surface(object):
         self.interp_y = interp1d(self.x, self.y, **kwargs)
         self.interp_slope = interp1d(self.x, self.slope, **kwargs)
         self.interp_curvature = interp1d(self.x, self.curvature, **kwargs)
+
+    def _check_monotonic(self):
+        eps = np.finfo(float).eps
+        while any(np.diff(self.x) == 0):
+            idx = np.array(np.where(np.diff(self.x) == 0), dtype=np.int32)
+            self.x[idx+1] += eps
+        if any(np.diff(self.x) < 0):
+            msg = ('Distance coordinates are not monotonic.')
+            raise InvalidJumpError(msg)
 
     @property
     def start(self):
@@ -169,7 +179,9 @@ class Surface(object):
         efh : ndarray, shape(n,)
             The equivalent fall height corresponding to each value in
             ``distance_x``.
-
+        check takeoff angle is -pi/2 and pi/2, give nans for ones you can't hit
+        it should still give you values for the ones before 44m/s.
+        Give user feedback on the app that the nan values are ----
         """
 
         isGreaterTakeoff = self.x >= takeoff_point[0]
@@ -177,19 +189,18 @@ class Surface(object):
             msg = ('Takeoff point cannot be downhill from surface.')
             raise InvalidJumpError(msg)
 
-        if any(np.diff(self.x) < 0):
-            msg = ('Distance coordinates are not monotonic.')
-            raise InvalidJumpError(msg)
 
 
         # NOTE : If the takeoff point is before the start of the surface and below the
         # height of the first surface point, the slope between the takeoff point
         # and the left-most surface point must be less than the takeoff angle.
-        if (takeoff_point[0] < self.start[0]) and (takeoff_point[1] < self.start[1]):
+        # IF theta_t > theta_1 it may be possible to hit the surface from above.
+        # t
+        if (takeoff_point[0] < self.start[0]):
             slope = (self.start[1] - takeoff_point[1])/(self.start[0] - takeoff_point[0])
             if takeoff_angle < np.arctan(slope):
-                msg = ('Takeoff angle needs to be greater than slope between '
-                       'leftmost surface point and takeoff point.')
+                msg = ('Takeoff angle does not allow impact on the surface '
+                       'from above.')
                 raise InvalidJumpError(msg)
 
         x = self.x[isGreaterTakeoff]
