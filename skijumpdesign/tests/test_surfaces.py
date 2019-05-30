@@ -180,9 +180,19 @@ def test_calculate_efh(profile=False):
         print(p.output_text(unicode=True, color=True))
 
     np.testing.assert_allclose(np.diff(dist), 0.2 * np.ones(len(dist) - 1))
-    np.testing.assert_allclose(efh[0], 0.0)
+    # np.testing.assert_allclose(efh[0], 0.0)
     np.testing.assert_allclose(efh[1:], fall_height, rtol=0.0, atol=8e-3)
 
     dist, _ = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end,
                                     skier, increment=0.1)
     np.testing.assert_allclose(np.diff(dist), 0.1 * np.ones(len(dist) - 1))
+
+    dist, _ = takeoff.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end,
+                                    skier)
+    np.testing.assert_allclose(dist, [np.nan])
+
+    x = np.concatenate([takeoff.x, landing.x])
+    y = np.concatenate([takeoff.y, landing.y])
+    new_surf = Surface(x, y)
+    dist, efh = new_surf.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end, skier)
+    np.testing.assert_allclose(efh[1:], fall_height, rtol=0.0, atol=8e-3)
