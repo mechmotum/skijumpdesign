@@ -73,7 +73,7 @@ class Surface(object):
                 msg = ('While loop ran for too long: epsilon error')
                 raise InvalidJumpError(msg)
         if any(np.diff(self.x) < 0):
-            msg = ('Distance coordinates are not monotonic.')
+            msg = ('Distance coordinates are not monotonically increasing.')
             raise InvalidJumpError(msg)
 
     @property
@@ -185,32 +185,31 @@ class Surface(object):
         efh : ndarray, shape(n,)
             The equivalent fall height corresponding to each value in
             ``distance_x``.
-        check takeoff angle is -pi/2 and pi/2, give nans for ones you can't hit
-        it should still give you values for the ones before 44m/s.
-        Give user feedback on the app that the nan values are ----
         """
 
         if abs(takeoff_angle) > np.pi/2:
             msg = ('Takeoff angle must be between -pi/2 and pi/2.')
             raise InvalidJumpError(msg)
 
-        isGreaterTakeoff = self.x >= takeoff_point[0]
-        if sum(isGreaterTakeoff) < 2:
+        if self.x[0] < takeoff_point[0] < self.x[-1]:
+            check_takeoff = self.interp_y(takeoff_point[0])
+            if takeoff_point[1] - check_takeoff < 0:
+                msg = ('Takeoff point must be above the surface.')
+                raise InvalidJumpError(msg)
+        elif self.end[0] <= takeoff_point[0]:
             msg = ('Takeoff point cannot be downhill from surface.')
             raise InvalidJumpError(msg)
-
         # NOTE : If the takeoff point is before the start of the surface and below the
         # height of the first surface point, the slope between the takeoff point
         # and the left-most surface point must be less than the takeoff angle.
-        # IF theta_t > theta_1 it may be possible to hit the surface from above.
-        # t
-        if (takeoff_point[0] < self.start[0]):
+        elif (takeoff_point[0] < self.start[0]):
             slope = (self.start[1] - takeoff_point[1])/(self.start[0] - takeoff_point[0])
             if takeoff_angle < np.arctan(slope):
                 msg = ('Takeoff angle does not allow impact on the surface '
                        'from above.')
                 raise InvalidJumpError(msg)
 
+        isGreaterTakeoff = self.x >= takeoff_point[0]
         x = self.x[isGreaterTakeoff]
         y = self.y[isGreaterTakeoff]
 
@@ -229,11 +228,6 @@ class Surface(object):
         interp_y_efh = interp1d(x, y, **kwargs)
         height_y = interp_y_efh(distance_x)
 
-        if self.x[0] < takeoff_point[0] < self.x[-1]:
-            check_takeoff = interp_y_efh(takeoff_point[0])
-            if takeoff_point[1] - check_takeoff < 0:
-                msg = ('Takeoff point must be above the surface.')
-                raise InvalidJumpError(msg)
 
         # NOTE : Create a surface under the surface that the skier will impact
         # if they pass over the primary surface (self).
@@ -248,16 +242,15 @@ class Surface(object):
                 skier.speed_to_land_at((x, y), takeoff_point, takeoff_angle,
                                        catch_surf)
             impact_speed, impact_angle = vel2speed(*impact_vel)
-            if takeoff_speed > 44: # Skier has reached 100 miles per hour (44m/s)
-                msg = ('Woah there! Slow down, your skier has reached 100mph.')
-                raise InvalidJumpError(msg)
+            # NOTE : A nan is inserted if skier surpasses 100 miles per hour
+            if takeoff_speed > 44:
+                efh.append(np.nan)
+                break
             efh_coord = (impact_speed ** 2 * np.sin(m - impact_angle) ** 2 /
                          (2 * GRAV_ACC))
             efh.append(efh_coord)
 
-        efh = np.nan_to_num(efh)
-
-        return distance_x, np.array(efh)
+        return distance_x[:len(efh)], np.array(efh)
 
     def plot(self, ax=None, **plot_kwargs):
         """Returns a matplotlib axes containing a plot of the surface.
