@@ -1110,7 +1110,8 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
         dic = populated_graph(surfs)
         input_params = [-slope_angle, approach_len, takeoff_angle, fall_height]
         outputs['download'] = generate_csv_data(surfs)
-        outputs['filename'] = "profile-sa{}-al{}-ta{}-efh{}.csv".format(*input_params)
+        outputs['filename'] = "profile-sa{:.1f}-al{:.1f}-ta{:.1f}-" \
+                              "efh{:.2f}.csv".format(*input_params)
         dic['outputs'] = outputs
 
     if cmd_line_args.profile:
