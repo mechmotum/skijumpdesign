@@ -239,7 +239,22 @@ def test_calculate_efh(profile=False):
                                          skier, increment=0.2)
     expected_speedskier = \
         np.array([2.19864804, 2.81796169, 3.02391351, 3.06098472, 3.37912743,
-                  3.79123023, 4.43642894, 5.67024268, 9.02957195,    np.nan])
+                  3.79123023, 4.43642894, 5.67024268, 9.02957195, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan,
+                  np.nan, np.nan, np.nan, np.nan, np.nan])
     np.testing.assert_allclose(expected_speedskier, efh_speed, rtol=1e-3)
 
     # Test quadrant 2, positive takeoff angle
