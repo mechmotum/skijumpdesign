@@ -73,7 +73,7 @@ class Surface(object):
                 msg = ('While loop ran for too long: epsilon error')
                 raise InvalidJumpError(msg)
         if any(np.diff(self.x) < 0):
-            msg = ('Distance coordinates are not monotonically increasing.')
+            msg = ('x-coordinates are not monotonically increasing.')
             raise InvalidJumpError(msg)
 
     @property
@@ -194,7 +194,7 @@ class Surface(object):
         if self.x[0] < takeoff_point[0] < self.x[-1]:
             check_takeoff = self.interp_y(takeoff_point[0])
             if takeoff_point[1] - check_takeoff < 0:
-                msg = ('Takeoff point must be above the surface.')
+                msg = ('Takeoff point cannot be under the surface.')
                 raise InvalidJumpError(msg)
         elif self.end[0] <= takeoff_point[0]:
             msg = ('Takeoff point cannot be downhill from surface.')
@@ -235,22 +235,25 @@ class Surface(object):
                                        abs(distance_x[0] - distance_x[-1] + 2.0),
                                        start=distance_x[-1] - 1.0)
 
-        efh = []
+        efh = np.empty(len(distance_x))
+        efh[:] = np.nan
 
-        for x, y, m in zip(distance_x, height_y, slope_angle):
+        for i, (x, y, m) in enumerate(zip(distance_x, height_y, slope_angle)):
             takeoff_speed, impact_vel = \
                 skier.speed_to_land_at((x, y), takeoff_point, takeoff_angle,
                                        catch_surf)
+            # TODO: Use fly to check that it hits the x,y
             impact_speed, impact_angle = vel2speed(*impact_vel)
             # NOTE : A nan is inserted if skier surpasses 100 miles per hour
             if takeoff_speed > 44:
-                efh.append(np.nan)
+                msg = 'Impact of the surface from above is only possible until {:.2f} ' \
+                      'meters. Calculation aborted.'
+                logging.warning(msg.format(x))
                 break
-            efh_coord = (impact_speed ** 2 * np.sin(m - impact_angle) ** 2 /
-                         (2 * GRAV_ACC))
-            efh.append(efh_coord)
+            efh[i] = (impact_speed ** 2 * np.sin(m - impact_angle) ** 2 /
+                      (2 * GRAV_ACC))
 
-        return distance_x[:len(efh)], np.array(efh)
+        return distance_x, efh
 
     def plot(self, ax=None, **plot_kwargs):
         """Returns a matplotlib axes containing a plot of the surface.
