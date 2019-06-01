@@ -373,7 +373,7 @@ button = html.A('Download Profile',
                 href='',
                 className='btn btn-primary',
                 target='_blank',
-                download='profile.csv')
+                download='')
 
 row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
                 id='error-bar',
@@ -489,7 +489,9 @@ The table provides a set of outputs about the currently visible jump design:
 ### Profile
 
 The **Download Profile** button returns a comma separated value text file with
-two columns. The first column provides the distance from the top of the jump
+two columns. The filename of the profile has the input parameters for the jump;
+slope angle (sa), approach length (al), takeoff angle (ta), and equivalent fall
+height (efh). The first column provides the distance from the top of the jump
 (start of the takeoff curve) at every meter along the slope and corresponding
 values of the height above the parent slope in the second column. Both columns
 are in meters. This data is primarily useful in building the actual jump, see
@@ -1094,6 +1096,7 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
         logging.error('Graph update error:', exc_info=e)
         dic = blank_graph('<br>'.join(textwrap.wrap(str(e), 30)))
         dic['outputs'] = {'download': '#',
+                          'filename': 'profile.csv',
                           'Takeoff Speed': 0.0,
                           'Snow Budget': 0.0,
                           'Flight Time': 0.0,
@@ -1105,7 +1108,10 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
         for surface in surfs:
             surface.shift_coordinates(-new_origin[0], -new_origin[1])
         dic = populated_graph(surfs)
+        input_params = [-slope_angle, approach_len, takeoff_angle, fall_height]
         outputs['download'] = generate_csv_data(surfs)
+        outputs['filename'] = "profile-sa{:.1f}-al{:.1f}-ta{:.1f}-" \
+                              "efh{:.2f}.csv".format(*input_params)
         dic['outputs'] = outputs
 
     if cmd_line_args.profile:
@@ -1164,6 +1170,13 @@ def update_download_link(json_data):
     csv_string = dic['outputs']['download']
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
+
+@app.callback(Output('download-button', 'download'),
+              [Input('data-store', 'children')])
+def update_download_link(json_data):
+    dic = json.loads(json_data)
+    filename = dic['outputs']['filename']
+    return filename
 
 ###############################################################################
 # ANALYSIS FUNCTIONALITY
