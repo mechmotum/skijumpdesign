@@ -32,6 +32,7 @@ can be accessed at http://www.skijumpdesign.info.
    web-app.rst
    build-jump.rst
    analyze-jump.rst
+   real-jumps.rst
    api.rst
 
 References

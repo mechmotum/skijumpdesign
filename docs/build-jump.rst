@@ -15,7 +15,7 @@ resulting surface can be visualized with the ``FlatSurface.plot()`` method.
 
 .. plot::
    :include-source: True
-   :context:
+   :context: close-figs
    :width: 600px
 
    from skijumpdesign import FlatSurface

@@ -94,7 +94,8 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
     flight : Trajectory
         The maximum velocity flight trajectory.
     outputs : dictionary
-        A dictionary of output values.
+        A dictionary of output values with keys: ``Takeoff Speed``, ``Flight
+        Time``, and ``Snow Budget``.
 
     """
 
