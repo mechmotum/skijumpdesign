@@ -150,7 +150,7 @@ class Surface(object):
                 raise ValueError('x_end has to be between start and end.')
         else:
             x_end = self.end[0]
-        x = np.linspace(x_start, x_end, num=(x_end - x_start) / interval)
+        x = np.linspace(x_start, x_end, num=int((x_end - x_start) / interval))
         y = self.interp_y(x)
         return trapz(y, x)
 
