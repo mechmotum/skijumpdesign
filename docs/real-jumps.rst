@@ -205,8 +205,8 @@ fall height. The figure below shows such a comparison.
    slope_angle = -10.0  # degrees
    approach_length = 70.0  # meters
 
-   #compare_measured_to_designed(landing_surface, fall_height, slope_angle,
-                                #approach_length, takeoff_angle, skier)
+   compare_measured_to_designed(landing_surface, fall_height, slope_angle,
+                                approach_length, takeoff_angle, skier)
 
 Washington 2004
 ===============
