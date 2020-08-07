@@ -18,7 +18,7 @@ dependencies:
   - coverage
   - pytest-cov
   - pyinstrument
-  - sphinx <2
+  - sphinx
   - flask
   - plotly
   - dash
