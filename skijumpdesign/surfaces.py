@@ -228,7 +228,6 @@ class Surface(object):
         interp_y_efh = interp1d(x, y, **kwargs)
         height_y = interp_y_efh(distance_x)
 
-
         # NOTE : Create a surface under the surface that the skier will impact
         # if they pass over the primary surface (self).
         catch_surf = HorizontalSurface(np.min(height_y) - 0.1,
@@ -246,8 +245,8 @@ class Surface(object):
             impact_speed, impact_angle = vel2speed(*impact_vel)
             # NOTE : A nan is inserted if skier surpasses 100 miles per hour
             if takeoff_speed > 44:
-                msg = 'Impact of the surface from above is only possible until {:.2f} ' \
-                      'meters. Calculation aborted.'
+                msg = ('Impact of the surface from above is only possible until'
+                       ' {:.2f} meters. Calculation aborted.')
                 logging.warning(msg.format(x))
                 break
             efh[i] = (impact_speed ** 2 * np.sin(m - impact_angle) ** 2 /
@@ -274,7 +273,9 @@ class Surface(object):
 
         ax.plot(self.x, self.y, **plot_kwargs)
 
+        # TODO : These two lines probably only need to be set if ax is None.
         ax.set_aspect('equal')
+        ax.grid()
 
         return ax
 
