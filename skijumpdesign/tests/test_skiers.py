@@ -210,8 +210,8 @@ def test_slide_on_regression():
                                delimiter=',')
 
     np.testing.assert_allclose(takeoff_traj.t,
-                               expected_times, rtol=1e-16)
+                               expected_times, rtol=1e-14)
     np.testing.assert_allclose(takeoff_traj.pos[:, 0],
-                               expected_traj[0], rtol=1e-16)
+                               expected_traj[0], rtol=1e-15)
     np.testing.assert_allclose(takeoff_traj.speed,
-                               expected_traj[1], rtol=1e-16)
+                               expected_traj[1], rtol=1e-14)
