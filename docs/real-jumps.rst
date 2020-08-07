@@ -66,6 +66,26 @@ equivalent fall height for this reason.
        Ergonomics, vol. 41, no. 12, pp. 1771–1791, Dec. 1998, doi:
        10.1080/001401398185965.
 
+Design Speed
+============
+
+The "design speed" for a constant equivalent fall height jump is defined in
+[3]_ as:
+
+   The maximum takeoff velocity (resulting from the highest start point and
+   minimum snow friction :math:`\mu` and air drag :math:`\eta`) is called the
+   design speed.
+
+It is the maximum expected takeoff speed of a skier or snowboarder, which is a
+function of the inrun length, slope, friction coefficient, and air drag. The
+designed jumps ensure a constant equivalent fall height up to this design
+speed.
+
+.. [3] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A
+       Design Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall
+       Height." Sports Engineering 18, no. 4 (December 2015): 227–39.
+       https://doi.org/10.1007/s12283-015-0182-6.
+
 California 2002
 ===============
 
