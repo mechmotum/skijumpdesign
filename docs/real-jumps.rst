@@ -150,8 +150,8 @@ fall height. The figure below shows such a comparison.
        efh_ax.bar(dist, efh, color='black', align='center', width=increment/2,
                   label="Measured Landing Surface")
 
-       dist, efh = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end,
-                                         skier, increment)
+       dist, efh = landing.calculate_efh(np.deg2rad(takeoff_angle),
+                                         takeoff.end, skier, increment)
 
        efh_ax.bar(dist, efh, color='C2', align='edge', width=increment/2,
                   label="Designed Landing Surface")
@@ -162,7 +162,11 @@ fall height. The figure below shows such a comparison.
        efh_ax.bar(dist, efh, color='C2', align='edge', width=increment/2,
                   label=None)
 
-       efh_ax.axhline(1.5, color='C1', label='Knee Collapse Height')
+       efh_ax.axhline(4.6, color='C1', label='Avg. 2 Storey Fall Height')
+       efh_ax.axhline(3.0, color='C1', linestyle='dashed',
+                      label='Avg. 1 Storey Fall Height')
+       efh_ax.axhline(1.5, color='C1', linestyle='dashdot',
+                      label='Knee Collapse Height')
 
        prof_ax = takeoff.plot(ax=prof_ax, linewidth=2, color='C2', label=None)
 
@@ -191,6 +195,7 @@ fall height. The figure below shows such a comparison.
        #efh_ax.get_shared_x_axes().join(efh_ax, prof_ax)
 
        efh_ax.grid()
+       prof_ax.grid()
        efh_ax.legend(loc='upper left')
        prof_ax.legend(loc='lower left')
 
@@ -202,8 +207,8 @@ fall height. The figure below shows such a comparison.
    :width: 600px
 
    fall_height = 1.0  # meters
-   slope_angle = -10.0  # degrees
-   approach_length = 70.0  # meters
+   slope_angle = -8.0  # degrees
+   approach_length = 180.0  # meters
 
    compare_measured_to_designed(landing_surface, fall_height, slope_angle,
                                 approach_length, takeoff_angle, skier)
@@ -264,8 +269,8 @@ they will be subjected to dangerous impact velocities.
    :width: 600px
 
    fall_height = 1.0  # meters
-   slope_angle = -15.0  # degrees
-   approach_length = 30.0  # meters
+   slope_angle = -10.0  # degrees
+   approach_length = 220.0  # meters
 
    compare_measured_to_designed(landing_surface, fall_height, slope_angle,
                                 approach_length, takeoff_angle, skier)
@@ -451,7 +456,7 @@ fall height. The figure below shows such a comparison.
 
    fall_height = 1.0  # meters
    slope_angle = -10.0  # degrees
-   approach_length = 70.0  # meters
+   approach_length = 100.0  # meters
 
    compare_measured_to_designed(landing_surface, fall_height, slope_angle,
                                 approach_length, takeoff_angle, skier)
