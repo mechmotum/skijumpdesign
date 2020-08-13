@@ -1264,22 +1264,14 @@ def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
 
     # TODO : Check that they at least have a data point every 0.5 meters.
 
-    # NOTE : Don't calculate EHF for surfaces greater than 40 meters in length
-    # from takeoff point.
-    if x_vals[-1] > 40.0:
-        idx = np.argmin(np.abs(x_vals - 40.0))
-        error_text = 'Surface truncated to 40 meters in length.'
-    else:
-        idx = -1
-        error_text = ''
-
     takeoff_angle = np.deg2rad(takeoff_angle)
     takeoff_point = (0, 0)
+    error_text = ''
 
     skier = Skier()
 
     try:
-        surface = Surface(x_vals[:idx], y_vals[:idx])
+        surface = Surface(x_vals, y_vals)
         distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point,
                                               skier, increment=0.5)
         update_graph = populated_efh_graph(takeoff_point, surface, distance,
