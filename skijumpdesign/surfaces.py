@@ -185,6 +185,9 @@ class Surface(object):
         efh : ndarray, shape(n,)
             The equivalent fall height corresponding to each value in
             ``distance_x``.
+        takeoff_speeds : ndarray, shape(n,)
+            The takeoff speed required to land the corresponding x coordinate.
+
         """
 
         if abs(takeoff_angle) > np.pi/2:
@@ -236,6 +239,7 @@ class Surface(object):
 
         efh = np.empty(len(distance_x))
         efh[:] = np.nan
+        takeoff_speeds = np.full(len(distance_x), np.nan)
 
         for i, (x, y, m) in enumerate(zip(distance_x, height_y, slope_angle)):
             takeoff_speed, impact_vel = \
@@ -251,8 +255,9 @@ class Surface(object):
                 break
             efh[i] = (impact_speed ** 2 * np.sin(m - impact_angle) ** 2 /
                       (2 * GRAV_ACC))
+            takeoff_speeds[i] = takeoff_speed
 
-        return distance_x, efh
+        return distance_x, efh, takeoff_speeds
 
     def plot(self, ax=None, **plot_kwargs):
         """Returns a matplotlib axes containing a plot of the surface.

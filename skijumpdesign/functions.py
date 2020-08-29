@@ -254,8 +254,8 @@ def plot_efh(surface, takeoff_angle, takeoff_point,
     ax[1].set_ylabel('Vertical Position [m]')
 
     takeoff_ang = np.deg2rad(takeoff_angle)
-    dist, efh = surface.calculate_efh(takeoff_ang, takeoff_point, skier,
-                                      increment)
+    dist, efh, _ = surface.calculate_efh(takeoff_ang, takeoff_point, skier,
+                                         increment)
 
     if show_knee_collapse_line:
         knee_collapse_efh = 1.5

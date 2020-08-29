@@ -164,20 +164,20 @@ fall height. The figure below shows such a comparison.
 
        increment = 1.0
 
-       dist, efh = measured_surface.calculate_efh(np.deg2rad(takeoff_angle),
-                                                  takeoff.end, skier, increment)
+       dist, efh, _ = measured_surface.calculate_efh(np.deg2rad(takeoff_angle),
+                                                     takeoff.end, skier, increment)
 
        efh_ax.bar(dist, efh, color='black', align='center', width=increment/2,
                   label="Measured Landing Surface")
 
-       dist, efh = landing.calculate_efh(np.deg2rad(takeoff_angle),
-                                         takeoff.end, skier, increment)
+       dist, efh, _ = landing.calculate_efh(np.deg2rad(takeoff_angle),
+                                            takeoff.end, skier, increment)
 
        efh_ax.bar(dist, efh, color='C2', align='edge', width=increment/2,
                   label="Designed Landing Surface")
 
-       dist, efh = landing_trans.calculate_efh(np.deg2rad(takeoff_angle),
-                                               takeoff.end, skier, increment)
+       dist, efh, _ = landing_trans.calculate_efh(np.deg2rad(takeoff_angle),
+                                                  takeoff.end, skier, increment)
 
        efh_ax.bar(dist, efh, color='C2', align='edge', width=increment/2,
                   label=None)
