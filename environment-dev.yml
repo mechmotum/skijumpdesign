@@ -1,28 +1,27 @@
 name: skijumpdesign-dev
 channels:
   - conda-forge
-  - defaults
 dependencies:
-  - python >=3.5
-  - setuptools
-  - ipython
-  - numpy >=0.13.0  # requires new options in gradient()
-  - scipy >=1.0  # requires solve_ivp()
-  - matplotlib
-  - sympy
-  - pandas
-  - cython
-  - fastcache
-  - pytest
   - coverage
-  - pytest-cov
-  - pyinstrument
-  - sphinx
-  - flask
-  - plotly
+  - cython
   - dash
-  - dash-renderer
-  - dash-html-components
   - dash-core-components
+  - dash-html-components
+  - dash-renderer
   - dash-table
+  - fastcache
+  - flask
+  - ipython
+  - matplotlib
+  - numpy >=0.13.0  # requires new options in gradient()
+  - pandas
+  - plotly
+  - pyinstrument
+  - pytest
+  - pytest-cov
+  - python >=3.6
+  - scipy >=1.0  # requires solve_ivp()
+  - setuptools
+  - sphinx
+  - sympy
   - xlrd
