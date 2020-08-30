@@ -200,7 +200,8 @@ def test_calculate_efh(profile=False):
     np.testing.assert_allclose(np.diff(dist), 0.2 * np.ones(len(dist) - 1))
     np.testing.assert_allclose(efh[0], 0.0)
     np.testing.assert_allclose(efh[1:], fall_height, rtol=0.0, atol=8e-3)
-    np.testing.assert_allclose(speeds, expected_speeds)
+    np.testing.assert_allclose(speeds, expected_speeds, rtol=3.0e-5,
+                               atol=3.0e-4)
 
     dist, _, _ = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end,
                                        skier, increment=0.1)
