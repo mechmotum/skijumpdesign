@@ -126,7 +126,7 @@ equivalent fall height can be visualized across the landing surface.
    skier = Skier()
 
    plot_efh(landing_surface, takeoff_angle, takeoff_point,
-            skier=skier, increment=1.0)
+            skier=skier, increment=0.1)
 
 The actual jump can be compared to a jump designed with a constant equivalent
 fall height. The figure below shows such a comparison.
