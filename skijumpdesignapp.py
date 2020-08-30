@@ -1272,8 +1272,8 @@ def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
 
     try:
         surface = Surface(x_vals, y_vals)
-        distance, efh = surface.calculate_efh(takeoff_angle, takeoff_point,
-                                              skier, increment=0.5)
+        distance, efh, _ = surface.calculate_efh(takeoff_angle, takeoff_point,
+                                                 skier, increment=0.5)
         update_graph = populated_efh_graph(takeoff_point, surface, distance,
                                            efh)
         data = np.vstack((distance, efh)).T

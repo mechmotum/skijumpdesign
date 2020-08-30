@@ -172,32 +172,53 @@ def test_calculate_efh(profile=False):
         p = Profiler()
         p.start()
 
-    dist, efh = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end,
-                                      skier)
-
+    dist, efh, speeds = landing.calculate_efh(np.deg2rad(takeoff_angle),
+                                              takeoff.end, skier)
     if profile:
         p.stop()
         print(p.output_text(unicode=True, color=True))
 
+    expected_speeds = \
+        np.array([ 0.        ,  0.64634268,  1.2356876 ,  1.76885108,  2.24964887,
+                   2.69168606,  3.09866358,  3.47053895,  3.81252508,  4.12895563,
+                   4.42290851,  4.69632597,  4.95135992,  5.1898158 ,  5.41341136,
+                   5.62352591,  5.82141688,  6.00814636,  6.18473831,  6.35203728,
+                   6.51082732,  6.66178867,  6.80554642,  6.94264205,  7.07360671,
+                   7.19885863,  7.31883812,  7.43389184,  7.54435492,  7.65055735,
+                   7.75276447,  7.85122643,  7.94619036,  8.03785699,  8.12644327,
+                   8.21211438,  8.29503769,  8.37538282,  8.45328143,  8.5288697 ,
+                   8.60226895,  8.67359403,  8.74294598,  8.81043762,  8.87615365,
+                   8.94017827,  9.00259044,  9.06346839,  9.12288563,  9.18090629,
+                   9.2375861 ,  9.29299052,  9.34717415,  9.40018621,  9.45207528,
+                   9.50288513,  9.55266139,  9.60144541,  9.64915056,  9.69601049,
+                   9.74202917,  9.78719679,  9.83154369,  9.87510007,  9.91785869,
+                   9.95991937, 10.00126913, 10.04193202, 10.08192875, 10.12129032,
+                  10.16002962, 10.19816754, 10.23572199, 10.27229304, 10.30913058,
+                  10.34504771, 10.3800144 , 10.41491013, 10.44931605, 10.4832593 ,
+                  10.51674639, 10.54978999, 10.5824021 , 10.61459589, 10.64642594])
+
     np.testing.assert_allclose(np.diff(dist), 0.2 * np.ones(len(dist) - 1))
     np.testing.assert_allclose(efh[0], 0.0)
     np.testing.assert_allclose(efh[1:], fall_height, rtol=0.0, atol=8e-3)
+    np.testing.assert_allclose(speeds, expected_speeds, rtol=3.0e-5,
+                               atol=3.0e-4)
 
-    dist, _ = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end,
-                                    skier, increment=0.1)
+    dist, _, _ = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end,
+                                       skier, increment=0.1)
     np.testing.assert_allclose(np.diff(dist), 0.1 * np.ones(len(dist) - 1))
 
     # Check if a surface that is before the takeoff point gives an error
     with pytest.raises(InvalidJumpError):
-        dist, _ = takeoff.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end,
-                                        skier)
+        dist, _, _ = takeoff.calculate_efh(np.deg2rad(takeoff_angle),
+                                           takeoff.end, skier)
 
     # Create a surface with takeoff and landing to check if function only
     # calculates takeoff point and beyond
     x = np.concatenate([takeoff.x, landing.x])
     y = np.concatenate([takeoff.y, landing.y])
     new_surf = Surface(x, y)
-    dist, efh = new_surf.calculate_efh(np.deg2rad(takeoff_angle), takeoff.end, skier)
+    dist, efh, _ = new_surf.calculate_efh(np.deg2rad(takeoff_angle),
+                                          takeoff.end, skier)
     np.testing.assert_allclose(efh[0], 0.0)
     np.testing.assert_allclose(efh[1:], fall_height, rtol=0.0, atol=8e-3)
     np.testing.assert_allclose(np.diff(dist), 0.2 * np.ones(len(dist) - 1))
@@ -213,7 +234,8 @@ def test_calculate_efh(profile=False):
     # Test function when takeoff point is in the first quadrant relative to
     # initial takeoff point (takeoff.end)
     takeoff_quad1 = (landing.start[0] + 2, landing.start[1] + 2)
-    _, efh1 = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff_quad1,
+    _, efh1, _ = landing.calculate_efh(np.deg2rad(takeoff_angle),
+                                       takeoff_quad1,
                                     skier, increment=0.2)
     expected_quad1 = \
         np.array([1.7835165, 1.78401272, 1.78217823, 1.77987242, 1.77628465,
@@ -235,8 +257,9 @@ def test_calculate_efh(profile=False):
 
     # Test function quadrant 2, negative takeoff angle, skier reaches 100mph
     takeoff_quad2 = (landing.start[0] - 2, landing.start[1] + 2)
-    _, efh_speed = landing.calculate_efh(np.deg2rad(-takeoff_angle), takeoff_quad2,
-                                         skier, increment=0.2)
+    _, efh_speed, _ = landing.calculate_efh(np.deg2rad(-takeoff_angle),
+                                            takeoff_quad2, skier,
+                                            increment=0.2)
     expected_speedskier = \
         np.array([2.19864804, 2.81796169, 3.02391351, 3.06098472, 3.37912743,
                   3.79123023, 4.43642894, 5.67024268, 9.02957195, np.nan,
@@ -258,8 +281,8 @@ def test_calculate_efh(profile=False):
     np.testing.assert_allclose(expected_speedskier, efh_speed, rtol=1e-3)
 
     # Test quadrant 2, positive takeoff angle
-    _, efh2 = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff_quad2,
-                                    skier, increment=0.2)
+    _, efh2, _ = landing.calculate_efh(np.deg2rad(takeoff_angle),
+                                       takeoff_quad2, skier, increment=0.2)
     expected_quad2 = \
         np.array([2.06869294, 2.32862611, 2.3347512, 2.26367959, 2.26529656,
                   2.24632669, 2.21713456, 2.18302593, 2.1512251, 2.12735662,
@@ -282,17 +305,17 @@ def test_calculate_efh(profile=False):
 
     # Test quadrant 2, negative takeoff angle less than 45
     with pytest.raises(InvalidJumpError):
-        dist, _ = landing.calculate_efh(np.deg2rad(-46), takeoff_quad2,
-                                        skier, increment=0.2)
+        dist, _, _ = landing.calculate_efh(np.deg2rad(-46), takeoff_quad2,
+                                           skier, increment=0.2)
 
     # Test function quadrant 3
     takeoff_quad3 = (landing.start[0] - 2, landing.start[1] - 2)
     with pytest.raises(InvalidJumpError):
-        dist, _ = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff_quad3,
-                                        skier, increment=0.2)
+        dist, _, _ = landing.calculate_efh(np.deg2rad(takeoff_angle),
+                                           takeoff_quad3, skier, increment=0.2)
 
     # Test function quadrant 4
     takeoff_quad4 = (landing.start[0] + 2, landing.start[1] - 2)
     with pytest.raises(InvalidJumpError):
-        dist, _ = landing.calculate_efh(np.deg2rad(takeoff_angle), takeoff_quad4,
-                                        skier, increment=0.2)
+        dist, _, _ = landing.calculate_efh(np.deg2rad(takeoff_angle),
+                                           takeoff_quad4, skier, increment=0.2)
