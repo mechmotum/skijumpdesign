@@ -22,6 +22,11 @@ class Surface(object):
     """Base class for a 2D curve that represents the cross section of a surface
     expressed in a standard Cartesian coordinate system."""
 
+    # If a user provides x,y data to create the surface that has any x spacings
+    # less than this value, then the data will be interpolated before the slope
+    # and curvature derivatives are calculated,
+    max_x_spacing = 0.3  # meters
+
     def __init__(self, x, y):
         """Instantiates an arbitrary 2D surface.
 
@@ -30,10 +35,16 @@ class Surface(object):
         x : array_like, shape(n,)
             The horizontal, x, coordinates of the slope. x[0] should be the
             left most horizontal position and corresponds to the start of the
-            surface. This should be monotonically increasing.
+            surface. This should be monotonically increasing and ideally have
+            no adjacent spacings less than 0.3 meter.
         y : array_like, shape(n,)
             The vertical, y, coordinates of the slope. y[0] corresponds to the
             start of the surface.
+
+        Warns
+        =====
+        x and y values that have any x spacings below 0.3 meters will be
+        resampled at x spacings of approximately 0.3 meters.
 
         """
 
@@ -45,8 +56,29 @@ class Surface(object):
     def _initialize_surface(self):
 
         self._check_monotonic()
+        self._check_x_spacing()
         self._initialize_gradients()
         self._initialize_interpolators()
+
+    def _check_x_spacing(self):
+        """Resamples x and y at an approximately 0.3 linear spacing if any x
+        spacings are too large."""
+
+        if any(np.diff(self.x) > self.max_x_spacing):
+            msg = ('The x values have at least one spacing larger than '
+                   '{:1.1f} meters and will be replace with a finer x spacing '
+                   'and the y values linearly interpolated at this new '
+                   'spacing.')
+            logging.warning(msg.format(self.max_x_spacing))
+            # ensure spacing is less than max_x_spacing
+            total_x = self.x[-1] - self.x[0]
+            num = round(np.ceil(total_x / self.max_x_spacing)) + 1
+            x = np.linspace(self.x[0], self.x[-1], num=num)
+            kwargs = {'fill_value': 'extrapolate'}
+            interp_y = interp1d(self.x, self.y, **kwargs)
+            y = interp_y(x)
+            self.x = x
+            self.y = y
 
     def _initialize_gradients(self):
 
