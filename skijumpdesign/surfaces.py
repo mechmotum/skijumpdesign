@@ -23,8 +23,8 @@ class Surface(object):
     expressed in a standard Cartesian coordinate system."""
 
     # If a user provides x,y data to create the surface that has any x spacings
-    # less than this value, then the data will be interpolated before the slope
-    # and curvature derivatives are calculated,
+    # greater than this value, then the data will be interpolated before the
+    # slope and curvature derivatives are calculated.
     max_x_spacing = 0.3  # meters
 
     def __init__(self, x, y):
@@ -43,7 +43,7 @@ class Surface(object):
 
         Warns
         =====
-        x and y values that have any x spacings below 0.3 meters will be
+        x and y values that have any x spacings larger than 0.3 meters will be
         resampled at x spacings of approximately 0.3 meters.
 
         """
