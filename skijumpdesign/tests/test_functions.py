@@ -49,10 +49,14 @@ def test_skier_flies_forever():
 
     # This used to pass with solve_ivp and not pycvodes, but since the 1.2.0
     # release upstream changes in the dependencies seemed to cause it to fail
-    # with both integrators.
+    # with both integrators. This now passes with pycvodes with the
+    # introduction of the surface spacing resampling at 0.3 meters.
 
-    with pytest.raises(InvalidJumpError):
+    if pycvodes:
         make_jump(-10.0, 0.0, 30.0, 20.0, 1.5)
+    else:
+        with pytest.raises(InvalidJumpError):
+            make_jump(-10.0, 0.0, 30.0, 20.0, 1.5)
 
 
 def test_slow_skier():
@@ -68,12 +72,13 @@ def test_problematic_jump_parameters():
 
     # This used to cause a RuntimeWarning: Invalid value in arsin in
     # LandingTransitionSurface.calc_trans_acc() before the fix.
-    # TODO : This passes with pycvodes but fails with solve_ivp.
+    # This now passes with scipy integrator but now fails with pycvodes with
+    # the 0.3 meter resampling.
     if pycvodes:
-        make_jump(-26.0, 0.0, 3.0, 27.0, 0.6)
-    else:
         with pytest.raises(InvalidJumpError):
             make_jump(-26.0, 0.0, 3.0, 27.0, 0.6)
+    else:
+        make_jump(-26.0, 0.0, 3.0, 27.0, 0.6)
 
     # Divide by zero in scipy/integrate/_ivp/rk.py
     # RuntimeWarning: divide by zero encountered in double_scalars
@@ -93,9 +98,13 @@ def test_problematic_jump_parameters():
     make_jump(-30.0, 0.0, 1.0, 15.0, 0.5)
 
     # Used to be: ValueError: need at least one array to concatenate
-    # Also has: while loop ran more than 1000 times
-    with pytest.raises(InvalidJumpError):
+    # Also has: while loop ran more than 1000 times. This no longer fails with
+    # pycvodes with the 0.3 m resampling.
+    if pycvodes:
         make_jump(-15.0, 0.0, 30.0, 20.0, 2.8)
+    else:
+        with pytest.raises(InvalidJumpError):
+            make_jump(-15.0, 0.0, 30.0, 20.0, 2.8)
 
     # Used to be too much fall height
     make_jump(-15.0, 0.0, 30.0, 20.0, 3.0)
