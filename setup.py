@@ -27,10 +27,10 @@ setup(
     py_modules=['skijumpdesignapp'],
     packages=find_packages(),
     include_package_data=True,  # includes things in MANIFEST.in
-    data_files=[('', ['assets/skijump.css'])],
+    data_files=[('', ['skijumpdesign/assets/skijump.css'])],
     zip_safe=False,
     entry_points={'console_scripts':
-                  ['skijumpdesign = skijumpdesignapp:app.run_server']},
+                  ['skijumpdesign = skijumpdesign.app:app.run_server']},
     install_requires=['setuptools',
                       'numpy>=0.13.0',
                       'scipy>=1.0',  # requires solve_ivp
