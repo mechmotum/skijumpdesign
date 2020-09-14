@@ -33,7 +33,7 @@ Activate the custom Conda environment with::
 
 Now run the application with::
 
-   (skijumpdesign-dev)$ python skijumpdesignapp.py
+   (skijumpdesign-dev)$ python -m skijumpdesign.app
 
 You should see something like::
 
@@ -49,7 +49,7 @@ Open Anaconda Navigator, switch to the ``skijumpdesign-dev`` environment, and
 then launch Spyder. Set the working directory to the ``/path/to/skijumpdesign``
 directory. In the Spyder IPython console execute::
 
-   In [1]: run skijumpdesignapp.py
+   In [1]: run skijumpdesign/app.py
 
 If successful, you will see something like::
 
