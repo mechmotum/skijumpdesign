@@ -40,12 +40,13 @@ This was setup to match the color blue of the sky in the background image.
 
 """
 
-TITLE = "Ski Jump Design and Analysis Tool for Specified Equivalent Fall Height"
+TITLE = ("Ski Jump Design and Analysis Tool "
+         "for Specified Equivalent Fall Height")
 VERSION_STAMP = 'skijumpdesign {}'.format(skijumpdesign.__version__)
 
-ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets')
-
-app = dash.Dash(__name__)
+ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           'assets')
+BOOTSTRAP_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 
 # NOTE : Turn the logger on to INFO level by default so it is recorded in any
 # server logs.
@@ -87,8 +88,6 @@ else:
     if cmd_line_args.profile:
         from pyinstrument import Profiler
 
-BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
-
 # NOTE : Serve the file locally if it exists. Works for development and on
 # heroku. It will not exist when installed via setuptools because the data file
 # is placed at sys.prefix instead of into the site-packages directory. The
@@ -98,7 +97,7 @@ BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 # https://gitlab.com/moorepants/skijumpdesign/issues/44 for more info.
 if os.path.exists(os.path.join(ASSETS_PATH, 'skijump.css')):
     logging.info('Local css file found.')
-    CUS_URL = '/assets/skijump.css'
+    stylesheets = [BOOTSTRAP_URL]
 else:
     logging.info('Local css file not found, loading from CDN.')
     URL_TEMP = ('https://glcdn.githack.com/moorepants/skijumpdesign/raw/'
@@ -107,18 +106,11 @@ else:
         CUS_URL = URL_TEMP.format('master')
     else:
         CUS_URL = URL_TEMP.format('v' + skijumpdesign.__version__)
+    stylesheets = [BOOTSTRAP_URL, CUS_URL]
 
-app.css.append_css({'external_url': [BS_URL, CUS_URL]})
+app = dash.Dash(__name__, external_stylesheets=stylesheets)
 app.title = TITLE
 server = app.server
-
-@app.server.route('/assets/<resource>')
-def serve_static(resource):
-    _, ext = os.path.splitext(resource)
-    if ext not in ['.css', '.js', '.png', 'svg']:
-        return 'Invalid File Extension'
-    else:
-        return flask.send_from_directory(ASSETS_PATH, resource)
 
 ###############################################################################
 # INDEX LAYOUT

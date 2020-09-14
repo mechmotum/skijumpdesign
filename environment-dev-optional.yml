@@ -4,7 +4,7 @@ channels:
 dependencies:
   - coverage
   - cython
-  - dash
+  - dash >=0.22.0  # when assets/ directory introduced
   - dash-core-components
   - dash-html-components
   - dash-renderer

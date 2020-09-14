@@ -40,7 +40,7 @@ setup(
                       'fastcache',
                       'flask',
                       'plotly',
-                      'dash',
+                      'dash>=0.22.0',  # when assets/ directory introduced
                       'dash-renderer',
                       'dash-html-components',
                       'dash-core-components'
