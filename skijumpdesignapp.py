@@ -43,7 +43,7 @@ This was setup to match the color blue of the sky in the background image.
 TITLE = "Ski Jump Design and Analysis Tool for Specified Equivalent Fall Height"
 VERSION_STAMP = 'skijumpdesign {}'.format(skijumpdesign.__version__)
 
-STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets')
+ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets')
 
 app = dash.Dash(__name__)
 
@@ -96,7 +96,7 @@ BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 # ensure that the content-type headers are correct, in this case:
 # raw.githack.com. This may not be up-to-date due to caching. See
 # https://gitlab.com/moorepants/skijumpdesign/issues/44 for more info.
-if os.path.exists(os.path.join(STATIC_PATH, 'skijump.css')):
+if os.path.exists(os.path.join(ASSETS_PATH, 'skijump.css')):
     logging.info('Local css file found.')
     CUS_URL = '/assets/skijump.css'
 else:
@@ -118,7 +118,7 @@ def serve_static(resource):
     if ext not in ['.css', '.js', '.png', 'svg']:
         return 'Invalid File Extension'
     else:
-        return flask.send_from_directory(STATIC_PATH, resource)
+        return flask.send_from_directory(ASSETS_PATH, resource)
 
 ###############################################################################
 # INDEX LAYOUT
