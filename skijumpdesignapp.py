@@ -40,12 +40,13 @@ This was setup to match the color blue of the sky in the background image.
 
 """
 
-TITLE = "Ski Jump Design and Analysis Tool for Specified Equivalent Fall Height"
+TITLE = ("Ski Jump Design and Analysis Tool "
+         "for Specified Equivalent Fall Height")
 VERSION_STAMP = 'skijumpdesign {}'.format(skijumpdesign.__version__)
 
-STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
-
-app = dash.Dash(__name__)
+ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           'assets')
+BOOTSTRAP_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 
 # NOTE : Turn the logger on to INFO level by default so it is recorded in any
 # server logs.
@@ -66,14 +67,14 @@ if 'ONHEROKU' in os.environ:
     if 'GATRACKINGID' in os.environ:
         ga_tracking_id = os.environ['GATRACKINGID']
         logging.info(ga_tracking_id)
-        with open('static/gtag_template.js', 'r') as f:
+        with open('assets/gtag_template.js', 'r') as f:
             ga_script_text = f.read()
         logging.info(ga_script_text)
         new_text = ga_script_text.format(ga_tracking_id=ga_tracking_id)
         logging.info(new_text)
-        with open('static/gtag.js', 'w') as f:
+        with open('assets/gtag.js', 'w') as f:
             f.write(new_text)
-        GTAG_URL = '/static/gtag.js'
+        GTAG_URL = '/assets/gtag.js'
         # TODO : Use dash's new assets folder capatility instead of all this
         # mess. The google code needs to be in the header.
         msg = 'Loaded google analytics script for {}.'.format(ga_tracking_id)
@@ -87,8 +88,6 @@ else:
     if cmd_line_args.profile:
         from pyinstrument import Profiler
 
-BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
-
 # NOTE : Serve the file locally if it exists. Works for development and on
 # heroku. It will not exist when installed via setuptools because the data file
 # is placed at sys.prefix instead of into the site-packages directory. The
@@ -96,29 +95,22 @@ BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 # ensure that the content-type headers are correct, in this case:
 # raw.githack.com. This may not be up-to-date due to caching. See
 # https://gitlab.com/moorepants/skijumpdesign/issues/44 for more info.
-if os.path.exists(os.path.join(STATIC_PATH, 'skijump.css')):
+if os.path.exists(os.path.join(ASSETS_PATH, 'skijump.css')):
     logging.info('Local css file found.')
-    CUS_URL = '/static/skijump.css'
+    stylesheets = [BOOTSTRAP_URL]
 else:
     logging.info('Local css file not found, loading from CDN.')
     URL_TEMP = ('https://glcdn.githack.com/moorepants/skijumpdesign/raw/'
-                '{}/static/skijump.css')
+                '{}/assets/skijump.css')
     if 'dev' in skijumpdesign.__version__:  # unlikely case
         CUS_URL = URL_TEMP.format('master')
     else:
         CUS_URL = URL_TEMP.format('v' + skijumpdesign.__version__)
+    stylesheets = [BOOTSTRAP_URL, CUS_URL]
 
-app.css.append_css({'external_url': [BS_URL, CUS_URL]})
+app = dash.Dash(__name__, external_stylesheets=stylesheets)
 app.title = TITLE
 server = app.server
-
-@app.server.route('/static/<resource>')
-def serve_static(resource):
-    _, ext = os.path.splitext(resource)
-    if ext not in ['.css', '.js', '.png', 'svg']:
-        return 'Invalid File Extension'
-    else:
-        return flask.send_from_directory(STATIC_PATH, resource)
 
 ###############################################################################
 # INDEX LAYOUT

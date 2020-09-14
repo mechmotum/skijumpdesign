@@ -27,7 +27,7 @@ setup(
     py_modules=['skijumpdesignapp'],
     packages=find_packages(),
     include_package_data=True,  # includes things in MANIFEST.in
-    data_files=[('', ['static/skijump.css'])],
+    data_files=[('', ['assets/skijump.css'])],
     zip_safe=False,
     entry_points={'console_scripts':
                   ['skijumpdesign = skijumpdesignapp:app.run_server']},
@@ -40,7 +40,7 @@ setup(
                       'fastcache',
                       'flask',
                       'plotly',
-                      'dash',
+                      'dash>=0.22.0',  # when assets/ directory introduced
                       'dash-renderer',
                       'dash-html-components',
                       'dash-core-components'
