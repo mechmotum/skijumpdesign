@@ -1,1 +1,1 @@
-web: gunicorn skijumpdesignapp:server
+web: gunicorn --chdir skijumpdesign app:server
