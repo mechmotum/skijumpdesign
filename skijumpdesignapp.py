@@ -43,7 +43,7 @@ This was setup to match the color blue of the sky in the background image.
 TITLE = "Ski Jump Design and Analysis Tool for Specified Equivalent Fall Height"
 VERSION_STAMP = 'skijumpdesign {}'.format(skijumpdesign.__version__)
 
-STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+STATIC_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets')
 
 app = dash.Dash(__name__)
 
@@ -66,14 +66,14 @@ if 'ONHEROKU' in os.environ:
     if 'GATRACKINGID' in os.environ:
         ga_tracking_id = os.environ['GATRACKINGID']
         logging.info(ga_tracking_id)
-        with open('static/gtag_template.js', 'r') as f:
+        with open('assets/gtag_template.js', 'r') as f:
             ga_script_text = f.read()
         logging.info(ga_script_text)
         new_text = ga_script_text.format(ga_tracking_id=ga_tracking_id)
         logging.info(new_text)
-        with open('static/gtag.js', 'w') as f:
+        with open('assets/gtag.js', 'w') as f:
             f.write(new_text)
-        GTAG_URL = '/static/gtag.js'
+        GTAG_URL = '/assets/gtag.js'
         # TODO : Use dash's new assets folder capatility instead of all this
         # mess. The google code needs to be in the header.
         msg = 'Loaded google analytics script for {}.'.format(ga_tracking_id)
@@ -98,11 +98,11 @@ BS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
 # https://gitlab.com/moorepants/skijumpdesign/issues/44 for more info.
 if os.path.exists(os.path.join(STATIC_PATH, 'skijump.css')):
     logging.info('Local css file found.')
-    CUS_URL = '/static/skijump.css'
+    CUS_URL = '/assets/skijump.css'
 else:
     logging.info('Local css file not found, loading from CDN.')
     URL_TEMP = ('https://glcdn.githack.com/moorepants/skijumpdesign/raw/'
-                '{}/static/skijump.css')
+                '{}/assets/skijump.css')
     if 'dev' in skijumpdesign.__version__:  # unlikely case
         CUS_URL = URL_TEMP.format('master')
     else:
@@ -112,7 +112,7 @@ app.css.append_css({'external_url': [BS_URL, CUS_URL]})
 app.title = TITLE
 server = app.server
 
-@app.server.route('/static/<resource>')
+@app.server.route('/assets/<resource>')
 def serve_static(resource):
     _, ext = os.path.splitext(resource)
     if ext not in ['.css', '.js', '.png', 'svg']:
