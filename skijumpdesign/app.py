@@ -67,12 +67,12 @@ if 'ONHEROKU' in os.environ:
     if 'GATRACKINGID' in os.environ:
         ga_tracking_id = os.environ['GATRACKINGID']
         logging.info(ga_tracking_id)
-        with open('assets/gtag_template.js', 'r') as f:
+        with open(os.path.join(ASSETS_PATH, 'gtag_template.js'), 'r') as f:
             ga_script_text = f.read()
         logging.info(ga_script_text)
         new_text = ga_script_text.format(ga_tracking_id=ga_tracking_id)
         logging.info(new_text)
-        with open('assets/gtag.js', 'w') as f:
+        with open(os.path.join(ASSETS_PATH, 'gtag.js', 'w')) as f:
             f.write(new_text)
         GTAG_URL = '/assets/gtag.js'
         # TODO : Use dash's new assets folder capatility instead of all this
