@@ -2,8 +2,9 @@ include README.rst
 include LICENSE
 include CHANGELOG
 include CONTRIBUTING
-recursive-include assets *
+recursive-include skijumpdesign/assets *
 include docs/*.rst
+include docs/*.csv
 include docs/*.py
 include docs/Makefile
 include docs/make.bat
