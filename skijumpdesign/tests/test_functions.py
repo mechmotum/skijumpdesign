@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 import matplotlib.pyplot as plt
 try:
@@ -5,7 +6,7 @@ try:
 except ImportError:
     pycvodes = False
 
-from ..functions import make_jump, plot_jump
+from ..functions import make_jump, plot_jump, cartesian_from_measurements
 from ..utils import InvalidJumpError
 
 
@@ -116,3 +117,19 @@ def test_problematic_jump_parameters():
     # Used to be ValueError: x and y arrays must have at least 2 entries
     make_jump(-15.0, 0.0, 30.0, 20.0, 2.7)
 
+
+def test_cartesian_from_measurements():
+
+    x = np.linspace(0.0, 10.0)
+    y = np.sin(x)
+
+    s = np.cumsum(np.sqrt(np.diff(x)**2 + np.diff(y)**2))
+    s = np.hstack((0.0, s))
+
+    dydx = np.cos(x)
+    theta = np.arctan(dydx)
+
+    new_x, new_y = cartesian_from_measurements(s, theta)
+
+    np.testing.assert_allclose(new_x, x[1:], rtol=1e-2)
+    np.testing.assert_allclose(new_y, y[1:], rtol=1e-2)

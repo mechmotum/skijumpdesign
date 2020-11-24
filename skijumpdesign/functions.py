@@ -273,3 +273,37 @@ def plot_efh(surface, takeoff_angle, takeoff_point,
     ax[1].legend()
 
     return ax
+
+
+def cartesian_from_measurements(distances, angles):
+    """Returns the Cartesian coordinates of a surface given measurements of
+    distance along the surface and angle measurements at each distance measure.
+
+    Parameters
+    ==========
+    distances : array_like, shape(n,)
+        Distances measured from an origin location on a jump surface along the
+        surface of the jump.
+    angles : array_like, shape(n,)
+        Angle of the slope surface at the distance measures in radians.
+        Positive about the z axis.
+
+    Returns
+    =======
+    x : ndarray, shape(n-1,)
+        Longitudinal coordinates of the surface.
+    y : ndarray, shape(n-1,)
+        Vertical coordinates of the surface.
+
+    """
+
+    del_d = np.diff(distances)
+    avg_ang = (angles[:-1] + angles[1:]) / 2.0
+
+    del_x = del_d*np.cos(avg_ang)
+    del_y = del_d*np.sin(avg_ang)
+
+    x = np.cumsum(del_x)
+    y = np.cumsum(del_y)
+
+    return x, y
