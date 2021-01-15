@@ -2,6 +2,7 @@ import os
 import logging
 
 import numpy as np
+from scipy.interpolate import interp1d
 from fastcache import clru_cache
 
 # TODO : Might be better to use:
@@ -275,9 +276,10 @@ def plot_efh(surface, takeoff_angle, takeoff_point,
     return ax
 
 
-def cartesian_from_measurements(distances, angles):
+def cartesian_from_measurements(distances, angles, takeoff_distance=None):
     """Returns the Cartesian coordinates of a surface given measurements of
-    distance along the surface and angle measurements at each distance measure.
+    distance along the surface and angle measurements at each distance measure
+    along with the takeoff point and takeoff angle.
 
     Parameters
     ==========
@@ -286,7 +288,10 @@ def cartesian_from_measurements(distances, angles):
         surface of the jump.
     angles : array_like, shape(n,)
         Angle of the slope surface at the distance measures in radians.
-        Positive about the z axis.
+        Positive about a right handed z axis.
+    takeoff_distance : float
+        Distance value where the takeoff is located (only if the takeoff is on
+        the surface on the measured portion of the surface).
 
     Returns
     =======
@@ -294,6 +299,10 @@ def cartesian_from_measurements(distances, angles):
         Longitudinal coordinates of the surface.
     y : ndarray, shape(n-1,)
         Vertical coordinates of the surface.
+    takeoff_point : tuple of floats
+        (x, y) coordinates of the takeoff point.
+    takeoff_angle : float
+        Angle in radians at the takeoff point.
 
     """
 
@@ -303,7 +312,28 @@ def cartesian_from_measurements(distances, angles):
     del_x = del_d*np.cos(avg_ang)
     del_y = del_d*np.sin(avg_ang)
 
-    x = np.cumsum(del_x)
-    y = np.cumsum(del_y)
+    x = np.hstack((0.0, np.cumsum(del_x)))
+    y = np.hstack((0.0, np.cumsum(del_y)))
 
-    return x, y
+    if takeoff_distance is None:  # assumes takeoff is first point
+        takeoff_x = x[0]
+        takeoff_y = y[0]
+        takeoff_angle = angles[0]
+    else:
+        if takeoff_distance < distances[0]:
+            msg = 'Takeoff distance must be larger than {:1.3f}'
+            raise ValueError(msg.format(distances[0]))
+        interp_func = interp1d(distances, angles)
+        takeoff_angle = interp_func(takeoff_distance)
+        idx = np.argmin(np.abs(distances - takeoff_distance))
+        if distances[idx] > takeoff_distance:
+            idx = idx - 1
+        takeoff_del_d = takeoff_distance - distances[idx]
+        takeoff_del_x = takeoff_del_d*np.cos((takeoff_angle +
+                                              angles[idx])/2.0)
+        takeoff_del_y = takeoff_del_d*np.sin((takeoff_angle +
+                                              angles[idx])/2.0)
+        takeoff_x = x[idx] + takeoff_del_x
+        takeoff_y = y[idx] + takeoff_del_y
+
+    return x, y, (takeoff_x, takeoff_y), takeoff_angle
