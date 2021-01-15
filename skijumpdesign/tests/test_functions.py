@@ -129,7 +129,7 @@ def test_cartesian_from_measurements():
     dydx = np.cos(x)
     theta = np.arctan(dydx)
 
-    new_x, new_y = cartesian_from_measurements(s, theta)
+    new_x, new_y, _, _ = cartesian_from_measurements(s, theta)
 
-    np.testing.assert_allclose(new_x, x[1:], rtol=1e-2)
-    np.testing.assert_allclose(new_y, y[1:], rtol=1e-2)
+    np.testing.assert_allclose(new_x, x, rtol=1e-2)
+    np.testing.assert_allclose(new_y, y, rtol=1e-2)
