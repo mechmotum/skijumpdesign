@@ -842,11 +842,13 @@ parameters is provided here:
 
 # Instructions
 
-- Upload an Excel or csv file containing the xy coordinates of the measured
-  or proposed jump landing surface. The units of the surface coordinates must
-  be meters.
+- Upload a csv or an Excel file containing the xy coordinates or the distance
+  and angle measurements of the measured or proposed jump landing surface. The
+  units of the surface coordinates must be meters or meters and degrees,
+  respectively.
 - Use the table to ensure the data file was uploaded properly.
-- Set the angle of the takeoff ramp at the takeoff point.
+- Set the angle of the takeoff ramp at the takeoff point and press the
+  "Compute" button.
 - Inspect and view the graph of the resulting jump profile and the calculated
   equivalent fall height. The third button allows zoom.
 
