@@ -11,7 +11,7 @@ Import packages needed on this page:
    import numpy as np
    import matplotlib.pyplot as plt
    from skijumpdesign import Skier, Surface
-   from skijumpdesign.functions import make_jump, plot_efh
+   from skijumpdesign.functions import make_jump, plot_efh, cartesian_from_measurements
 
 Selection of an Equivalent Fall Height
 ======================================
@@ -480,3 +480,63 @@ fall height. The figure below shows such a comparison.
 
    compare_measured_to_designed(landing_surface, fall_height, slope_angle,
                                 approach_length, takeoff_angle, skier)
+
+Sydney 2020
+===========
+
+The :download:`sydney-measurements-2020.csv` file contains the distance along
+the jump surface and absolute angle measurements of a single-track dirt
+mountain bike jump measured near Sydney, Australia in 2020. The comma separated
+value file can be loaded with ``numpy.loadtxt()``. These measurements require
+conversion to the Cartesian coordinates for constructing the surface. After
+conversion the data can be used to create a
+:class:`~skijumpdesign.surfaces.Surface`.  The
+:meth:`~skijumpdesign.surfaces.Surface.plot` method is used to quickly
+visualize the measured landing surface. The takeoff location is situated at the
+first measurement point.
+
+.. plot::
+   :include-source: True
+   :context: close-figs
+   :width: 600px
+
+   surface_measurement_data = np.loadtxt('sydney-measurements-2020.csv',
+                                         delimiter=',',  # comma separated
+                                         skiprows=1)  # skip the header row
+
+   x, y, takeoff_point, takeoff_angle = cartesian_from_measurements(
+       surface_measurement_data[:, 0],  # distance along surface in meters
+       np.deg2rad(surface_measurement_data[:, 1]))  # absolute angle deg -> rad
+
+   landing_surface = Surface(x,  # x values in meters
+                             y)  # y values in meters
+
+   ax = landing_surface.plot()
+
+The takeoff angle is taken from the angle measurements. Using this angle the
+equivalent fall height can be visualized across the landing surface.
+
+.. plot::
+   :include-source: True
+   :context: close-figs
+   :width: 600px
+
+   skier = Skier()
+
+   plot_efh(landing_surface, np.rad2deg(takeoff_angle), takeoff_point,
+            skier=skier, increment=1.0)
+
+The actual jump can be compared to a jump designed with a constant equivalent
+fall height. The figure below shows such a comparison.
+
+.. plot::
+   :include-source: True
+   :context: close-figs
+   :width: 600px
+
+   fall_height = 1.0  # meters
+   slope_angle = -7.0  # degrees
+   approach_length = 140.0  # meters
+
+   compare_measured_to_designed(landing_surface, fall_height, slope_angle,
+                                approach_length, np.rad2deg(takeoff_angle), skier)
