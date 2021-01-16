@@ -557,19 +557,6 @@ layout_design = html.Div([nav_menu, row1,
 # ANALYSIS LAYOUT
 ###############################################################################
 
-data_type_widget = html.Div([
-    html.H3('Input data format:'),
-    dcc.RadioItems(
-        id='data-type',
-        options=[
-            {'label': 'Cartesian (x,y)', 'value': 'cartesian'},
-            {'label': 'Distance & Angle', 'value': 'distang'},
-        ],
-        value='cartesian',
-        labelStyle={'display': 'inline-block'},
-    )
-])
-
 upload_widget = html.Div([
     dcc.Upload(
         id='upload-data',
@@ -752,8 +739,7 @@ analysis_title_row = html.Div([
     })
 
 analysis_input_row = html.Div([
-    html.Div([data_type_widget, upload_widget, analysis_filename_widget,
-              table_widget],
+    html.Div([upload_widget, analysis_filename_widget, table_widget],
              className='col-md-6'),
     html.Div([], className='col-md-2'),
     html.Div([analysis_takeoff_angle_widget, compute_button,
@@ -778,9 +764,11 @@ instructions below.
 
 ## Inputs
 
-- **Input data format**: The input data can be provided as one of two different
-  types of surface measurements. This selection must match the type of
-  measurement in the uploaded file.
+- **Upload**: A comma separated value (csv) file or an Excel spreadsheet file
+  (.xls) in the format described above. The first row of the data file must be
+  the column headers. No more than two columns should be present. The input
+  data can be provided as one of two different types of surface measurements.
+  This selection must match the type of measurement in the uploaded file.
   - **Cartesian (x,y)**: The x (horizontal) and y (vertical) coordinates of the
     jump cross-sectional profile. The coordinate pair (0.0, 0.0) is used as the
     takeoff point. The header of the first column should be `x` and the header
@@ -805,9 +793,7 @@ instructions below.
     0.25,14.6
     0.5,8.1
     ```
-- **Upload**: A comma separated value (csv) file or an Excel spreadsheet file
-  (.xls) in the format described above. The first row of the data file must be
-  the column headers. No more than two columns should be present.
+
 - **Takeoff Angle**: The upward angle, relative to horizontal, at the end of
   the takeoff ramp.
 
@@ -1221,19 +1207,24 @@ def update_filename(filename):
 
 
 @app.callback(Output('file-error', 'children'),
-              [Input('output-data-upload', 'children')],
-              [State('data-type', 'value')])
-def update_file_error(json_data, data_type):
+              [Input('output-data-upload', 'children')])
+def update_file_error(json_data):
     if json_data is None:
         return ''
     dic = json.loads(json_data)
     df = pd.read_json(dic, orient='index')
-    if data_type == 'cartesian':
-        if 'x' not in df.columns or 'y' not in df.columns:
-            return 'Column headers must be "x" and "y"'
-    elif data_type == 'distang':
-        if 'distance' not in df.columns or 'angle' not in df.columns:
-            return 'Column headers must be "distance" and "angle"'
+
+    if len(df.columns) > 2:
+        return 'Only two columns can be present in the data file.'
+
+    cols = tuple(df.columns)
+    if cols == ('x', 'y'):
+        pass
+    elif cols == ('angle', 'distance'):
+        pass
+    else:
+        return 'Column headers "{}" are incorrect'.format(cols)
+
     if df.isnull().sum().sum() > 0:
         return 'File has missing values.'
     elif type(df.columns[0]) != str or type(df.columns[1]) != str:
@@ -1260,7 +1251,6 @@ def update_output(contents):
 states_analysis = [
     State('output-data-upload', 'children'),
     State('takeoff_angle_analysis', 'value'),
-    State('data-type', 'value'),
 ]
 
 
@@ -1270,7 +1260,7 @@ states_analysis = [
               [Input('compute-button', 'n_clicks'),
                Input('compute-button', 'children')],  # runs on load
               states_analysis)
-def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle, data_type):
+def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
 
     takeoff_angle = float(takeoff_angle)
 
@@ -1300,24 +1290,22 @@ def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle, data_type):
         df = pd.read_json(dic, orient='index')
         x_vals = df.iloc[:, 0].values
         y_vals = df.iloc[:, 1].values
-
-    # TODO : Check that they at least have a data point every 0.5 meters.
+        if 'distance' in df.columns:
+            # NOTE : The columns of the data frame generated from the json data
+            # will be ordered by the name of the column, so for the
+            # distance-angle input "angle" is the first column and "distance"
+            # is the second column.
+            dist = y_vals  # meters
+            angles = x_vals  # degrees
+            logging.info('Converting distance and angle to x and y.')
+            x_vals, y_vals, _, _ = cartesian_from_measurements(
+                dist, np.deg2rad(angles))
 
     takeoff_angle = np.deg2rad(takeoff_angle)
     takeoff_point = (0, 0)
     error_text = ''
 
     skier = Skier()
-
-    if data_type == 'distang':
-        # NOTE : The columns of the data frame generated from the json data
-        # will be ordered by the name of the column, so for the distance-angle
-        # input "angle" is the first column and "distance" is the second
-        # column.
-        dist = y_vals  # meters
-        angles = x_vals  # degrees
-        x_vals, y_vals, _, takeoff_angle = cartesian_from_measurements(
-            dist, np.deg2rad(angles))
 
     try:
         surface = Surface(x_vals, y_vals)
