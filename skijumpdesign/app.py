@@ -21,7 +21,7 @@ import dash_html_components as html
 import dash_table
 
 import skijumpdesign
-from skijumpdesign.functions import make_jump
+from skijumpdesign.functions import make_jump, cartesian_from_measurements
 from skijumpdesign.surfaces import Surface
 from skijumpdesign.skiers import Skier
 from skijumpdesign.utils import InvalidJumpError
@@ -742,8 +742,9 @@ analysis_input_row = html.Div([
     html.Div([upload_widget, analysis_filename_widget, table_widget],
              className='col-md-6'),
     html.Div([], className='col-md-2'),
-    html.Div([analysis_takeoff_angle_widget, compute_button, download_efh_button],
-             className = 'col-md-4'),
+    html.Div([analysis_takeoff_angle_widget, compute_button,
+              download_efh_button],
+             className='col-md-4'),
 ], className='row shaded')
 
 analysis_graph_row = html.Div([efh_graph_widget], className='row')
@@ -763,12 +764,36 @@ instructions below.
 
 ## Inputs
 
-- **Upload**: An Excel or csv file of the xy coordinates of the landing surface
-  shape. The first row of the data file must be the column headers. The
-  first column must be the x coordinates of the jump along the horizontal
-  in meters. The second column must be the y coordinates of the jump along
-  the vertical in meters. It is assumed that the origin of the coordinate
-  system in which the jump shape is expressed is located at the takeoff point.
+- **Upload**: A comma separated value (csv) file or an Excel spreadsheet file
+  (.xls) in the format described above. The first row of the data file must be
+  the column headers. No more than two columns should be present. The input
+  data can be provided as one of two different types of surface measurements.
+  This selection must match the type of measurement in the uploaded file.
+  - **Cartesian (x,y)**: The x (horizontal) and y (vertical) coordinates of the
+    jump cross-sectional profile. The coordinate pair (0.0, 0.0) is used as the
+    takeoff point. The header of the first column should be `x` and the header
+    of the second column should be `y`. The values in both columns should be
+    expressed in the units of meters.
+    ```
+    x,y
+    0.69,-0.29
+    1.39,-0.56
+    2.09,-0.80
+    ```
+  - **Distance & Angle**: The distance along the surface profile and the
+    absolute angle at each distance measurement. The first (distance, angle)
+    pair is used as the takeoff point. The header of the first column should be
+    `distance` and the header of the second column should be `angle`. The
+    distance values should be expressed in meters and the angle values should
+    be expressed in degrees with positive values indicating an increasing slope
+    and negative values a decreasing slope.
+    ```
+    distance,angle
+    0.75,22.4
+    0.25,14.6
+    0.5,8.1
+    ```
+
 - **Takeoff Angle**: The upward angle, relative to horizontal, at the end of
   the takeoff ramp.
 
@@ -779,8 +804,8 @@ defining the landing surface shape.
 
 ### Graph
 
-- **Jump Profile**: The jump profile displays the landing surface shape uploaded
-  by the user.
+- **Jump Profile**: The jump profile displays the landing surface shape
+  uploaded by the user.
 - **Knee Collapse EFH**: This is the value of EFH (1.5 m) above which even
   elite ski jumpers are unable to prevent knee collapse. See Ref. [38](Minetti,
   et al., 2010) contained in Ref. [1] on the Home page.”
@@ -817,11 +842,13 @@ parameters is provided here:
 
 # Instructions
 
-- Upload an Excel or csv file containing the xy coordinates of the measured
-  or proposed jump landing surface. The units of the surface coordinates must
-  be meters.
+- Upload a csv or an Excel file containing the xy coordinates or the distance
+  and angle measurements of the measured or proposed jump landing surface. The
+  units of the surface coordinates must be meters or meters and degrees,
+  respectively.
 - Use the table to ensure the data file was uploaded properly.
-- Set the angle of the takeoff ramp at the takeoff point.
+- Set the angle of the takeoff ramp at the takeoff point and press the
+  "Compute" button.
 - Inspect and view the graph of the resulting jump profile and the calculated
   equivalent fall height. The third button allows zoom.
 
@@ -1188,6 +1215,18 @@ def update_file_error(json_data):
         return ''
     dic = json.loads(json_data)
     df = pd.read_json(dic, orient='index')
+
+    if len(df.columns) > 2:
+        return 'Only two columns can be present in the data file.'
+
+    cols = tuple(df.columns)
+    if cols == ('x', 'y'):
+        pass
+    elif cols == ('angle', 'distance'):
+        pass
+    else:
+        return 'Column headers "{}" are incorrect'.format(cols)
+
     if df.isnull().sum().sum() > 0:
         return 'File has missing values.'
     elif type(df.columns[0]) != str or type(df.columns[1]) != str:
@@ -1213,7 +1252,7 @@ def update_output(contents):
 
 states_analysis = [
     State('output-data-upload', 'children'),
-    State('takeoff_angle_analysis', 'value')
+    State('takeoff_angle_analysis', 'value'),
 ]
 
 
@@ -1253,8 +1292,16 @@ def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
         df = pd.read_json(dic, orient='index')
         x_vals = df.iloc[:, 0].values
         y_vals = df.iloc[:, 1].values
-
-    # TODO : Check that they at least have a data point every 0.5 meters.
+        if 'distance' in df.columns:
+            # NOTE : The columns of the data frame generated from the json data
+            # will be ordered by the name of the column, so for the
+            # distance-angle input "angle" is the first column and "distance"
+            # is the second column.
+            dist = y_vals  # meters
+            angles = x_vals  # degrees
+            logging.info('Converting distance and angle to x and y.')
+            x_vals, y_vals, _, _ = cartesian_from_measurements(
+                dist, np.deg2rad(angles))
 
     takeoff_angle = np.deg2rad(takeoff_angle)
     takeoff_point = (0, 0)
