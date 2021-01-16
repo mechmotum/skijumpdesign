@@ -780,6 +780,7 @@ instructions below.
     1.39,-0.56
     2.09,-0.80
     ```
+    [Download an example file of this type](https://gitlab.com/moorepants/skijumpdesign/-/raw/master/docs/california-2002-surface.csv?inline=false).
   - **Distance & Angle**: The distance along the surface profile and the
     absolute angle at each distance measurement. The first (distance, angle)
     pair is used as the takeoff point. The header of the first column should be
@@ -793,7 +794,7 @@ instructions below.
     0.25,14.6
     0.5,8.1
     ```
-
+    [Download an example file of this type](https://gitlab.com/moorepants/skijumpdesign/-/raw/master/docs/sydney-measurements-2020.csv?inline=false)
 - **Takeoff Angle**: The upward angle, relative to horizontal, at the end of
   the takeoff ramp.
 
