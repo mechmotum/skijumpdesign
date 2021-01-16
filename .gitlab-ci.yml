@@ -12,9 +12,9 @@ before_script:
   - apt install -y libgl1-mesa-glx build-essential
   - conda config --set always_yes yes
   - conda update -q conda
-  - conda env create -f environment.yml
-  - conda env create -f environment-dev.yml
-  - conda env create -f environment-dev-optional.yml
+  - conda env create -f conda/environment.yml
+  - conda env create -f conda/environment-dev.yml
+  - conda env create -f conda/environment-dev-optional.yml
   - conda info
 
 install:

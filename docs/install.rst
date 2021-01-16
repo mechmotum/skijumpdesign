@@ -80,7 +80,7 @@ Setup the custom development conda environment named ``skijumpdesign`` to
 ensure it has all of the correct software dependencies. To create the
 environment type::
 
-   $ conda env create -f environment-dev.yml
+   $ conda env create -f conda/environment-dev.yml
 
 To activate the environment type [2]_::
 

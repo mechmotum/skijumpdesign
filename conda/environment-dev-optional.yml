@@ -1,3 +1,6 @@
+# This environment will install the latest set of compatible versions of all
+# packages necessary to develop skijumpdesign, including the optional
+# dependencies.
 name: skijumpdesign-dev-optional
 channels:
   - conda-forge
