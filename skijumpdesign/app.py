@@ -19,6 +19,7 @@ from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
+from packaging import version
 
 import skijumpdesign
 from skijumpdesign.functions import make_jump, cartesian_from_measurements
@@ -1331,25 +1332,23 @@ def update_table(contents, json_data):
     else:
         dic = json.loads(json_data)
         df = pd.read_json(dic, orient='index')
-        children = [
-            html.Div([
-                dash_table.DataTable(
-                    data=df.to_dict('rows'),
-                    columns=[{'name': i, 'id': i} for i in df.columns],
-                    n_fixed_rows=1,
-                    style_table={
-                        'maxHeight': '200',
-                        'overflowY': 'scroll',
-                    },
-                    style_header={'backgroundColor': 'rgba(96, 164, 255, 0.0)'},
-                    style_cell_conditional=[{
-                        'if': {'row_index': 'odd'},
-                        'backgroundColor': 'rgb(248, 248, 248)'
-                    }]
-                ),
-            ])
-        ]
+        # dash-table 4.0 changed n_fixed_rows to fixed_rows
+        datatable_kwargs = {
+            'data': df.to_dict('rows'),
+            'columns': [{'name': i, 'id': i} for i in df.columns],
+            'style_table': {
+                'maxHeight': '200',
+                'overflowY': 'scroll',
+            },
+            'style_header': {'backgroundColor': 'rgba(96, 164, 255, 0.0)'},
+        }
+        if version.parse(dash_table.__version__) < version.parse('4.0'):
+            datatable_kwargs['n_fixed_rows'] = 1
+        else:
+            datatable_kwargs['fixed_rows'] = {'headers': True, 'data': 1}
+        children = [html.Div([dash_table.DataTable(**datatable_kwargs)])]
     return children
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
