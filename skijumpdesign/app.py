@@ -247,6 +247,11 @@ layout_index = html.Div([nav_menu, home_title,
 # DESIGN LAYOUT
 ###############################################################################
 
+if version.parse(dcc.__version__) < version.parse('1.0.0'):
+    tooltip_kwarg = {}
+else:
+    tooltip_kwarg = {'tooltip': {'always_visible': True, 'placement': 'top'}}
+
 approach_len_widget = html.Div([
     html.H3('Maximum Approach Length: 40 [m]',
             id='approach-len-text',
@@ -262,6 +267,7 @@ approach_len_widget = html.Div([
                100: '100 [m]',
                150: '150 [m]',
                200: '200 [m]'},
+        **tooltip_kwarg
         )
     ])
 
@@ -280,6 +286,7 @@ fall_height_widget = html.Div([
                0.80: '0.80 [m]',
                1.15: '1.15 [m]',
                1.5: '1.5 [m]'},
+        **tooltip_kwarg
         )
     ])
 
@@ -299,6 +306,7 @@ slope_angle_widget = html.Div([
                25: '26 [deg]',
                32: '33 [deg]',
                40: '40 [deg]'},
+        **tooltip_kwarg
         )
     ])
 
@@ -317,6 +325,7 @@ takeoff_angle_widget = html.Div([
                20: '20 [deg]',
                30: '30 [deg]',
                40: '40 [deg]'},
+        **tooltip_kwarg
         ),
     ])
 
