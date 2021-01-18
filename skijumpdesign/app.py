@@ -48,6 +48,8 @@ VERSION_STAMP = 'skijumpdesign {}'.format(skijumpdesign.__version__)
 ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                            'assets')
 BOOTSTRAP_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'
+JQUERY_URL = 'https://code.jquery.com/jquery-3.5.1.min.js'
+BOOTSTRAP_JS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'
 
 # NOTE : Turn the logger on to INFO level by default so it is recorded in any
 # server logs.
@@ -109,7 +111,8 @@ else:
         CUS_URL = URL_TEMP.format('v' + skijumpdesign.__version__)
     stylesheets = [BOOTSTRAP_URL, CUS_URL]
 
-app = dash.Dash(__name__, external_stylesheets=stylesheets)
+app = dash.Dash(__name__, external_stylesheets=stylesheets,
+                external_scripts=[JQUERY_URL, BOOTSTRAP_JS_URL])
 app.title = TITLE
 server = app.server
 
@@ -226,14 +229,34 @@ home_buttons = html.Div(
     className='row',
     style={'padding': '40px', 'display': 'flex', 'justify-content': 'center'})
 
-nav_menu = html.Div([
-    html.Ul([html.Li([dcc.Link('Home', href='/')], className='active'),
-             html.Li([dcc.Link('Ski Jump Design', href='/design')]),
-             html.Li([dcc.Link('Ski Jump Analysis', href='/analysis')]),
-             ], className='nav navbar-nav')
-     ],
-    className='navbar navbar-expand-sm navbar-static-top',
-    style={'background-color': 'rgb(64,71,86)'})
+
+nav_menu = \
+    html.Nav([
+        html.Div([
+            html.Div([
+                html.Button([
+                    html.Span("Toggle Navigation", className="sr-only"),
+                    html.Span("", className="icon-bar"),
+                    html.Span("", className="icon-bar"),
+                    html.Span("", className="icon-bar"),
+                ], className="navbar-toggle collapsed",
+                    **{"type": "button",
+                       "data-toggle": "collapse",
+                       "data-target": "#navbar",
+                       "aria-expanded": "false",
+                       "aria-controls": "navbar"}),
+                html.A("Home", href="/",  className="navbar-brand"),
+            ], className="navbar-header"),
+            html.Div([
+                html.Ul([
+                    html.Li([dcc.Link('Ski Jump Design', href='/design')]),
+                    html.Li([dcc.Link('Ski Jump Analysis', href='/analysis')]),
+                ], className="nav navbar-nav"),
+            ], id="navbar", className="collapse navbar-collapse"),
+        ], className="container"),
+    ], className="navbar navbar-inverse navbar-static-top",
+        style={'background-color': 'rgb(64,71,86)',
+               'border-color': 'rgb(64,71,86)'})
 
 ver_row = html.Div([html.P([html.Small(VERSION_STAMP)],
                            style={'text-align': 'right'})],
@@ -872,8 +895,8 @@ analysis_markdown_row = html.Div(
            'text-shadow': '1px 1px black',
            })
 
-analysis_data_row = html.Div(id='output-data-upload', style={'display': 'none'})
-
+analysis_data_row = html.Div(id='output-data-upload',
+                             style={'display': 'none'})
 
 layout_analysis = html.Div([nav_menu, analysis_title_row,
                             html.Div([ver_row,
@@ -893,6 +916,14 @@ url_bar_and_content_div = html.Div([
 def serve_layout():
     if flask.has_request_context():
         return url_bar_and_content_div
+    # NOTE : This will cause an error "Duplicate component id found in the
+    # initial layout" because this drops 3 id=navbar into the same layout for
+    # newer versions of dash. This https://github.com/plotly/dash/pull/320 was
+    # introduced around version 0.25.0 but this dual return method is needed
+    # for 0.39.0, for example. My best guess is that when 1.0 hit maybe there
+    # was some change that prevents this, so I use this function for less than
+    # 1.0 and just serve the Location div for > 1.0. I didn't check versions
+    # between 0.39.0 and 1.0 to see if this works.
     return html.Div([
         url_bar_and_content_div,
         layout_index,
@@ -900,7 +931,11 @@ def serve_layout():
         layout_analysis,
     ])
 
-app.layout = serve_layout
+
+if version.parse(dash.__version__) < version.parse('1.0'):
+    app.layout = serve_layout
+else:
+    app.layout = url_bar_and_content_div
 
 ###############################################################################
 # INDEX FUNCTIONALITY
