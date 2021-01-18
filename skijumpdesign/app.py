@@ -1209,7 +1209,7 @@ def update_file_error(json_data):
     if len(df.columns) > 2:
         return 'Only two columns can be present in the data file.'
 
-    cols = tuple(df.columns)
+    cols = tuple(sorted(df.columns))
     if cols == ('x', 'y'):
         pass
     elif cols == ('angle', 'distance'):
@@ -1280,18 +1280,17 @@ def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
     else:
         dic = json.loads(json_data)
         df = pd.read_json(dic, orient='index')
-        x_vals = df.iloc[:, 0].values
-        y_vals = df.iloc[:, 1].values
-        if 'distance' in df.columns:
-            # NOTE : The columns of the data frame generated from the json data
-            # will be ordered by the name of the column, so for the
-            # distance-angle input "angle" is the first column and "distance"
-            # is the second column.
-            dist = y_vals  # meters
-            angles = x_vals  # degrees
+        if 'x' in df.columns:
+            x_vals = df['x'].values
+            y_vals = df['y'].values
+        elif 'distance' in df.columns:
             logging.info('Converting distance and angle to x and y.')
+            dist = df['distance'].values  # meters
+            angles = df['angle'].values  # degrees
             x_vals, y_vals, _, _ = cartesian_from_measurements(
                 dist, np.deg2rad(angles))
+        else:
+            raise ValueError('Incorrect columns in uploaded file.')
 
     takeoff_angle = np.deg2rad(takeoff_angle)
     takeoff_point = (0, 0)
@@ -1345,10 +1344,15 @@ def update_table(contents, json_data):
         if version.parse(dash_table.__version__) < version.parse('4.0'):
             datatable_kwargs['n_fixed_rows'] = 1
         else:
-            datatable_kwargs['fixed_rows'] = {'headers': True, 'data': 1}
+            datatable_kwargs['fixed_rows'] = {'headers': True, 'data': 0}
         children = [html.Div([dash_table.DataTable(**datatable_kwargs)])]
     return children
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    if version.parse(dash.__version__) < version.parse('0.42.0'):
+        app.run_server(debug=True)
+    # NOTE : This turns off the feature that causes errors to be displayed in
+    # the app instead of the terminal, giving pre 0.42.0 behavior.
+    else:
+        app.run_server(debug=True, dev_tools_ui=False)
