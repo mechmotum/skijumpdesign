@@ -576,7 +576,11 @@ layout_efh = go.Layout(autosize=True,
                        hovermode='closest',
                        paper_bgcolor='rgba(96, 164, 255, 0.0)',  # transparent
                        plot_bgcolor='rgba(255, 255, 255, 0.5)',  # white
-                       xaxis={'title': 'Distance [m]', 'zeroline': False},
+                       xaxis={'title': 'Distance [m]',
+                              'zeroline': False,
+                              # NOTE : Not sure why showgrid needs to be set
+                              # explicitly here to have the grid lines display.
+                              'showgrid': True},
                        yaxis={'scaleanchor': 'x',  # equal aspect ratio
                               'scaleratio': 1.0,  # equal aspect ratio
                               'title': 'Equivalent Fall Height [m]',
