@@ -331,14 +331,7 @@ layout = go.Layout(autosize=True,
                            'y': 1.15})
 
 graph_widget = html.Div([dcc.Graph(id='my-graph',
-                                   # following is a trick to get height to
-                                   # scale with width using padding-bottom
-                                   style={'width': '100%',
-                                          'height': '0',
-                                          # NOTE : If less that 75% graphs may
-                                          # not have any height on a phone.
-                                          'padding-bottom': '75%'
-                                          },
+                                   style={'width': '100%'},
                                    figure=go.Figure(layout=layout))],
                         className='col-md-12')
 
@@ -696,12 +689,7 @@ def parse_contents(contents):
 
 efh_graph_widget = html.Div(
     [dcc.Graph(id='efh-graph',
-               style={'width': '100%',
-                      'height': '0',
-                      # NOTE : If less that 75% graphs may
-                      # not have any height on a phone.
-                      'padding-bottom': '75%'
-                      },
+               style={'width': '100%'},
                figure=go.Figure(layout=layout_efh))],
     className='twelve columns')
 
