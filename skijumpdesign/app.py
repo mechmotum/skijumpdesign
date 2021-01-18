@@ -19,7 +19,7 @@ from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
-from pkg_resources._vendor.packaging import version
+from pkg_resources import packaging as pkg
 
 import skijumpdesign
 from skijumpdesign.functions import make_jump, cartesian_from_measurements
@@ -270,7 +270,7 @@ layout_index = html.Div([nav_menu, home_title,
 # DESIGN LAYOUT
 ###############################################################################
 
-if version.parse(dcc.__version__) < version.parse('1.0.0'):
+if pkg.version.parse(dcc.__version__) < pkg.version.parse('1.0.0'):
     tooltip_kwarg = {}
 else:
     tooltip_kwarg = {'tooltip': {'always_visible': True, 'placement': 'top'}}
@@ -932,7 +932,7 @@ def serve_layout():
     ])
 
 
-if version.parse(dash.__version__) < version.parse('1.0'):
+if pkg.version.parse(dash.__version__) < pkg.version.parse('1.0'):
     app.layout = serve_layout
 else:
     app.layout = url_bar_and_content_div
@@ -1389,7 +1389,7 @@ def update_table(contents, json_data):
             },
             'style_header': {'backgroundColor': 'rgba(96, 164, 255, 0.0)'},
         }
-        if version.parse(dash_table.__version__) < version.parse('4.0'):
+        if pkg.version.parse(dash_table.__version__) < pkg.version.parse('4.0'):
             datatable_kwargs['n_fixed_rows'] = 1
         else:
             datatable_kwargs['fixed_rows'] = {'headers': True, 'data': 0}
@@ -1398,7 +1398,7 @@ def update_table(contents, json_data):
 
 
 if __name__ == '__main__':
-    if version.parse(dash.__version__) < version.parse('0.42.0'):
+    if pkg.version.parse(dash.__version__) < pkg.version.parse('0.42.0'):
         app.run_server(debug=True)
     # NOTE : This turns off the feature that causes errors to be displayed in
     # the app instead of the terminal, giving pre 0.42.0 behavior.
