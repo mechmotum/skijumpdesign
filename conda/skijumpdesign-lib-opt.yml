@@ -1,4 +1,4 @@
-name: skijumpdesign-lib
+name: skijumpdesign-lib-opt
 channels:
   - conda-forge
 dependencies:

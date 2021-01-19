@@ -1,4 +1,4 @@
-name: skijumpdesign-app-opt-dev
+name: skijumpdesign-app-dev
 channels:
   - conda-forge
 dependencies:
@@ -16,7 +16,6 @@ dependencies:
   - numpy ==1.15.0
   - pandas ==0.24.1
   - plotly ==3.1.1
-  - pycvodes ==0.10.6
   - pyinstrument  # tool, not pinned
   - pytest  # tool, not pinned
   - pytest-cov  # tool, not pinned
