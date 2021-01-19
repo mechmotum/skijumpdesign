@@ -482,10 +482,6 @@ surface.
 
 ## Outputs
 
-*(all curves specified as x,y coordinates in a system with origin at the TO
-point). All outputs are 2D curves. The complete jump shape consists of three;
-the takeoff, landing and landing transition surfaces.*
-
 ### Graph
 
 - **Takeoff Surface**: This transition curve is designed to give a smoothly
