@@ -664,7 +664,7 @@ analysis_takeoff_angle_widget = html.Div([
 ])
 
 
-def populated_efh_graph(takeoff_point, surface, distance, efh):
+def populated_efh_graph(takeoff_point, surface, distance, efh, speed):
 
     recommend_efh = 0.5
     maximum_efh = 1.5
@@ -691,6 +691,7 @@ def populated_efh_graph(takeoff_point, surface, distance, efh):
          'name': 'Calculated EFH',
          'type': 'bar',
          'marker': {'color': '#c89b43'},
+         'text': ['Takeoff Speed: {:1.1f} m/s'.format(v) for v in speed],
          },
         {'x': distance,
          'y': distance_standards*recommend_efh,
@@ -1416,10 +1417,10 @@ def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
 
     try:
         surface = Surface(x_vals, y_vals)
-        distance, efh, _ = surface.calculate_efh(takeoff_angle, takeoff_point,
+        distance, efh, speed = surface.calculate_efh(takeoff_angle, takeoff_point,
                                                  skier, increment=0.5)
         update_graph = populated_efh_graph(takeoff_point, surface, distance,
-                                           efh)
+                                           efh, speed)
         data = np.vstack((distance, efh)).T
     except Exception as e:
         update_graph = blank_efh_graph(e)
