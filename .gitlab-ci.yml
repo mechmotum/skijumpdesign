@@ -12,37 +12,37 @@ before_script:
   - apt install -y libgl1-mesa-glx build-essential
   - conda config --set always_yes yes
   - conda update -q conda
-  - conda env create -f conda/environment.yml
-  - conda env create -f conda/environment-dev.yml
-  - conda env create -f conda/environment-dev-optional.yml
+  - conda env create -f conda/skijumpdesign-lib.yml
+  - conda env create -f conda/skijumpdesign-lib-dev.yml
+  - conda env create -f conda/skijumpdesign-lib-opt-dev.yml
   - conda info
 
 install:
   script:
-    - source activate skijumpdesign
+    - source activate skijumpdesign-lib
     - python setup.py install
     - which skijumpdesign
 
 test:
   script:
-    - source activate skijumpdesign
+    - source activate skijumpdesign-lib
     - conda list
     - python -c "import skijumpdesign"
 
 test_dev:
   script:
-    - source activate skijumpdesign-dev
+    - source activate skijumpdesign-lib-dev
     - conda list
     - py.test --cov=skijumpdesign
 
 test_dev_optional:
   script:
-    - source activate skijumpdesign-dev-optional
+    - source activate skijumpdesign-lib-opt-dev
     - conda list
     - py.test --cov=skijumpdesign
 
 docs:
   script:
-    - source activate skijumpdesign-dev
+    - source activate skijumpdesign-lib-dev
     - cd docs/
     - make html
