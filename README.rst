@@ -61,7 +61,7 @@ References
    :target: https://anaconda.org/conda-forge/skijumpdesign
 
 .. |heroku| image:: http://heroku-badge.herokuapp.com/?app=skijumpdesign&svg=1
-   :target: https://www.skijumpdesign.info
+   :target: http://www.skijumpdesign.info
    :alt: Heroku Application
 
 .. |rtd| image:: https://readthedocs.org/projects/skijumpdesign/badge/?version=stable
