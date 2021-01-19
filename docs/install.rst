@@ -80,30 +80,45 @@ Setup the custom development conda environment named ``skijumpdesign`` to
 ensure it has all of the correct software dependencies. To create the
 environment type::
 
-   $ conda env create -f conda/environment-dev.yml
+   $ conda env create -f conda/skijumpdesign-lib-dev.yml
 
 To activate the environment type [2]_::
 
-   $ conda activate skijumpdesign-dev
-   (skijumpdesign-dev)$
+   $ conda activate skijumpdesign-lib-dev
+   (skijumpdesign-lib-dev)$
 
 Optionally, install in development mode using setuptools for use from any
 directory::
 
-   (skijumpdesign-dev)$ python setup.py develop
+   (skijumpdesign-lib-dev)$ python setup.py develop
 
 There are several conda environment files that may be of use:
 
-- ``environment.yml``: Installs the versions of the required
-  dependencies to run the library and the web app pinned to the release or
-  current commit on the master branch.
-- ``environment-dev.yml``: Installs the latest version of the required
+- ``skijumpdesign-app.yml``: Installs the versions of the required dependencies
+  to run the library and the web app pinned to specific versions for the app.
+  These are the versions we use to run the official web app.
+- ``skijumpdesign-app-opt.yml``: Installs the versions of the required and
+  optional dependencies to run the library and the web app pinned to specific
+  versions for the app.  These are the versions we use to run the official web
+  app.
+- ``skijumpdesign-app-dev.yml``: Installs the versions of the required
+  dependencies to run the library and the web app pinned to specific versions
+  for the app plus tools for development. These are the versions we use to run
+  the official web app.
+- ``skijumpdesign-app-opt-dev.yml``: Installs the versions of the required and
+  optional dependencies to run the library and the web app pinned to specific
+  versions for the app plus tools for development. These are the versions we
+  use to run the official web app.
+- ``skijumpdesign-lib.yml``: Installs the latest version of the required
+  dependencies to run the library and the web app.
+- ``skijumpdesign-lib-opt.yml``: Installs the latest version of the required
+  and optional dependencies to run the library and the web app.
+- ``skijumpdesign-lib-dev.yml``: Installs the latest version of the required
   dependencies to run the library and the web app, test the code, and build the
   documentation.
-- ``environment-dev-optional.yml``: Installs the latest version of the required
-  and optional dependencies to run the library and the web app, test the code,
-  and build the documentation.
-
+- ``skijumpdesign-lib-opt-dev.yml``: Installs the latest version of the
+  required and optional dependencies to run the library and the web app, test
+  the code, and build the documentation.
 
 Heroku Installation
 ===================

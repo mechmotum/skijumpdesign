@@ -29,11 +29,11 @@ Navigate to the ``skijumpdesign`` directory on your computer::
 
 Activate the custom Conda environment with::
 
-   $ conda activate skijumpdesign-dev
+   $ conda activate skijumpdesign-lib-dev
 
 Now run the application with::
 
-   (skijumpdesign-dev)$ python -m skijumpdesign.app
+   (skijumpdesign-lib-dev)$ python -m skijumpdesign.app
 
 You should see something like::
 
@@ -45,9 +45,9 @@ Type ``<CTRL>+C`` in the terminal to shutdown the web server.
 In Spyder
 ---------
 
-Open Anaconda Navigator, switch to the ``skijumpdesign-dev`` environment, and
-then launch Spyder. Set the working directory to the ``/path/to/skijumpdesign``
-directory. In the Spyder IPython console execute::
+Open Anaconda Navigator, switch to the ``skijumpdesign-lib-dev`` environment,
+and then launch Spyder. Set the working directory to the
+``/path/to/skijumpdesign`` directory. In the Spyder IPython console execute::
 
    In [1]: run skijumpdesign/app.py
 
