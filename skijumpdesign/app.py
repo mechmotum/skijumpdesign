@@ -120,6 +120,34 @@ server = app.server
 # INDEX LAYOUT
 ###############################################################################
 
+nav_menu = \
+    html.Nav([
+        html.Div([
+            html.Div([
+                html.Button([
+                    html.Span("Toggle Navigation", className="sr-only"),
+                    html.Span("", className="icon-bar"),
+                    html.Span("", className="icon-bar"),
+                    html.Span("", className="icon-bar"),
+                ], className="navbar-toggle collapsed",
+                    **{"type": "button",
+                       "data-toggle": "collapse",
+                       "data-target": "#navbar",
+                       "aria-expanded": "false",
+                       "aria-controls": "navbar"}),
+                html.A("Home", href="/",  className="navbar-brand"),
+            ], className="navbar-header"),
+            html.Div([
+                html.Ul([
+                    html.Li([dcc.Link('Ski Jump Design', href='/design')]),
+                    html.Li([dcc.Link('Ski Jump Analysis', href='/analysis')]),
+                ], className="nav navbar-nav"),
+            ], id="navbar", className="collapse navbar-collapse"),
+        ], className="container"),
+    ], className="navbar navbar-inverse navbar-static-top",
+        style={'background-color': 'rgb(64,71,86)',
+               'border-color': 'rgb(64,71,86)'})
+
 home_title = html.Div(
     [html.H1(TITLE,
              style={'text-align': 'center',
@@ -131,6 +159,33 @@ home_title = html.Div(
            'margin-top': '-20px',
            'background': 'rgb(64, 71, 86)',
            })
+
+ver_row = html.Div([html.P([html.Small(VERSION_STAMP)],
+                           style={'text-align': 'right'})],
+                   className='row')
+
+home_button_design = html.A('Launch Design',
+                            href='/design',
+                            className='btn btn-primary btn-lg',
+                            style={'padding': '44px 44px',
+                                   'font-size': '36px'})
+
+home_button_analysis = html.A('Launch Analysis',
+                              href='/analysis',
+                              className='btn btn-primary btn-lg',
+                              style={'padding': '44px 44px',
+                                     'font-size': '36px'})
+
+home_buttons = html.Div([
+    html.Div(home_button_design,
+             style={'padding': '15px'},
+             className='col-md-6 text-center'),
+    html.Div(home_button_analysis,
+             style={'padding': '15px'},
+             className='col-md-6 text-center'),
+     ],
+    className='row'
+)
 
 markdown_text_home = """\
 # Explanation
@@ -208,60 +263,6 @@ home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
                                 'text-shadow': '1px 1px black',
                                 })
 
-home_button_design = html.A('Launch Design',
-                            href='/design',
-                            className='btn btn-primary btn-lg',
-                            style={'padding': '44px 44px',
-                                   'font-size': '36px'})
-
-home_button_analysis = html.A('Launch Analysis',
-                              href='/analysis',
-                              className='btn btn-primary btn-lg',
-                              style={'padding': '44px 44px',
-                                     'font-size': '36px'})
-
-home_buttons = html.Div([
-    html.Div(home_button_design,
-             style={'padding': '15px'},
-             className='col-md-6 text-center'),
-    html.Div(home_button_analysis,
-             style={'padding': '15px'},
-             className='col-md-6 text-center'),
-     ],
-    className='row'
-)
-
-nav_menu = \
-    html.Nav([
-        html.Div([
-            html.Div([
-                html.Button([
-                    html.Span("Toggle Navigation", className="sr-only"),
-                    html.Span("", className="icon-bar"),
-                    html.Span("", className="icon-bar"),
-                    html.Span("", className="icon-bar"),
-                ], className="navbar-toggle collapsed",
-                    **{"type": "button",
-                       "data-toggle": "collapse",
-                       "data-target": "#navbar",
-                       "aria-expanded": "false",
-                       "aria-controls": "navbar"}),
-                html.A("Home", href="/",  className="navbar-brand"),
-            ], className="navbar-header"),
-            html.Div([
-                html.Ul([
-                    html.Li([dcc.Link('Ski Jump Design', href='/design')]),
-                    html.Li([dcc.Link('Ski Jump Analysis', href='/analysis')]),
-                ], className="nav navbar-nav"),
-            ], id="navbar", className="collapse navbar-collapse"),
-        ], className="container"),
-    ], className="navbar navbar-inverse navbar-static-top",
-        style={'background-color': 'rgb(64,71,86)',
-               'border-color': 'rgb(64,71,86)'})
-
-ver_row = html.Div([html.P([html.Small(VERSION_STAMP)],
-                           style={'text-align': 'right'})],
-                   className='row')
 
 layout_index = html.Div([nav_menu, home_title,
                          html.Div([ver_row, home_buttons, home_markdown],
