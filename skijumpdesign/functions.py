@@ -204,8 +204,8 @@ def plot_jump(slope, approach, takeoff, landing, landing_trans, flight):
 
 
 def plot_efh(surface, takeoff_angle, takeoff_point,
-             show_knee_collapse_line=True, skier=None, increment=0.2, ax=None,
-             **plot_kwargs):
+             show_knee_collapse_line=True, skier=None, increment=0.2,
+             ax=None):
     """Returns a matplotlib axes containing a plot of the surface and its
     corresponding equivalent fall height.
 
@@ -231,8 +231,6 @@ def plot_efh(surface, takeoff_angle, takeoff_point,
     ax : array of Axes, shape(2,), optional
         An existing matplotlib axes to plot to - ax[0] equivalent fall height,
         ax[1] surface profile.
-    plot_kwargs : dict, optional
-        Arguments to be passed to Axes.plot().
 
     References
     ==========
@@ -247,31 +245,49 @@ def plot_efh(surface, takeoff_angle, takeoff_point,
     if skier is None:
         skier = Skier()
 
+    takeoff_ang = np.deg2rad(takeoff_angle)
+    dist, efh, speeds = surface.calculate_efh(takeoff_ang, takeoff_point,
+                                              skier, increment)
+
     if ax is None:
         _, ax = plt.subplots(2, 1, sharex=True)
 
-    ax[0].set_ylabel('Equivalent Fall Height [m]')
-    ax[1].set_xlabel('Horizontal Position [m]')
-    ax[1].set_ylabel('Vertical Position [m]')
+    prof_ax = ax[0]
+    efh_ax = ax[1]
 
-    takeoff_ang = np.deg2rad(takeoff_angle)
-    dist, efh, _ = surface.calculate_efh(takeoff_ang, takeoff_point, skier,
-                                         increment)
+    surf_line_kwargs = {'color': 'black',
+                        'linewidth': 2,
+                        'label': 'Surface Profile'}
+    prof_ax.plot(surface.x, surface.y, **surf_line_kwargs)
+    prof_ax.scatter(*zip(takeoff_point), label='Takeoff Point', color='C1')
+    prof_ax.set_ylabel('Vertical Position [m]')
+    prof_ax.grid(True)
+    prof_ax.legend()
+
+    efh_bar_kwargs = {'color': 'black',
+                      'align': 'center',
+                      'width': increment/2,
+                      'label': None}
+
+    rects = efh_ax.bar(dist, efh, **efh_bar_kwargs)
+    for rect, si in list(zip(rects, speeds))[::2]:
+        height = rect.get_height()
+        efh_ax.text(rect.get_x() + rect.get_width()/2., 1.05*height,
+                    '{:1.1f}'.format(si), fontsize='xx-small', ha='center',
+                    va='bottom', rotation=90)
+
+    knee_line_kwargs = {'color': 'C1',
+                        'label': 'Knee Collapse EFH, 1.5m',
+                        'linestyle': ':'}
 
     if show_knee_collapse_line:
         knee_collapse_efh = 1.5
-        ax[0].axhline(knee_collapse_efh, label='Knee Collapse EFH, 1.5m',
-                      linestyle=':', **plot_kwargs)
+        efh_ax.axhline(knee_collapse_efh, **knee_line_kwargs)
 
-    ax[0].bar(dist, efh, label='Calculated EFH', align='center',
-              width=increment/2, color='C1', **plot_kwargs)
-    ax[1].plot(surface.x, surface.y, label='Surface Profile', color='C2',
-               **plot_kwargs)
-    ax[1].scatter(*zip(takeoff_point), label='Takeoff Point', color='C3',
-                  **plot_kwargs)
-
-    ax[0].legend()
-    ax[1].legend()
+    efh_ax.set_xlabel('Horizontal Position [m]')
+    efh_ax.set_ylabel('Equivalent Fall Height [m]')
+    efh_ax.grid(True)
+    efh_ax.legend()
 
     return ax
 

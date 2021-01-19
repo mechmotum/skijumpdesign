@@ -176,7 +176,7 @@ calculates the equivalent fall height for the surface that was produced.
    from skijumpdesign.functions import plot_efh
 
    dist, efh, speeds = landing.calculate_efh(takeoff_ang, takeoff.end,
-                                             skier, increment=0.2)
+                                             skier, increment=1.0)
    plot_efh(landing, np.rad2deg(takeoff_ang), takeoff.end)
 
 Entire Jump

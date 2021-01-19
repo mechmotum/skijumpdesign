@@ -112,7 +112,7 @@ intervals relative to the provided takeoff point or start of the surface.
 
    dist, efh, speeds = measured_surf.calculate_efh(np.deg2rad(takeoff_ang),
                                                    takeoff_point,skier,
-                                                   increment=0.2)
+                                                   increment=5.0)
 
 There is a convenience function for plotting the calculated efh.
 
