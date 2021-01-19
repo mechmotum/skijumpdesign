@@ -388,12 +388,19 @@ row2 = html.Div([
                  graph_widget
                 ], className='row')
 
-button = html.A('Download Profile',
-                id='download-button',
-                href='',
-                className='btn btn-primary',
-                target='_blank',
-                download='')
+build_dl_button = html.A('Download Profile for Building',
+                         id='download-build-button',
+                         href='',
+                         className='btn btn-primary',
+                         target='_blank',
+                         download='')
+
+analysis_dl_button = html.A('Download Profile for Analysis',
+                            id='download-analysis-button',
+                            href='',
+                            className='btn btn-primary',
+                            target='_blank',
+                            download='')
 
 row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
                 id='error-bar',
@@ -440,7 +447,7 @@ row6 = html.Div([
             ]),
         ], className='table table-hover'),
     ], className='col-md-4'),
-    html.Div([button], className='col-md-2'),
+    html.Div([build_dl_button], className='col-md-2'),
     html.Div([], className='col-md-3'),
 ], className='row shaded', style={'padding-top': '40px'})
 
@@ -1223,7 +1230,7 @@ def update_flight_height(json_data):
     return '{:1.1f}'.format(dic['outputs']['Flight Height'])
 
 
-@app.callback(Output('download-button', 'href'),
+@app.callback(Output('download-build-button', 'href'),
               [Input('data-store', 'children')])
 def update_download_link(json_data):
     dic = json.loads(json_data)
@@ -1231,7 +1238,7 @@ def update_download_link(json_data):
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
     return csv_string
 
-@app.callback(Output('download-button', 'download'),
+@app.callback(Output('download-build-button', 'download'),
               [Input('data-store', 'children')])
 def update_download_link(json_data):
     dic = json.loads(json_data)
