@@ -112,7 +112,7 @@ intervals relative to the provided takeoff point or start of the surface.
 
    dist, efh, speeds = measured_surf.calculate_efh(np.deg2rad(takeoff_ang),
                                                    takeoff_point,skier,
-                                                   increment=5.0)
+                                                   increment=1.0)
 
 There is a convenience function for plotting the calculated efh.
 
@@ -123,5 +123,6 @@ There is a convenience function for plotting the calculated efh.
 
    from skijumpdesign.functions import plot_efh
 
-   plot_efh(measured_surf, takeoff_ang, takeoff_point, skier=skier)
+   plot_efh(measured_surf, takeoff_ang, takeoff_point, skier=skier,
+            increment=1.0)
 
