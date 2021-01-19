@@ -208,27 +208,28 @@ home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
                                 'text-shadow': '1px 1px black',
                                 })
 
-home_button_design = html.A('Ski Jump Design',
+home_button_design = html.A('Launch Design',
                             href='/design',
                             className='btn btn-primary btn-lg',
                             style={'padding': '44px 44px',
                                    'font-size': '36px'})
 
-home_button_analysis = html.A('Ski Jump Analysis',
+home_button_analysis = html.A('Launch Analysis',
                               href='/analysis',
                               className='btn btn-primary btn-lg',
                               style={'padding': '44px 44px',
                                      'font-size': '36px'})
 
-home_buttons = html.Div(
-    [html.Div([home_button_design],
-              style={'display': 'inline-block', 'padding': '15px'}),
-     html.Div([home_button_analysis],
-              style={'display': 'inline-block', 'padding': '15px'}),
+home_buttons = html.Div([
+    html.Div(home_button_design,
+             style={'padding': '15px'},
+             className='col-md-6 text-center'),
+    html.Div(home_button_analysis,
+             style={'padding': '15px'},
+             className='col-md-6 text-center'),
      ],
-    className='row',
-    style={'padding': '40px', 'display': 'flex', 'justify-content': 'center'})
-
+    className='row'
+)
 
 nav_menu = \
     html.Nav([
