@@ -388,12 +388,21 @@ row2 = html.Div([
                  graph_widget
                 ], className='row')
 
-button = html.A('Download Profile',
-                id='download-button',
-                href='',
-                className='btn btn-primary',
-                target='_blank',
-                download='')
+build_dl_button = html.A('Download Profile for Building',
+                         id='download-build-button',
+                         href='',
+                         className='btn btn-primary',
+                         target='_blank',
+                         download='',
+                         )
+
+analysis_dl_button = html.A('Download Profile for Analysis',
+                            id='download-analysis-button',
+                            href='',
+                            className='btn btn-primary',
+                            target='_blank',
+                            download='',
+                            )
 
 row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
                 id='error-bar',
@@ -440,7 +449,10 @@ row6 = html.Div([
             ]),
         ], className='table table-hover'),
     ], className='col-md-4'),
-    html.Div([button], className='col-md-2'),
+    html.Div([
+        html.Div(build_dl_button, style={'padding': '10px'}),
+        html.Div(analysis_dl_button, style={'padding': '10px'}),
+    ], className='col-md-2'),
     html.Div([], className='col-md-3'),
 ], className='row shaded', style={'padding-top': '40px'})
 
@@ -508,15 +520,24 @@ The table provides a set of outputs about the currently visible jump design:
 
 ### Profile
 
-The **Download Profile** button returns a comma separated value text file with
-two columns. The filename of the profile has the input parameters for the jump;
-slope angle (sa), approach length (al), takeoff angle (ta), and equivalent fall
-height (efh). These values are generated from the current values of the
-sliders. In the downloaded file, the first column provides the distance from
-the top of the jump (start of the takeoff curve) at every meter along the slope
-and corresponding values of the height above the parent slope in the second
-column. Both columns are in meters. This data is primarily useful in building
-the actual jump, see [2].
+The **Download Profile for Building** button returns a comma separated value
+text file with two columns. In the downloaded file, the first column provides
+the distance from the top of the jump (start of the takeoff curve) at every
+meter along the slope and corresponding values of the height above the parent
+slope in the second column. Both columns are in meters. This data is primarily
+useful in building the actual jump, see [2].
+
+The **Download Profile for Analysis** button returns a comma separated value
+text file with two columns. In the downloaded file, the first column provides
+the horizontal (x) distance from the takeoff point every 0.25 meters along the
+horizontal and corresponding values of the vertical distance (y) from the
+takeoff point in the second column. Both columns are in meters. This data can
+be loaded directly into the analysis page.
+
+For both downloads, the filename of the profile has the input parameters for
+the jump; slope angle (sa), approach length (al), takeoff angle (ta), and
+equivalent fall height (efh). These values are generated from the current
+values of the sliders.
 
 ## Assumptions
 
@@ -1135,7 +1156,25 @@ def generate_csv_data(surfs):
     buf = BytesIO()
     np.savetxt(buf, data, fmt='%.2f', delimiter=',', newline="\n")
     header = 'Distance Along Slope [m],Height Above Slope [m]\n'
-    return header + buf.getvalue().decode()
+
+    # NOTE : analysis download, this should have the origin at the takeoff
+    # point and give the coordinates of the entire jump surface (takeoff +
+    # landing)
+    built_surface = Surface(x, y)  # takeoff, landing, and transition
+    built_surface.shift_coordinates(takeoff.x[0] - takeoff.x[-1],
+                                    takeoff.y[0] - takeoff.y[-1])
+    x_quarter_meter = np.arange(built_surface.start[0],
+                                built_surface.end[0],
+                                0.25)
+    y_quarter_meter = built_surface.interp_y(x_quarter_meter)
+    analysis_data = np.vstack((x_quarter_meter, y_quarter_meter)).T
+    analysis_buf = BytesIO()
+    np.savetxt(analysis_buf, analysis_data, fmt='%.2f', delimiter=',',
+               newline="\n")
+    analysis_header = ('x,y\n')
+    analysis_file = analysis_header + analysis_buf.getvalue().decode()
+
+    return header + buf.getvalue().decode(), analysis_file
 
 
 @app.callback(Output('data-store', 'children'), inputs)
@@ -1156,7 +1195,9 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
         logging.error('Graph update error:', exc_info=e)
         dic = blank_graph('<br>'.join(textwrap.wrap(str(e), 30)))
         dic['outputs'] = {'download': '#',
-                          'filename': 'profile.csv',
+                          'analysis-download': '#',
+                          'filename': 'build-profile.csv',
+                          'analysis-filename': 'analysis-profile.csv',
                           'Takeoff Speed': 0.0,
                           'Snow Budget': 0.0,
                           'Flight Time': 0.0,
@@ -1169,9 +1210,13 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
             surface.shift_coordinates(-new_origin[0], -new_origin[1])
         dic = populated_graph(surfs)
         input_params = [-slope_angle, approach_len, takeoff_angle, fall_height]
-        outputs['download'] = generate_csv_data(surfs)
-        outputs['filename'] = "profile-sa{:.1f}-al{:.1f}-ta{:.1f}-" \
-                              "efh{:.2f}.csv".format(*input_params)
+        build_file, analysis_file = generate_csv_data(surfs)
+        outputs['download'] = build_file
+        outputs['analysis-download'] = analysis_file
+        fname = ("-profile-sa{:.1f}-al{:.1f}-ta{:.1f}-"
+                 "efh{:.2f}.csv").format(*input_params)
+        outputs['filename'] = "build" + fname
+        outputs['analysis-filename'] = "analysis" + fname
         dic['outputs'] = outputs
 
     if cmd_line_args.profile:
@@ -1223,19 +1268,39 @@ def update_flight_height(json_data):
     return '{:1.1f}'.format(dic['outputs']['Flight Height'])
 
 
-@app.callback(Output('download-button', 'href'),
+@app.callback(Output('download-build-button', 'href'),
               [Input('data-store', 'children')])
 def update_download_link(json_data):
     dic = json.loads(json_data)
     csv_string = dic['outputs']['download']
-    csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string)
+    csv_string = ("data:text/csv;charset=utf-8," +
+                  urllib.parse.quote(csv_string))
     return csv_string
 
-@app.callback(Output('download-button', 'download'),
+
+@app.callback(Output('download-build-button', 'download'),
               [Input('data-store', 'children')])
 def update_download_link(json_data):
     dic = json.loads(json_data)
     filename = dic['outputs']['filename']
+    return filename
+
+
+@app.callback(Output('download-analysis-button', 'href'),
+              [Input('data-store', 'children')])
+def update_analysis_download_link(json_data):
+    dic = json.loads(json_data)
+    csv_string = dic['outputs']['analysis-download']
+    csv_string = ("data:text/csv;charset=utf-8," +
+                  urllib.parse.quote(csv_string))
+    return csv_string
+
+
+@app.callback(Output('download-analysis-button', 'download'),
+              [Input('data-store', 'children')])
+def update_analysis_download_link(json_data):
+    dic = json.loads(json_data)
+    filename = dic['outputs']['analysis-filename']
     return filename
 
 ###############################################################################
