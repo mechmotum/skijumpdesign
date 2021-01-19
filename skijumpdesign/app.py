@@ -509,11 +509,12 @@ The table provides a set of outputs about the currently visible jump design:
 The **Download Profile** button returns a comma separated value text file with
 two columns. The filename of the profile has the input parameters for the jump;
 slope angle (sa), approach length (al), takeoff angle (ta), and equivalent fall
-height (efh). The first column provides the distance from the top of the jump
-(start of the takeoff curve) at every meter along the slope and corresponding
-values of the height above the parent slope in the second column. Both columns
-are in meters. This data is primarily useful in building the actual jump, see
-[2].
+height (efh). These values are generated from the current values of the
+sliders. In the downloaded file, the first column provides the distance from
+the top of the jump (start of the takeoff curve) at every meter along the slope
+and corresponding values of the height above the parent slope in the second
+column. Both columns are in meters. This data is primarily useful in building
+the actual jump, see [2].
 
 ## Assumptions
 
