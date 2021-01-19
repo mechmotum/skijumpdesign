@@ -1,0 +1,21 @@
+name: skijumpdesign-lib
+channels:
+  - conda-forge
+dependencies:
+  - cython >=0.28.5
+  - dash >=0.22.0  # when assets/ directory introduced
+  - dash-core-components  # pinned to dash version
+  - dash-html-components  # pinned to dash version
+  - dash-renderer  # pinned to dash version
+  - dash-table  # pinned to dash version (I think)
+  - fastcache >=1.0.2
+  - flask >=1.0.2
+  - matplotlib >=2.2.3
+  - numpy >=0.13.0  # requires new options in gradient()
+  - pandas >=0.24.1
+  - plotly >=3.1.1
+  - python >=3.6*
+  - scipy >=1.0  # requires solve_ivp()
+  - setuptools >=8.0  # requires vendored packaging module
+  - sympy >=1.2
+  - xlrd >=1.2.0

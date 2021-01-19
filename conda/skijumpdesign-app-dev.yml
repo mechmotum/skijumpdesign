@@ -1,0 +1,27 @@
+name: skijumpdesign-app-dev
+channels:
+  - conda-forge
+dependencies:
+  - coverage  # tool, not pinned
+  - cython ==0.28.5
+  - dash ==0.39.0
+  - dash-core-components ==0.44.0
+  - dash-html-components ==0.14.0
+  - dash-renderer ==0.20.0
+  - dash-table ==3.6.0
+  - fastcache ==1.0.2
+  - flask ==1.0.2
+  - ipython  # tool, not pinned
+  - matplotlib ==2.2.3
+  - numpy ==1.15.0
+  - pandas ==0.24.1
+  - plotly ==3.1.1
+  - pyinstrument  # tool, not pinned
+  - pytest  # tool, not pinned
+  - pytest-cov  # tool, not pinned
+  - python ==3.6*
+  - scipy ==1.1.0
+  - setuptools ==41.0.0
+  - sphinx  # tool, not pinned
+  - sympy ==1.2
+  - xlrd ==1.2.0
