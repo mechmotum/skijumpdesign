@@ -191,14 +191,14 @@ home_buttons = html.Div([
              className='col-md-4 text-center'),
     ], className='row')
 
-markdown_text_home = """\
+markdown_text_home_1 = """\
 # Explanation
 
 This web application provides two tools to aid in the design and analysis of
 ski jumps when one considers minimizing and controlling for the landing impact
 speeds as defined by the "equivalent fall height" [1].
 
-## Ski Jump Design
+### Ski Jump Design
 
 This tool allows the design of a ski jump that limits landing impact (measured
 by a specified equivalent fall height[1]), for all takeoff speeds up to the
@@ -207,7 +207,7 @@ always impacts the landing surface at the same perpendicular impact speed as if
 dropped vertically from the specified equivalent fall height onto a horizontal
 surface. This tool is described in [3].
 
-## Ski Jump Analysis
+### Ski Jump Analysis
 
 Every jump landing surface shape has an associated equivalent fall height
 function h(x) that characterizes the severity of impact at every possible
@@ -215,8 +215,10 @@ landing point with horizontal coordinate x.  This tool allows calculation
 of this function, once the shape of the landing surface and the takeoff
 angle are specified, and thus allows the evaluation of the surface from
 the point of view of impact severity.
+"""
 
-# Colophon
+markdown_text_colophon = """\
+### Colophon
 
 This website was designed by Jason K. Moore, Mont Hubbard, and Bryn Cloud based
 on theoretical and computational work detailed in [1]. A description of actual
@@ -233,7 +235,9 @@ be found here:
 - Source code repository: [gitlab.com/moorepants/skijumpdesign](http://gitlab.com/moorepants/skijumpdesign)
 
 Contributions and issue reports are welcome!
+"""
 
+markdown_text_home_2 = """\
 # References
 
 [1] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A Design
@@ -257,7 +261,10 @@ the [Gitlab issue tracker](https://gitlab.com/moorepants/skijumpdesign/issues)
 or emailed directly to the authors at <feedback@skijumpdesign.info>.
 """
 
-home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
+home_markdown = html.Div([
+    html.Div([dcc.Markdown(markdown_text_home_1)], className='col-md-6'),
+    html.Div([dcc.Markdown(markdown_text_home_2)], className='col-md-6'),
+],
                          className='row',
                          style={'background-color': 'rgb(64,71,86, 0.9)',
                                 'color': 'white',
@@ -267,9 +274,22 @@ home_markdown = html.Div([dcc.Markdown(markdown_text_home)],
                                 'text-shadow': '1px 1px black',
                                 })
 
+colophon = html.Div([
+    html.Div([], className='col-md-3'),
+    html.Div([dcc.Markdown(markdown_text_colophon)], className='col-md-6'),
+    html.Div([], className='col-md-3'),
+    ],
+    className='row',
+    style={'background-color': 'rgb(64,71,86, 0.9)',
+           'color': 'white',
+           'padding-right': '20px',
+           'padding-left': '20px',
+           'margin-bottom': '40px',
+           'text-shadow': '1px 1px black'})
 
 layout_index = html.Div([nav_menu, home_title,
-                         html.Div([ver_row, home_buttons, home_markdown],
+                         html.Div([ver_row, home_buttons, home_markdown,
+                                   colophon],
                                   className='container')])
 
 ###############################################################################
