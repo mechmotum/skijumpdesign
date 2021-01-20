@@ -111,7 +111,8 @@ else:
         CUS_URL = URL_TEMP.format('v' + skijumpdesign.__version__)
     stylesheets = [BOOTSTRAP_URL, CUS_URL]
 
-app = dash.Dash(__name__, external_stylesheets=stylesheets,
+app = dash.Dash(__name__,
+                external_stylesheets=stylesheets,
                 external_scripts=[JQUERY_URL, BOOTSTRAP_JS_URL])
 app.title = TITLE
 server = app.server
@@ -135,6 +136,8 @@ nav_menu = \
                        "data-target": "#navbar",
                        "aria-expanded": "false",
                        "aria-controls": "navbar"}),
+                html.Img(src=app.get_asset_url('logo-dark-background-50x50.png'),
+                         className="navbar-brand"),
                 html.A("Home", href="/",  className="navbar-brand"),
             ], className="navbar-header"),
             html.Div([
@@ -170,22 +173,23 @@ home_button_design = html.A('Launch Design',
                             style={'padding': '44px 44px',
                                    'font-size': '36px'})
 
+logo = html.Img(src=app.get_asset_url('logo-light-background-200x200.png'))
+
 home_button_analysis = html.A('Launch Analysis',
                               href='/analysis',
                               className='btn btn-primary btn-lg',
                               style={'padding': '44px 44px',
                                      'font-size': '36px'})
-
 home_buttons = html.Div([
     html.Div(home_button_design,
              style={'padding': '15px'},
-             className='col-md-6 text-center'),
+             className='col-md-4 text-center'),
+    html.Div(logo,
+             className='col-md-4 text-center'),
     html.Div(home_button_analysis,
              style={'padding': '15px'},
-             className='col-md-6 text-center'),
-     ],
-    className='row'
-)
+             className='col-md-4 text-center'),
+    ], className='row')
 
 markdown_text_home = """\
 # Explanation
