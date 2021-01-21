@@ -671,19 +671,6 @@ analysis_filename_widget = html.Div([
             style={'color': 'red'})
 ])
 
-analysis_takeoff_angle_widget = html.Div([
-    html.H3('Takeoff Angle: [deg]',
-            id='takeoff-text-analysis',
-            style={'color': '#404756'}),
-    dcc.Input(
-        id='takeoff_angle_analysis',
-        placeholder='0',
-        type='number',
-        value='10'
-    ),
-])
-
-
 def populated_efh_graph(takeoff_point, surface, distance, efh, speed):
 
     recommend_efh = 0.5
@@ -769,6 +756,19 @@ def parse_contents(contents):
 
     return json.dumps(dic, cls=PlotlyJSONEncoder)
 
+
+analysis_title_row = html.Div([
+    html.H1(TITLE.replace('Design and', ''),
+            style={'text-align': 'center',
+                   'padding-top': '20px',
+                   'color': 'white'}),
+], className='page-header',
+    style={
+        'height': 'auto',
+        'margin-top': '-20px',
+        'background': 'rgb(64, 71, 86)',
+    })
+
 efh_graph_widget = html.Div(
     [dcc.Graph(id='efh-graph',
                style={'width': '100%'},
@@ -777,44 +777,44 @@ efh_graph_widget = html.Div(
 
 table_widget = html.Div(id='datatable-upload')
 
-compute_button = html.Div([
-    html.Div([html.Button('Compute',
-                id='compute-button',
-                className='btn btn-primary',),
-              html.H5(id='compute-error',
-                      style={'color': 'red'}),
-              ], style={'display': 'inline-block', 'padding': '20px'}),
+analysis_takeoff_angle_widget = html.Div([
+    html.H3('Takeoff Angle: [deg]',
+            id='takeoff-text-analysis',
+            style={'color': '#404756'},
+            ),
+    dcc.Input(id='takeoff_angle_analysis',
+              placeholder='0',
+              type='number',
+              value='20',
+              ),
 ])
 
-download_efh_button = html.Div([
-    html.Div([html.A('Download EFH',
-              id='download-efh-button',
-              href='',
-              className='btn btn-primary',
-              target='_blank',
-              download='efh_profile.csv')],
-             style={'display': 'inline-block', 'padding': '10px'})])
+compute_button = html.Div([
+    html.Button('Run Analysis', id='compute-button',
+                className='btn btn-primary btn-lg',),
+    html.H5(id='compute-error', style={'color': 'red'}),
+], style={'margin': '10px'})
 
-analysis_title_row = html.Div([
-    html.H1(TITLE.replace('Design and', ''),
-            style={'text-align': 'center',
-                   'padding-top': '20px',
-                   'color': 'white'}),
-],
-    className='page-header',
-    style={
-        'height': 'auto',
-        'margin-top': '-20px',
-        'background': 'rgb(64, 71, 86)',
-    })
+download_efh_button = html.Div([
+    html.A('Download EFH',
+           id='download-efh-button',
+           href='',
+           className='btn btn-primary',
+           target='_blank',
+           download='efh_profile.csv')
+], style={'margin': '10px'})
 
 analysis_input_row = html.Div([
-    html.Div([upload_widget, analysis_filename_widget, table_widget],
-             className='col-md-6'),
-    html.Div([], className='col-md-2'),
-    html.Div([analysis_takeoff_angle_widget, compute_button,
-              download_efh_button],
-             className='col-md-4'),
+    html.Div([
+        upload_widget,
+        analysis_filename_widget,
+        table_widget,
+    ], className='col-md-8'),
+    html.Div([
+        analysis_takeoff_angle_widget,
+        compute_button,
+        download_efh_button,
+    ], className='col-md-4 text-center'),
 ], className='row shaded')
 
 analysis_graph_row = html.Div([efh_graph_widget], className='row')
