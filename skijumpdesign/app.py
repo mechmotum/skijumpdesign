@@ -1308,40 +1308,23 @@ def update_table_data(json_data):
     return table_data
 
 
-@app.callback(Output('download-build-button', 'href'),
+@app.callback([Output('download-build-button', 'href'),
+               Output('download-build-button', 'download'),
+               Output('download-analysis-button', 'href'),
+               Output('download-analysis-button', 'download')],
               [Input('data-store', 'children')])
-def update_download_link(json_data):
+def update_download_buttons(json_data):
     dic = json.loads(json_data)
     csv_string = dic['outputs']['download']
     csv_string = ("data:text/csv;charset=utf-8," +
                   urllib.parse.quote(csv_string))
-    return csv_string
-
-
-@app.callback(Output('download-build-button', 'download'),
-              [Input('data-store', 'children')])
-def update_download_link(json_data):
-    dic = json.loads(json_data)
     filename = dic['outputs']['filename']
-    return filename
+    analysis_csv_string = dic['outputs']['analysis-download']
+    analysis_csv_string = ("data:text/csv;charset=utf-8," +
+                           urllib.parse.quote(analysis_csv_string))
+    analysis_filename = dic['outputs']['analysis-filename']
+    return csv_string, filename, analysis_csv_string, analysis_filename
 
-
-@app.callback(Output('download-analysis-button', 'href'),
-              [Input('data-store', 'children')])
-def update_analysis_download_link(json_data):
-    dic = json.loads(json_data)
-    csv_string = dic['outputs']['analysis-download']
-    csv_string = ("data:text/csv;charset=utf-8," +
-                  urllib.parse.quote(csv_string))
-    return csv_string
-
-
-@app.callback(Output('download-analysis-button', 'download'),
-              [Input('data-store', 'children')])
-def update_analysis_download_link(json_data):
-    dic = json.loads(json_data)
-    filename = dic['outputs']['analysis-filename']
-    return filename
 
 ###############################################################################
 # ANALYSIS FUNCTIONALITY
