@@ -447,6 +447,20 @@ loading_row = \
             ),
     ], className='row')
 
+loading_row_analysis = \
+    html.Div([
+        dcc.Loading([
+            html.Div([],
+                     id='loading-area-analysis',
+                     style={'height': '44px'},
+                     className='col-md-12')
+        ],
+            id='test',
+            type='dot',
+            color='#c89b43',
+            ),
+    ], className='row')
+
 row4 = html.Div([
                  html.Div([slope_angle_widget], className='col-md-5'),
                  html.Div([], className='col-md-2'),
@@ -966,6 +980,7 @@ analysis_data_row = html.Div(id='output-data-upload',
 layout_analysis = html.Div([nav_menu, analysis_title_row,
                             html.Div([ver_row,
                                       analysis_graph_row,
+                                      loading_row_analysis,
                                       analysis_input_row,
                                       analysis_markdown_row,
                                       analysis_data_row,
@@ -1408,7 +1423,8 @@ states_analysis = [
 
 @app.callback([Output('efh-graph', 'figure'),
                Output('compute-error', 'children'),
-               Output('download-efh-button', 'href')],
+               Output('download-efh-button', 'href'),
+               Output('loading-area-analysis', 'children')],
               [Input('compute-button', 'n_clicks'),
                Input('compute-button', 'children')],  # runs on load
               states_analysis)
@@ -1478,7 +1494,7 @@ def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
     header = 'Distance Along Slope [m],EFH [m]\n'
     text = header + buf.getvalue().decode()
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(text)
-    return update_graph, error_text, csv_string
+    return update_graph, error_text, csv_string, ''
 
 
 @app.callback(Output('datatable-upload', 'children'),
