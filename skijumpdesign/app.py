@@ -318,7 +318,7 @@ approach_len_widget = html.Div([
                200: '200 [m]'},
         **tooltip_kwarg
         )
-    ])
+    ], style={'padding': '4px'})
 
 fall_height_widget = html.Div([
     html.H3('Equivalent Fall Height: 0.5 [m]',
@@ -337,7 +337,7 @@ fall_height_widget = html.Div([
                1.5: '1.5 [m]'},
         **tooltip_kwarg
         )
-    ])
+    ], style={'padding': '4px'})
 
 slope_angle_widget = html.Div([
     html.H3('Parent Slope Angle: 15 degrees',
@@ -357,7 +357,7 @@ slope_angle_widget = html.Div([
                40: '40 [deg]'},
         **tooltip_kwarg
         )
-    ])
+    ], style={'padding': '4px'})
 
 takeoff_angle_widget = html.Div([
     html.H3('Takeoff Angle: 25 degrees',
@@ -376,7 +376,7 @@ takeoff_angle_widget = html.Div([
                40: '40 [deg]'},
         **tooltip_kwarg
         ),
-    ])
+    ], style={'padding': '4px'})
 
 layout = go.Layout(autosize=True,
                    hovermode='closest',
@@ -433,27 +433,19 @@ row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
                 style={'display': 'none'}
                 )
 
-row_between3_4 = \
+loading_row = \
     html.Div([
-        html.Div([], className='col-md-5'),
-        dcc.Loading(children=[html.Div([],
-                                      id='loading-area',
-                                      style={
-                                        'height': '100px',
-                                        'background-color': 'black',
-                                      }, className='col-md-2')],
-                    className='col-md-2',
-                    id='test',
-                    style={
-                        'height': '200px',
-                        'padding-top': '200px'
-                    },
-                    debug=True,
-                    type='circle',
-                    color='#60a4ff',
-                    ),
-        html.Div([], className='col-md-5'),
-    ], className='row shaded')
+        dcc.Loading([
+            html.Div([],
+                     id='loading-area',
+                     style={'height': '44px'},
+                     className='col-md-12')
+        ],
+            id='test',
+            type='dot',
+            color='#c89b43',
+            ),
+    ], className='row')
 
 row4 = html.Div([
                  html.Div([slope_angle_widget], className='col-md-5'),
@@ -643,7 +635,7 @@ layout_design = html.Div([nav_menu, row1,
                           html.Div([ver_row,
                                     row2,
                                     row3,
-                                    row_between3_4,
+                                    loading_row,
                                     row4,
                                     row5,
                                     row6,
@@ -1227,8 +1219,7 @@ def generate_csv_data(surfs):
 
 
 @app.callback([Output('data-store', 'children'),
-               Output('loading-area', 'children'),
-               ],
+               Output('loading-area', 'children')],
               inputs)
 def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
 
@@ -1275,15 +1266,13 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
         profiler.stop()
         print(profiler.output_text(unicode=True, color=True))
 
-    return json.dumps(dic, cls=PlotlyJSONEncoder), None
+    return json.dumps(dic, cls=PlotlyJSONEncoder), ''
 
 
 @app.callback(Output('my-graph', 'figure'),
-               [Input('data-store', 'children')])
+              [Input('data-store', 'children')])
 def update_graph(json_data):
     dic = json.loads(json_data)
-    import time
-    #time.sleep(30)
     del dic['outputs']
     return dic
 
