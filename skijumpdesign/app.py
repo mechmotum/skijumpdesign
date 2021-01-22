@@ -1284,14 +1284,6 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
     return json.dumps(dic, cls=PlotlyJSONEncoder), ''
 
 
-@app.callback(Output('my-graph', 'figure'),
-              [Input('data-store', 'children')])
-def update_graph(json_data):
-    dic = json.loads(json_data)
-    del dic['outputs']
-    return dic
-
-
 @app.callback([Output('takeoff-speed-text', 'children'),
                Output('snow-budget-text', 'children'),
                Output('flight-time-text', 'children'),
@@ -1300,9 +1292,10 @@ def update_graph(json_data):
                Output('download-build-button', 'href'),
                Output('download-build-button', 'download'),
                Output('download-analysis-button', 'href'),
-               Output('download-analysis-button', 'download')],
+               Output('download-analysis-button', 'download'),
+               Output('my-graph', 'figure')],
               [Input('data-store', 'children')])
-def update_table_and_download_data(json_data):
+def update_from_data_store(json_data):
 
     dic = json.loads(json_data)
 
@@ -1316,7 +1309,7 @@ def update_table_and_download_data(json_data):
                            urllib.parse.quote(analysis_csv_string))
     analysis_filename = dic['outputs']['analysis-filename']
 
-    outputs = ('{:1.1f}'.format(dic['outputs']['Takeoff Speed']),
+    outputs = ['{:1.1f}'.format(dic['outputs']['Takeoff Speed']),
                '{:1.0f}'.format(dic['outputs']['Snow Budget']),
                '{:1.2f}'.format(dic['outputs']['Flight Time']),
                '{:1.1f}'.format(dic['outputs']['Flight Distance']),
@@ -1324,7 +1317,11 @@ def update_table_and_download_data(json_data):
                csv_string,
                filename,
                analysis_csv_string,
-               analysis_filename)
+               analysis_filename]
+
+    del dic['outputs']
+
+    outputs.append(dic)
 
     return outputs
 
