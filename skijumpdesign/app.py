@@ -1292,39 +1292,20 @@ def update_graph(json_data):
     return dic
 
 
-@app.callback(Output('takeoff-speed-text', 'children'),
+@app.callback([Output('takeoff-speed-text', 'children'),
+               Output('snow-budget-text', 'children'),
+               Output('flight-time-text', 'children'),
+               Output('flight-dist-text', 'children'),
+               Output('flight-height-text', 'children')],
               [Input('data-store', 'children')])
-def update_takeoff_speed(json_data):
+def update_table_data(json_data):
     dic = json.loads(json_data)
-    return '{:1.1f}'.format(dic['outputs']['Takeoff Speed'])
-
-
-@app.callback(Output('snow-budget-text', 'children'),
-              [Input('data-store', 'children')])
-def update_snow_budget(json_data):
-    dic = json.loads(json_data)
-    return '{:1.0f}'.format(dic['outputs']['Snow Budget'])
-
-
-@app.callback(Output('flight-time-text', 'children'),
-              [Input('data-store', 'children')])
-def update_flight_time(json_data):
-    dic = json.loads(json_data)
-    return '{:1.2f}'.format(dic['outputs']['Flight Time'])
-
-
-@app.callback(Output('flight-dist-text', 'children'),
-              [Input('data-store', 'children')])
-def update_flight_dist(json_data):
-    dic = json.loads(json_data)
-    return '{:1.1f}'.format(dic['outputs']['Flight Distance'])
-
-
-@app.callback(Output('flight-height-text', 'children'),
-              [Input('data-store', 'children')])
-def update_flight_height(json_data):
-    dic = json.loads(json_data)
-    return '{:1.1f}'.format(dic['outputs']['Flight Height'])
+    table_data = ('{:1.1f}'.format(dic['outputs']['Takeoff Speed']),
+                  '{:1.0f}'.format(dic['outputs']['Snow Budget']),
+                  '{:1.2f}'.format(dic['outputs']['Flight Time']),
+                  '{:1.1f}'.format(dic['outputs']['Flight Distance']),
+                  '{:1.1f}'.format(dic['outputs']['Flight Height']))
+    return table_data
 
 
 @app.callback(Output('download-build-button', 'href'),
