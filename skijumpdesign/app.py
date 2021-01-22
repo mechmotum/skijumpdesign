@@ -389,10 +389,11 @@ layout = go.Layout(autosize=True,
                    legend={'orientation': "h",
                            'y': 1.15})
 
-graph_widget = html.Div([dcc.Graph(id='my-graph',
-                                   style={'width': '100%'},
-                                   figure=go.Figure(layout=layout))],
-                        className='col-md-12')
+graph_widget = html.Div([
+    dcc.Graph(id='my-graph',
+              style={'width': '100%'},
+              figure=go.Figure(layout=layout)),
+    ], className='col-md-12')
 
 row1 = html.Div([
                  html.H1(TITLE.replace(' and Analysis', ''),
@@ -408,9 +409,7 @@ row1 = html.Div([
                       })
 
 
-row2 = html.Div([
-                 graph_widget
-                ], className='row')
+row2 = html.Div([graph_widget], className='row')
 
 build_dl_button = html.A('Download Profile for Building',
                          id='download-build-button',
@@ -433,6 +432,28 @@ row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
                 className='alert alert-warning',
                 style={'display': 'none'}
                 )
+
+row_between3_4 = \
+    html.Div([
+        html.Div([], className='col-md-5'),
+        dcc.Loading(children=[html.Div([],
+                                      id='loading-area',
+                                      style={
+                                        'height': '100px',
+                                        'background-color': 'black',
+                                      }, className='col-md-2')],
+                    className='col-md-2',
+                    id='test',
+                    style={
+                        'height': '200px',
+                        'padding-top': '200px'
+                    },
+                    debug=True,
+                    type='circle',
+                    color='#60a4ff',
+                    ),
+        html.Div([], className='col-md-5'),
+    ], className='row shaded')
 
 row4 = html.Div([
                  html.Div([slope_angle_widget], className='col-md-5'),
@@ -619,8 +640,15 @@ row7 = html.Div([dcc.Markdown(markdown_text)],
 row8 = html.Div(id='data-store', style={'display': 'none'})
 
 layout_design = html.Div([nav_menu, row1,
-                          html.Div([ver_row, row2, row3, row4, row5, row6,
-                                    row7, row8],
+                          html.Div([ver_row,
+                                    row2,
+                                    row3,
+                                    row_between3_4,
+                                    row4,
+                                    row5,
+                                    row6,
+                                    row7,
+                                    row8],
                                    className='container')])
 
 ###############################################################################
@@ -1198,7 +1226,10 @@ def generate_csv_data(surfs):
     return header + buf.getvalue().decode(), analysis_file
 
 
-@app.callback(Output('data-store', 'children'), inputs)
+@app.callback([Output('data-store', 'children'),
+               Output('loading-area', 'children'),
+               ],
+              inputs)
 def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
 
     if cmd_line_args.profile:
@@ -1244,12 +1275,15 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
         profiler.stop()
         print(profiler.output_text(unicode=True, color=True))
 
-    return json.dumps(dic, cls=PlotlyJSONEncoder)
+    return json.dumps(dic, cls=PlotlyJSONEncoder), None
 
 
-@app.callback(Output('my-graph', 'figure'), [Input('data-store', 'children')])
+@app.callback(Output('my-graph', 'figure'),
+               [Input('data-store', 'children')])
 def update_graph(json_data):
     dic = json.loads(json_data)
+    import time
+    #time.sleep(30)
     del dic['outputs']
     return dic
 
