@@ -1296,34 +1296,37 @@ def update_graph(json_data):
                Output('snow-budget-text', 'children'),
                Output('flight-time-text', 'children'),
                Output('flight-dist-text', 'children'),
-               Output('flight-height-text', 'children')],
-              [Input('data-store', 'children')])
-def update_table_data(json_data):
-    dic = json.loads(json_data)
-    table_data = ('{:1.1f}'.format(dic['outputs']['Takeoff Speed']),
-                  '{:1.0f}'.format(dic['outputs']['Snow Budget']),
-                  '{:1.2f}'.format(dic['outputs']['Flight Time']),
-                  '{:1.1f}'.format(dic['outputs']['Flight Distance']),
-                  '{:1.1f}'.format(dic['outputs']['Flight Height']))
-    return table_data
-
-
-@app.callback([Output('download-build-button', 'href'),
+               Output('flight-height-text', 'children'),
+               Output('download-build-button', 'href'),
                Output('download-build-button', 'download'),
                Output('download-analysis-button', 'href'),
                Output('download-analysis-button', 'download')],
               [Input('data-store', 'children')])
-def update_download_buttons(json_data):
+def update_table_and_download_data(json_data):
+
     dic = json.loads(json_data)
+
     csv_string = dic['outputs']['download']
     csv_string = ("data:text/csv;charset=utf-8," +
                   urllib.parse.quote(csv_string))
     filename = dic['outputs']['filename']
+
     analysis_csv_string = dic['outputs']['analysis-download']
     analysis_csv_string = ("data:text/csv;charset=utf-8," +
                            urllib.parse.quote(analysis_csv_string))
     analysis_filename = dic['outputs']['analysis-filename']
-    return csv_string, filename, analysis_csv_string, analysis_filename
+
+    outputs = ('{:1.1f}'.format(dic['outputs']['Takeoff Speed']),
+               '{:1.0f}'.format(dic['outputs']['Snow Budget']),
+               '{:1.2f}'.format(dic['outputs']['Flight Time']),
+               '{:1.1f}'.format(dic['outputs']['Flight Distance']),
+               '{:1.1f}'.format(dic['outputs']['Flight Height']),
+               csv_string,
+               filename,
+               analysis_csv_string,
+               analysis_filename)
+
+    return outputs
 
 
 ###############################################################################
