@@ -246,7 +246,7 @@ Rationale for Safer Terrain Park Jumps That Limit Equivalent Fall Height."
 Sports Engineering 18, no. 4 (December 2015): 227–39.
 [https://doi.org/10.1007/s12283-015-0182-6](https://doi.org/10.1007/s12283-015-0182-6)
 
-[2] Petrone, N., Cognolato, M., McNeil, J.A., Hubbard, M. “Designing, building,
+[2] Petrone, N., Cognolato, M., McNeil, J.A., Hubbard, M. "Designing, building,
 measuring and testing a constant equivalent fall height terrain park jump"
 Sports Engineering 20, no. 4 (December 2017): 283-92.
 [https://doi.org/10.1007/s12283-017-0253-y](https://doi.org/10.1007/s12283-017-0253-y)
@@ -254,6 +254,11 @@ Sports Engineering 20, no. 4 (December 2017): 283-92.
 [3] Moore, J. K. and Hubbard, M., (2018). skijumpdesign: A Ski Jump Design Tool
 for Specified Equivalent Fall Height. Journal of Open Source Software, 3(28),
 818, [https://doi.org/10.21105/joss.00818](https://doi.org/10.21105/joss.00818)
+
+[4] Minetti, A. E., L. P. Ardigò, D. Susta, and F. Cotelli. "Using Leg Muscles
+as Shock Absorbers: Theoretical Predictions and Experimental Results of Drop
+Landing Performance." Ergonomics 41, no. 12 (December 1, 1998): 1771–91.
+https://doi.org/10.1080/001401398185965.
 """
 
 home_feedback_text = """\
@@ -597,9 +602,9 @@ values of the sliders.
 The design calculations in this application depend on the ratios of aerodynamic
 drag and snow friction resistive forces to inertial forces for the jumper, and
 on estimates for reasonable turning accelerations (and their rates) able to be
-borne by the jumper in the transitions (see reference [1]). A list of related
-assumed parameters with definitions and a set of nominal values for these
-parameters is provided here:
+borne by the jumper in the transitions (see reference [1] on the home page). A
+list of related assumed parameters with definitions and a set of nominal values
+for these parameters is provided here:
 
 - skier mass: 75.0 kg
 - skier cross sectional area: 0.34 meters squared
@@ -625,13 +630,13 @@ parameters is provided here:
   a free design parameter but rarely are takeoff angles greater than 30 deg
   used.
 - Choose the desired equivalent fall height (efh), a measure of impact on
-  landing (see [1]). The landing surface shape calculated in the design
-  provides the same efh for all speeds up to and including the design speed and
-  consequently for all starting points up to and including the maximum start
-  position.
+  landing (see reference [1] on the home page). The landing surface shape
+  calculated in the design provides the same efh for all speeds up to and
+  including the design speed and consequently for all starting points up to and
+  including the maximum start position.
 - Inspect and view the graph of the resulting jump design using the menu bar
   and iterate design parameters. The third button allows zoom.
-- Download the jump design profile using the **Download Profile** button.
+- Download the jump design profile using one of the download buttons.
 
 # Feedback
 
@@ -918,8 +923,8 @@ defining the landing surface shape.
 - **Jump Profile**: The jump profile displays the landing surface shape
   uploaded by the user.
 - **Knee Collapse EFH**: This is the value of EFH (1.5 m) above which even
-  elite ski jumpers are unable to prevent knee collapse. See Ref. [38](Minetti,
-  et al., 2010) contained in Ref. [1] on the Home page.”
+  elite ski jumpers are likely unable to prevent knee collapse. See reference
+  [4] on the Home page."
 - **Possible Soft Landing EFH**: This represents the 0.5 m recommended
   equivalent fall height for a possible soft landing EFH.
 - **Calculated EFH**: This is the calculated equivalent fall height at 0.2 m
@@ -928,17 +933,17 @@ defining the landing surface shape.
 ## Outputs
 
 The output is a table of calculated EFH as a function of the horizontal
-coordinate x of the landing point. This is plotted on the graph and can
-be downloaded as a file named “efh_profile.csv” using the “Download EFH” button.
+coordinate x of the landing point. This is plotted on the graph and can be
+downloaded as a file named "efh_profile.csv" using the "Download EFH" button.
 
 ## Assumptions
 
 The design calculations in this application depend on the ratios of aerodynamic
 drag and snow friction resistive forces to inertial forces for the jumper, and
 on estimates for reasonable turning accelerations (and their rates) able to be
-borne by the jumper in the transitions (see reference [1]). A list of related
-assumed parameters with definitions and a set of nominal values for these
-parameters is provided here:
+borne by the jumper in the transitions (see reference [1] on the main page). A
+list of related assumed parameters with definitions and a set of nominal values
+for these parameters is provided here:
 
 - skier mass: 75.0 kg
 - skier cross sectional area: 0.34 meters squared
