@@ -443,11 +443,7 @@ row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
 loading_row = \
     html.Div([
         dcc.Loading([
-            html.Div(children=[html.H2('Done',
-                              style={'color': 'red',
-                                     'background-color': 'black',
-                                     'border': '4px',
-                                     'border-color': 'black'})],
+            html.Div(children=[],
                      id='loading-area',
                      style={'height': '44px'},
                      className='col-md-12')
