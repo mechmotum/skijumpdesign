@@ -112,6 +112,7 @@ else:
     stylesheets = [BOOTSTRAP_URL, CUS_URL]
 
 app = dash.Dash(__name__,
+                suppress_callback_exceptions=True,  # needed for multipage
                 external_stylesheets=stylesheets,
                 external_scripts=[JQUERY_URL, BOOTSTRAP_JS_URL])
 app.title = TITLE
@@ -191,7 +192,7 @@ home_buttons = html.Div([
              className='col-md-4 text-center'),
     ], className='row')
 
-markdown_text_home_1 = """\
+home_explanation_text = """\
 # Explanation
 
 This web application provides two tools to aid in the design and analysis of
@@ -217,8 +218,8 @@ angle are specified, and thus allows the evaluation of the surface from
 the point of view of impact severity.
 """
 
-markdown_text_colophon = """\
-### Colophon
+home_colophon_text = """\
+# Colophon
 
 This website was designed by Jason K. Moore, Mont Hubbard, and Bryn Cloud based
 on theoretical and computational work detailed in [1]. A description of actual
@@ -237,7 +238,7 @@ be found here:
 Contributions and issue reports are welcome!
 """
 
-markdown_text_home_2 = """\
+home_references_text = """\
 # References
 
 [1] Levy, Dean, Mont Hubbard, James A. McNeil, and Andrew Swedberg. "A Design
@@ -253,7 +254,9 @@ Sports Engineering 20, no. 4 (December 2017): 283-92.
 [3] Moore, J. K. and Hubbard, M., (2018). skijumpdesign: A Ski Jump Design Tool
 for Specified Equivalent Fall Height. Journal of Open Source Software, 3(28),
 818, [https://doi.org/10.21105/joss.00818](https://doi.org/10.21105/joss.00818)
+"""
 
+home_feedback_text = """\
 # Feedback
 
 Bug reports, feature requests, and other general feedback can be submitted to
@@ -262,8 +265,9 @@ or emailed directly to the authors at <feedback@skijumpdesign.info>.
 """
 
 home_markdown = html.Div([
-    html.Div([dcc.Markdown(markdown_text_home_1)], className='col-md-6'),
-    html.Div([dcc.Markdown(markdown_text_home_2)], className='col-md-6'),
+    html.Div([dcc.Markdown(home_explanation_text)], className='col-md-6'),
+    html.Div([dcc.Markdown(home_colophon_text +
+                           home_feedback_text)], className='col-md-6'),
 ],
                          className='row',
                          style={'background-color': 'rgb(64,71,86, 0.9)',
@@ -275,9 +279,7 @@ home_markdown = html.Div([
                                 })
 
 colophon = html.Div([
-    html.Div([], className='col-md-3'),
-    html.Div([dcc.Markdown(markdown_text_colophon)], className='col-md-6'),
-    html.Div([], className='col-md-3'),
+    html.Div([dcc.Markdown(home_references_text)], className='col-md-12'),
     ],
     className='row',
     style={'background-color': 'rgb(64,71,86, 0.9)',
@@ -436,7 +438,11 @@ row3 = html.Div([html.H2('Messages'), html.P('', id='message-text')],
 loading_row = \
     html.Div([
         dcc.Loading([
-            html.Div([],
+            html.Div(children=[html.H2('Done',
+                              style={'color': 'red',
+                                     'background-color': 'black',
+                                     'border': '4px',
+                                     'border-color': 'black'})],
                      id='loading-area',
                      style={'height': '44px'},
                      className='col-md-12')
