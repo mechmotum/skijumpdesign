@@ -27,7 +27,6 @@ setup(
     py_modules=['skijumpdesignapp'],
     packages=find_packages(),
     include_package_data=True,  # includes things in MANIFEST.in
-    data_files=[('', ['skijumpdesign/assets/skijump.css'])],
     zip_safe=False,
     entry_points={'console_scripts':
                   ['skijumpdesign = skijumpdesign.app:app.run_server']},
