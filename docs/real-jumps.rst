@@ -1,6 +1,12 @@
-======================
-Analysis of Real Jumps
-======================
+================================
+Examples: Analysis of Real Jumps
+================================
+
+This page analyses several jumps in which people have been injured on. The
+jumps have been measured by the package authors over the years. The intention
+is to show the utility of the software for analyzing arbitrary jump shapes and
+to highlight the large equivalent fall heights of these jump constructions. The
+jumps are idenified by location and the year it was measured.
 
 Import packages needed on this page:
 
@@ -11,7 +17,8 @@ Import packages needed on this page:
    import numpy as np
    import matplotlib.pyplot as plt
    from skijumpdesign import Skier, Surface
-   from skijumpdesign.functions import make_jump, plot_efh, cartesian_from_measurements
+   from skijumpdesign.functions import (
+       make_jump, plot_efh, cartesian_from_measurements)
 
 Selection of an Equivalent Fall Height
 ======================================
@@ -21,7 +28,8 @@ intermediate ski slopes range from 25% to 40% (14 to 22 degrees) [1]_. Terrain
 parks are typically built on steeper beginner slopes or shallow intermediate
 slopes, thus a parent slope grade of 25% (14 degrees) is a reasonable choice to
 compare the snow budgets of different jumps designed with equivalent fall
-heights.
+heights. The following plot shows how the snow budget increases as EFH
+decreases.
 
 .. plot::
    :include-source: True
@@ -41,7 +49,7 @@ heights.
       snow_budget = jump[-1]['Snow Budget']
       for i, surf in enumerate(jump[3:-2]):
          if i % 2 == 1:
-            lab = 'EFH: {:1.1f} m, Snow Budget: {:1.0f} m^2'.format(efh, snow_budget)
+            lab = 'EFH: {:1.1f} m, Snow Budget: {:1.0f} m²'.format(efh, snow_budget)
          else:
             lab = None
          surf.plot(ax=ax, color=color, label=lab)
@@ -53,12 +61,12 @@ heights.
    ax.grid()
 
 An equivalent fall height of 1.5 m will, on average, cause knee collapse in an
-adult [2]_. This is a good absolute maximal boundary for equivalent fall
-height. An equivalent fall height of 0.5 m is a fairly benign height, similar
-to falling from two or three stair steps. A height of 1 m is a good compromise
-between these two numbers that has a reasonable snow budget with moderate
-height. The following jumps will compared to jumps designed with a 1 m
-equivalent fall height for this reason.
+adult [2]_. This is a sensible absolute maximal boundary for equivalent fall
+height in constructed jumps. An equivalent fall height of 0.5 m is a fairly
+benign height, similar to falling from two or three stair steps. A height of 1
+m is a good compromise between these two numbers that has a reasonable snow
+budget with moderate height. The following jumps will compared to jumps
+designed with a 1 m equivalent fall height for this reason.
 
 .. [1] https://en.wikipedia.org/wiki/Piste
 .. [2] A. E. Minetti, "Using leg muscles as shock absorbers: theoretical
@@ -182,9 +190,9 @@ fall height. The figure below shows such a comparison.
        efh_ax.bar(dist, efh, color='C2', align='edge', width=increment/2,
                   label=None)
 
-       efh_ax.axhline(4.6, color='C1', label='Avg. 2 Storey Fall Height')
-       efh_ax.axhline(3.0, color='C1', linestyle='dashed',
-                      label='Avg. 1 Storey Fall Height')
+       efh_ax.axhline(5.1, color='C1', label='Avg. 2 Story Fall Height')
+       efh_ax.axhline(2.6, color='C1', linestyle='dashed',
+                      label='Avg. 1 Story Fall Height')
        efh_ax.axhline(1.5, color='C1', linestyle='dashdot',
                       label='Knee Collapse Height')
 
@@ -210,10 +218,6 @@ fall height. The figure below shows such a comparison.
        efh_ax.set_ylabel('Equivalent Fall Height [m]')
        efh_ax.set_xlabel('Horizontal Position [m]')
 
-       #efh_ax.set_xlim((240, 300))
-       #prof_ax.set_xlim((240, 300))
-       #efh_ax.get_shared_x_axes().join(efh_ax, prof_ax)
-
        efh_ax.grid()
        prof_ax.grid()
        efh_ax.legend(loc='upper left')
@@ -232,6 +236,12 @@ fall height. The figure below shows such a comparison.
 
    compare_measured_to_designed(landing_surface, fall_height, slope_angle,
                                 approach_length, takeoff_angle, skier)
+
+The average story heights are estimated from [4]_.
+
+.. [4] N. L. Vish, "Pediatric window falls: not just a problem for children in
+   high rises," Injury Prevention, vol. 11, no. 5, pp. 300–303, Oct. 2005, doi:
+   10.1136/ip.2005.008664.
 
 Washington 2004
 ===============
@@ -258,7 +268,7 @@ visualize the measured landing surface. The takeoff location is situated at
 
    ax = landing_surface.plot()
 
-The takeoff angle of this jump was measured as 16 degrees. Using this angle the
+The takeoff angle of this jump was measured as 25 degrees. Using this angle the
 equivalent fall height can be visualized across the landing surface.
 
 .. plot::
@@ -274,9 +284,8 @@ equivalent fall height can be visualized across the landing surface.
    plot_efh(landing_surface, takeoff_angle, takeoff_point,
             skier=skier, increment=1.0)
 
-For high takeoff speeds, this jump has very large equivalent fall heights (5 m
-to 10 m). No mater the speed, the equivalent fall height is greater than the
-1.5 m threshold for knee collapse.
+For high takeoff speeds, this jump has very large equivalent fall heights (3 m
+to 13 m).
 
 The actual jump can be compared to a jump designed with a constant equivalent
 fall height. The figure below shows such a comparison. Note that the first 15
@@ -404,14 +413,8 @@ equivalent fall height can be visualized across the landing surface.
    plot_efh(landing_surface, takeoff_angle, takeoff_point,
             skier=skier, increment=1.0)
 
-For high takeoff speeds, this jump has very large equivalent fall heights (5 m
-to 10 m). No mater the speed, the equivalent fall height is greater than the
-1.5 m threshold for knee collapse.
-
 The actual jump can be compared to a jump designed with a constant equivalent
-fall height. The figure below shows such a comparison. Note that the first 15
-meters or so of the surface is reasonable, but if a jumper lands beyond 15 m
-they will be subjected to dangerous impact velocities.
+fall height. The figure below shows such a comparison.
 
 .. plot::
    :include-source: True
@@ -485,12 +488,13 @@ Sydney 2020
 ===========
 
 The :download:`sydney-measurements-2020.csv` file contains the distance along
-the jump surface and absolute angle measurements of a single-track dirt
-mountain bike jump measured near Sydney, Australia in 2020. The comma separated
-value file can be loaded with ``numpy.loadtxt()``. These measurements require
-conversion to the Cartesian coordinates for constructing the surface. After
-conversion the data can be used to create a
-:class:`~skijumpdesign.surfaces.Surface`.  The
+the jump surface and absolute angle measurements (different measures than all
+above files) of a single-track dirt mountain bike jump measured near Sydney,
+Australia in 2020. The comma separated value file can be loaded with
+``numpy.loadtxt()``. These measurements require conversion to the Cartesian
+coordinates for constructing the surface using
+:meth:`~skijumpdesign.functions.cartesian_from_measurements`. After conversion
+the data can be used to create a :class:`~skijumpdesign.surfaces.Surface`.  The
 :meth:`~skijumpdesign.surfaces.Surface.plot` method is used to quickly
 visualize the measured landing surface. The takeoff location is situated at the
 first measurement point.

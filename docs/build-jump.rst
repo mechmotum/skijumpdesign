@@ -2,16 +2,17 @@
 Example: Design EFH Jump
 ========================
 
-The following page describes how to construct a constant equivalent fall height
-ski jump landing surface using the ``skijumpdesign`` API. Make sure to :ref:`install <install>`
-the library first.
+The following page describes how to construct an example constant equivalent
+fall height ski jump landing surface using the ``skijumpdesign`` :ref:`API
+<API>`. Make sure to :ref:`install <install>` the library first.
 
 Approach
 ========
 
 Start by creating a 25 meter length of an approach path (also called the
 in-run) which is flat and has a downward slope angle of 20 degrees. The
-resulting surface can be visualized with the ``FlatSurface.plot()`` method.
+resulting surface can be visualized with the
+:meth:`~skijumpdesign.surfaces.Surface.plot` method.
 
 .. plot::
    :include-source: True
@@ -26,9 +27,10 @@ resulting surface can be visualized with the ``FlatSurface.plot()`` method.
    approach = FlatSurface(approach_ang, approach_len)
    approach.plot()
 
-Now that a surface has been created, a skier can be created. The skier can "ski"
-along the approach surface using the ``slide_on()`` method which generates a
-skiing simulation trajectory.
+Now that a surface has been created, a skier can be created. The skier can
+"ski" along the approach surface using the
+:meth:`~skijumpdesign.skiers.Skier.slide_on` method which generates a skiing
+simulation trajectory.
 
 .. plot::
    :include-source: True
@@ -46,8 +48,9 @@ skiing simulation trajectory.
 Approach-Takeoff Transition
 ===========================
 
-The approach-takeoff transition is constructed with a clothoid-circle-clothoid-flat surface to
-transition from the parent slope angle to the desired takeoff angle, in this case 15 degrees.
+The approach-takeoff transition is constructed with a
+clothoid-circle-clothoid-flat surface to transition from the parent slope angle
+to the desired takeoff angle, in this case 15 degrees.
 
 .. plot::
    :include-source: True
@@ -80,8 +83,9 @@ The trajectory of the skier on the takeoff can be examined also.
 Flight
 ======
 
-Once the skier leaves the takeoff ramp at the maximum (design) speed they will be in flight. The
-``Skier.fly_to()`` method can be used to simulate this longest flight trajectory.
+Once the skier leaves the takeoff ramp at the maximum (design) speed they will
+be in flight. The :meth:`~skijumpdesign.skiers.Skier.fly_to` method can be used
+to simulate this longest flight trajectory.
 
 .. plot::
    :include-source: True
@@ -110,13 +114,15 @@ surfaces.
 Landing Transition
 ==================
 
-There is a single infinity of landing surfaces that satisfy the efh differential 
-equation and provide the desired equivalent fall height. The algorithm selects 
-the one of these that is closest to the parent slope, and hence is least expensive 
-to build, but which still is able to transition back to the parent slope with 
-slope continuity and simultaneously is constrained to experience limited normal acceleration. 
-The final part of this step is to determine the landing transition curve (shown in red below)
-which connects the optimum (cheapest) constant efh landing surface to the parent slope.
+The final part of this step is to determine the landing transition curve (shown
+in red below) which connects the optimum (cheapest) constant EFH landing
+surface to the parent slope. There are an infinite number of landing surfaces
+that satisfy the EFH differential equation and provide the desired equivalent
+fall height. The algorithm selects the one of these that is closest to the
+parent slope, and hence is least expensive to build (in terms of snow volume),
+but which still is able to transition back to the parent slope with slope
+continuity and simultaneously is constrained to experience limited normal
+acceleration.
 
 .. plot::
    :include-source: True
@@ -164,9 +170,11 @@ takeoff (design) speed above.
    ax = landing_trans.plot(ax=ax, color='#d62728')
    landing.plot(ax=ax, color='#2ca02c')
 
-The design calculates a landing surface shape that produces a constant equivalent
-fall height. This can be verified using the ``landing.calculate_efh()`` function that
-calculates the equivalent fall height for the surface that was produced.
+The design calculates a landing surface shape that produces a constant
+equivalent fall height. This can be verified using the
+:meth:`~skijumpdesign.surfaces.Surface.calculate_efh` function that
+calculates the equivalent fall height for the surface that was produced. See
+the :ref:`analyze jump <analyze jump>` page to learn more about this function.
 
 .. plot::
    :include-source: True
@@ -182,7 +190,7 @@ calculates the equivalent fall height for the surface that was produced.
 Entire Jump
 ===========
 
-There is a convenience function for plotting the jump:
+There is also convenience function for plotting the jump:
 
 .. plot::
    :include-source: True

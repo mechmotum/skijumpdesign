@@ -1,21 +1,17 @@
-.. skijumpdesign documentation master file, created by
-   sphinx-quickstart on Fri Apr 13 15:20:19 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to skijumpdesign's documentation!
 =========================================
 
-This is the documentation for "skijumpdesign: A Ski Jump Design Tool for
-Equivalent Fall Height" based on the work presented in [2]_. The software
-includes a library for two dimensional skiing simulations and a graphical web
-application for designing basic ski jumps. The purpose of the software is to
-provide an open source, layperson-friendly graphical web application for
-designing ski jumps that set the maximum impact velocity by specifying an
-equivalent fall height. Ski jumps that are designed with impact velocity caps
-in mind will likely reduce injuries. See the references below for a more
-thorough discussion of the reasons. A current version of the web application
-can be accessed at http://www.skijumpdesign.info.
+This is the documentation for "skijumpdesign: A Ski Jump Design and Analysis
+Tool for Equivalent Fall Height" based on the work presented in [2]_. The
+software includes a library for two dimensional skiing simulations and a
+graphical web application for designing and analyzing basic ski jumps. The
+primary purpose of the software is to provide an open source,
+layperson-friendly web application for designing and assessing ski jumps for
+the purposes of minimizing equivalent fall height (EFH). Ski jumps that are
+designed with low equivalent fall heights will likely reduce injuries. See the
+references below for a more thorough discussion of the reasons. A current
+version of the web application can be accessed at
+http://www.skijumpdesign.info.
 
 .. plot::
    :width: 600px

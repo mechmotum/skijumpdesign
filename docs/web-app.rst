@@ -11,8 +11,8 @@ After :ref:`installing <install>` skijumpdesign type::
 
 to run the web application. This should launch the application on your
 computer's port 8050. You can view the application by visiting
-``localhost:8050`` in your preferred web browser. ``<CTRL + C>`` will stop the
-server.
+``http://localhost:8050`` in your preferred web browser. ``<CTRL + C>`` will
+stop the server.
 
 Developer
 =========

@@ -1,21 +1,24 @@
+.. _analyze jump:
+
 =========================
 Example: Analyze Jump EFH
 =========================
 
-The following page describes how to analyze an existing or measured ski jump landing
-surface by calculating it's equivalent fall height using the ``skijumpdesign`` API. Make sure to
-:ref:`install <install>` the library first.
+The following page describes how to analyze an existing or hypothetical ski
+jump landing surface by calculating it's equivalent fall height using the
+``skijumpdesign`` :ref:`API <API>`. Make sure to :ref:`install <install>` the
+library first.
 
 Load Data
 =========
 
 Start by loading data of a ski jump surface's horizontal and vertical
-coordinates measured in meters. The resulting surface can be visualized
-with the ``Surface.plot()`` method. Create a tuple for the takeoff point
-coordinates, and a variable for the takeoff angle. Data for this example
-is taken from a jump measured with a level and tape measure and translated
-into horizontal (x) and vertical (y) components. The sample surface below
-was collected from a real slope and jump.
+coordinates measured in meters. The resulting surface can be visualized with
+the :meth:`~skijumpdesign.surfaces.Surface.plot` method. Create a tuple for the
+takeoff point coordinates, and a variable for the takeoff angle. Data for this
+example is taken from a jump measured with a level and tape measure and
+translated into horizontal (x) and vertical (y) components. The sample surface
+below was collected from a real slope and jump.
 
 .. plot::
    :include-source: True
@@ -26,7 +29,7 @@ was collected from a real slope and jump.
    import numpy as np
 
    takeoff_ang = 10  # degrees
-   takeoff_point = (0,0)  # meters
+   takeoff_point = (0, 0)  # meters
 
    x_ft = [-232.3,-203.7,-175.0,-146.3,-117.0,-107.4,-97.7,-88.0,-78.2,
            -68.5,-58.8,-49.1,-39.4,-34.5,-29.7,-24.8,-19.8,-17.8,-15.8,
@@ -49,9 +52,10 @@ was collected from a real slope and jump.
 
    measured_surf.plot()
 
-Now that a surface has been created, a skier can be created. The skier can "ski"
-along the surface by extracting the data in the array before takeoff and using
-the ``slide_on()`` method which generates a skiing simulation trajectory.
+Now that a surface has been created, a skier can be created. The skier can
+"ski" along the surface by extracting the data in the array before takeoff and
+using the :meth:`~skijumpdesign.skiers.Skier.slide_on` method which generates a
+skiing simulation trajectory.
 
 .. plot::
    :include-source: True
@@ -74,8 +78,9 @@ the ``slide_on()`` method which generates a skiing simulation trajectory.
 Flight
 ======
 
-Once the skier leaves the takeoff ramp at the maximum (design) speed they will be in flight.
-The ``Skier.fly_to()`` method can be used to simulate this longest flight trajectory.
+Once the skier leaves the takeoff ramp at the maximum (design) speed they will
+be in flight. The :meth:`~skijumpdesign.skiers.Skier.fly_to` method can be used
+to simulate this longest flight trajectory.
 
 .. plot::
    :include-source: True
@@ -110,9 +115,8 @@ intervals relative to the provided takeoff point or start of the surface.
    :context: close-figs
    :width: 600px
 
-   dist, efh, speeds = measured_surf.calculate_efh(np.deg2rad(takeoff_ang),
-                                                   takeoff_point,skier,
-                                                   increment=1.0)
+   dist, efh, speeds = measured_surf.calculate_efh(
+       np.deg2rad(takeoff_ang), takeoff_point,skier, increment=1.0)
 
 There is a convenience function for plotting the calculated efh.
 

@@ -4,7 +4,7 @@
 Installation
 ============
 
-skijumpdesign can be installed via several tools. Below are recommended
+skijumpdesign can be installed using several tools. Below are recommended
 options, in order of the developers' preference.
 
 conda
@@ -12,7 +12,7 @@ conda
 
 The library and web application can be installed into the root conda_
 environment from the `Conda Forge channel`_ at anaconda.org. This requires
-installing either miniconda_ or Anaconda_::
+installing either miniconda_ or Anaconda_ first. Once conda is available run::
 
    $ conda install -c conda-forge skijumpdesign
 
@@ -35,6 +35,8 @@ If you want to run the unit tests and/or build the documentation use::
 
    $ pip install skijumpdesign[dev]
 
+to also install the development dependencies.
+
 .. _PyPi: http://pypi.org
 .. _pip: http://pip.pypa.io
 
@@ -51,6 +53,9 @@ Open a terminal. Navigate to the ``skijumpdesign`` directory::
 Install with [1]_::
 
    $ python setup.py install
+
+.. [1] Note that you likely want to install into a user directory with
+   pip/setuptools. See the pip and setuptools documentation on how to do this.
 
 Optional dependencies
 =====================
@@ -92,14 +97,15 @@ directory::
 
    (skijumpdesign-lib-dev)$ python setup.py develop
 
-There are several conda environment files that may be of use:
+There are several conda environment files provided in the source code that may
+be of use:
 
 - ``skijumpdesign-app.yml``: Installs the versions of the required dependencies
   to run the library and the web app pinned to specific versions for the app.
   These are the versions we use to run the official web app.
 - ``skijumpdesign-app-opt.yml``: Installs the versions of the required and
   optional dependencies to run the library and the web app pinned to specific
-  versions for the app.  These are the versions we use to run the official web
+  versions for the app. These are the versions we use to run the official web
   app.
 - ``skijumpdesign-app-dev.yml``: Installs the versions of the required
   dependencies to run the library and the web app pinned to specific versions
@@ -120,19 +126,16 @@ There are several conda environment files that may be of use:
   required and optional dependencies to run the library and the web app, test
   the code, and build the documentation.
 
+.. [2] This environment will also show up in the Anaconda Navigator program.
+
 Heroku Installation
 ===================
 
 When installing into a Heroku instance, the application will make use of the
 ``requirements.txt`` file included in the source code which installs all of the
-dependencies needed to run the software on a live Heroku instance. Note that
-this currently only runs on the deprecated cedar-14 stack. You need to set some
-environment variables for the Heroku app:
+dependencies needed to run the software on a live Heroku instance. You need to
+set some environment variables for the Heroku app:
 
 - ``ONHEROKU=true``: Lets the app know if it is running on Heroku.
 - ``GATRACKINGID``: Set the value as a string with your Google Analytics
   tracking id.
-
-.. [1] Note that you likely want to install into a user directory with
-   pip/setuptools. See the pip and setuptools documentation on how to do this.
-.. [2] This environment will also show up in the Anaconda Navigator program.

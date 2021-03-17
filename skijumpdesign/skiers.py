@@ -176,8 +176,9 @@ class Skier(object):
 
         Raises
         ======
-        InvalidJumpError if the skier does not contact a surface within
-        Skier.max_flight_time.
+        InvalidJumpError
+           Error if the skier does not contact a surface within
+           Skier.max_flight_time.
 
         """
         logging_call = getattr(logging, logging_type)
@@ -352,8 +353,9 @@ class Skier(object):
 
         Raises
         ======
-        InvalidJumpError if skier can't reach the end of the surface within
-        1000 seconds.
+        InvalidJumpError
+            Error if skier can't reach the end of the surface within 1000
+            seconds.
 
         """
 
