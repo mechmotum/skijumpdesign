@@ -111,7 +111,7 @@ def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
 
     if takeoff_angle >= 90.0 or takeoff_angle <= slope_angle:
         msg = 'Invalid takeoff angle. Enter value between {} and 90 degrees'
-        raise ValueError(msg.format(slope_angle))
+        raise InvalidJumpError(msg.format(slope_angle))
 
     slope_angle = np.deg2rad(slope_angle)
     takeoff_angle = np.deg2rad(takeoff_angle)
