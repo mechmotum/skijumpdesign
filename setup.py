@@ -37,7 +37,6 @@ setup(
         'dash-renderer',
         'dash-table',
         'dash>=0.22.0',  # when assets/ directory introduced
-        'fastcache>=1.0.2',
         'flask>=1.0.2',
         'matplotlib>=2.2.3',
         'numpy>=0.13.0',

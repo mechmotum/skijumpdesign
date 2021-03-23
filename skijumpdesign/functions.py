@@ -3,7 +3,6 @@ import logging
 
 import numpy as np
 from scipy.interpolate import interp1d
-from fastcache import clru_cache
 
 # TODO : Might be better to use:
 # import matplotlib
@@ -15,7 +14,7 @@ else:
     import matplotlib.pyplot as plt
 
 from .skiers import Skier
-from .surfaces import (Surface, FlatSurface, HorizontalSurface, TakeoffSurface,
+from .surfaces import (FlatSurface, HorizontalSurface, TakeoffSurface,
                        LandingTransitionSurface, LandingSurface)
 from .utils import InvalidJumpError, vel2speed
 
@@ -55,7 +54,6 @@ def snow_budget(parent_slope, takeoff, landing, landing_trans):
     return np.abs(A - B)
 
 
-#@clru_cache(maxsize=128)
 def make_jump(slope_angle, start_pos, approach_len, takeoff_angle, fall_height,
               plot=False):
     """Returns a set of surfaces and output values that define the equivalent

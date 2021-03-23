@@ -8,7 +8,6 @@ dependencies:
   - dash-html-components  # pinned to dash version
   - dash-renderer  # pinned to dash version
   - dash-table  # pinned to dash version (I think)
-  - fastcache >=1.0.2
   - flask >=1.0.2
   - matplotlib >=2.2.3
   - numpy >=0.13.0  # requires new options in gradient()
