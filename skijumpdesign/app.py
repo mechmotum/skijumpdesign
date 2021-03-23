@@ -53,7 +53,7 @@ BOOTSTRAP_JS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap
 
 # NOTE : Turn the logger on to INFO level by default so it is recorded in any
 # server logs.
-logger = logging.getLogger()
+logger = logging.getLogger('skijumpdesign')
 logger.setLevel(logging.INFO)
 
 # NOTE : ONHEROKU is a custom env variable that needs to be set via the app
@@ -223,7 +223,7 @@ home_colophon_text = """\
 
 This website was designed by Jason K. Moore, Mont Hubbard, and Bryn Cloud based
 on theoretical and computational work detailed in [1]. A description of actual
-fabrication of such a jump is contained in [2].
+fabrication of a constant equivlanet fall height jump is contained in [2].
 
 The software that powers the website is open source and information on it can
 be found here:
@@ -262,7 +262,7 @@ home_feedback_text = """\
 
 Bug reports, feature requests, and other general feedback can be submitted to
 the [Gitlab issue tracker](https://gitlab.com/moorepants/skijumpdesign/issues)
-or emailed directly to the authors at <feedback@skijumpdesign.info>.
+or emailed directly to the authors at feedback@skijumpdesign.info.
 """
 
 home_markdown = html.Div([
@@ -527,7 +527,7 @@ surface.
 - **Maximum Approach Length**: The maximum distance along the slope above the
   jump that the jumper can slide to build up speed. The jumper reaches a
   theoretical maximum speed at the end of this approach and the landing surface
-  shape provides the same impact efh for all speeds up to and including this
+  shape provides the same impact EFH for all speeds up to and including this
   maximum achievable (design) speed.
 - **Takeoff Angle**: The upward angle, relative to horizontal, at the end of
   the takeoff ramp, a free design parameter.
@@ -621,13 +621,14 @@ these parameters is provided here:
 - Set the desired takeoff (TO) angle of the ramp at the takeoff point. This is
   a free design parameter but rarely are takeoff angles greater than 30 deg
   used.
-- Choose the desired equivalent fall height (efh), a measure of impact on
+- Choose the desired equivalent fall height (EFH), a measure of impact on
   landing (see reference [1] below). The landing surface shape
-  calculated in the design provides the same efh for all speeds up to and
+  calculated in the design provides the same EFH for all speeds up to and
   including the design speed and consequently for all starting points up to and
   including the maximum start position.
 - Inspect and view the graph of the resulting jump design using the menu bar
-  and iterate design parameters. The third button allows zoom.
+  and iterate design parameters. The third button in the graph menu allows
+  zoom.
 - Download the jump design profile using one of the download buttons.
 
 # References
@@ -646,7 +647,7 @@ Sports Engineering 20, no. 4 (December 2017): 283-92.
 
 Bug reports, feature requests, and other general feedback can be submitted to
 the [Gitlab issue tracker](https://gitlab.com/moorepants/skijumpdesign/issues)
-or emailed directly to the authors at <feedback@skijumpdesign.info>.
+or emailed directly to the authors at feedback@skijumpdesign.info>
 """
 row7 = html.Div([dcc.Markdown(markdown_text)],
                 className='row',
@@ -882,6 +883,18 @@ happens to have a constant equivalent fall height for the primary landing
 surface. Other jump designs can be uploaded and analyzed by following the
 instructions below.
 
+# Instructions
+
+- Upload a csv or an Excel file containing the xy coordinates or the distance
+  and angle measurements of the measured or proposed jump landing surface. The
+  units of the surface coordinates must be meters or meters and degrees,
+  respectively.
+- Use the table to ensure the data file was uploaded properly.
+- Set the angle of the takeoff ramp at the takeoff point and press the
+  "Compute" button.
+- Inspect and view the graph of the resulting jump profile and the calculated
+  equivalent fall height. The third button in the graph menu allows zoom.
+
 ## Inputs
 
 - **Upload**: A comma separated value (csv) file or an Excel spreadsheet file
@@ -920,7 +933,7 @@ instructions below.
 
 ### Table
 
-The table allows inspection of the contents of the inputted csv or Excel file
+The table allows inspection of the contents of the inputted csv or xls file
 defining the landing surface shape.
 
 ### Graph
@@ -929,26 +942,26 @@ defining the landing surface shape.
   uploaded by the user.
 - **Knee Collapse EFH**: This is the value of EFH (1.5 m) above which even
   elite ski jumpers are likely unable to prevent knee collapse. See reference
-  [2] below."
+  [2] below.
 - **Possible Soft Landing EFH**: This represents the 0.5 m recommended
   equivalent fall height for a possible soft landing EFH.
-- **Calculated EFH**: This is the calculated equivalent fall height at 0.2 m
+- **Calculated EFH**: This is the calculated equivalent fall height at 0.5 m
   horizontal intervals along the landing surface.
 
 ## Outputs
 
 The output is a table of calculated EFH as a function of the horizontal
 coordinate x of the landing point. This is plotted on the graph and can be
-downloaded as a file named "efh_profile.csv" using the "Download EFH" button.
+downloaded as a file named `efh_profile.csv` using the "Download EFH" button.
 
 ## Assumptions
 
 The design calculations in this application depend on the ratios of aerodynamic
 drag and snow friction resistive forces to inertial forces for the jumper, and
 on estimates for reasonable turning accelerations (and their rates) able to be
-borne by the jumper in the transitions (see reference [1] on the main page). A
-list of related assumed parameters with definitions and a set of nominal values
-for these parameters is provided here:
+borne by the jumper in the transitions (see reference [1] below). A list of
+related assumed parameters with definitions and a set of nominal values for
+these parameters is provided here:
 
 - skier mass: 75.0 kg
 - skier cross sectional area: 0.34 meters squared
@@ -960,18 +973,6 @@ for these parameters is provided here:
   0.99
 - equilibration time the jumper should have on the straight ramp just before
   takeoff: 0.25 sec
-
-# Instructions
-
-- Upload a csv or an Excel file containing the xy coordinates or the distance
-  and angle measurements of the measured or proposed jump landing surface. The
-  units of the surface coordinates must be meters or meters and degrees,
-  respectively.
-- Use the table to ensure the data file was uploaded properly.
-- Set the angle of the takeoff ramp at the takeoff point and press the
-  "Compute" button.
-- Inspect and view the graph of the resulting jump profile and the calculated
-  equivalent fall height. The third button allows zoom.
 
 # References
 
