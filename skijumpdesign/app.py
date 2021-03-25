@@ -767,8 +767,8 @@ def populated_efh_graph(takeoff_point, surface, distance, efh, speed):
 
 def blank_efh_graph(msg):
     nan_line = [np.nan]
-    if layout['annotations']:
-        del layout['annotations']
+    if layout.annotations != ():
+        layout.annotations = ()
     data = {'data': [
                      {'x': [0.0, 0.0], 'y': [0.0, 0.0],
                       'name': 'Calculated EFH',
