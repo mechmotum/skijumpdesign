@@ -1,6 +1,22 @@
 1.4.0
 =====
 
+- Surface will interpolate data at 0.3 m if the provided data is spaced too
+  coarsely.
+- Support Dash > 4.0.
+- Added a "download for analysis" button to the design page, so that the
+  downloaded file can be uploaded into the analysis page.
+- Various visual design improvements to the app.
+- Negative takeoff angles are now supported in the app (up to -20 degrees).
+- Removed the fastcache dependency.
+- Added a set of conda environment.yml files for development and deployment.
+- Improved the layout of the home page on the web app.
+- Improved the app performance by using the newer Dash multiple output
+  functionality instead of a hidden data store.
+- The app now displays animated dots under the graph while it is computing to
+  give some feedback to the user.
+- Added support to upload data files of distance vs angle measurements in
+  addition to Cartesian coordinates in the app.
 - Added a new function to compute a surface's Cartesian coordinates given
   measures of distance along the surface and absolute angle along the surface.
 - Minimum Python supported is now 3.6 (dropped support for 3.5 and added
@@ -10,7 +26,8 @@
 - Added documentation demonstrating the use of calcualte_efh() on a number of
   measured jumps.
 - Added a new function for computing the equivalent fall height of a surface
-  given the takeoff point, takeoff angle, and surface shape.
+  given the takeoff point, takeoff angle, and surface shape and a function for
+  generating EFH plots.
 
 1.3.0
 =====
