@@ -27,8 +27,8 @@ version = '.'.join(__version__.split('.')[:2])
 release = __version__
 
 project = 'skijumpdesign[{}]'.format(release)
-author = 'Jason K. Moore, Mont Hubbard, Bryn Cloud'
-copyright = '2018-2019, ' + author
+author = 'Jason K. Moore, Bryn Cloud, Mont Hubbard'
+copyright = '2018-2021, ' + author
 
 # -- General configuration ---------------------------------------------------
 
