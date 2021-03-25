@@ -1277,21 +1277,23 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
     approach_len = float(approach_len)
     takeoff_angle = float(takeoff_angle)
     fall_height = float(fall_height)
+
+    blank_outputs = {'download': '#',
+                     'analysis-download': '#',
+                     'filename': 'build-profile.csv',
+                     'analysis-filename': 'analysis-profile.csv',
+                     'Takeoff Speed': 0.0,
+                     'Snow Budget': 0.0,
+                     'Flight Time': 0.0,
+                     'Flight Distance': 0.0,
+                     'Flight Height': 0.0}
     try:
         *surfs, outputs = make_jump(slope_angle, 0.0, approach_len,
                                     takeoff_angle, fall_height)
     except InvalidJumpError as e:
         logging.error('Graph update error:', exc_info=e)
         dic = blank_graph('<br>'.join(textwrap.wrap(str(e), 30)))
-        dic['outputs'] = {'download': '#',
-                          'analysis-download': '#',
-                          'filename': 'build-profile.csv',
-                          'analysis-filename': 'analysis-profile.csv',
-                          'Takeoff Speed': 0.0,
-                          'Snow Budget': 0.0,
-                          'Flight Time': 0.0,
-                          'Flight Distance': 0.0,
-                          'Flight Height': 0.0}
+        dic['outputs'] = blank_outputs
     else:
         # NOTE : Move origin to start of takeoff.
         new_origin = surfs[2].start
@@ -1299,14 +1301,20 @@ def generate_data(slope_angle, approach_len, takeoff_angle, fall_height):
             surface.shift_coordinates(-new_origin[0], -new_origin[1])
         dic = populated_graph(surfs)
         input_params = [-slope_angle, approach_len, takeoff_angle, fall_height]
-        build_file, analysis_file = generate_csv_data(surfs)
-        outputs['download'] = build_file
-        outputs['analysis-download'] = analysis_file
-        fname = ("-profile-sa{:.1f}-al{:.1f}-ta{:.1f}-"
-                 "efh{:.2f}.csv").format(*input_params)
-        outputs['filename'] = "build" + fname
-        outputs['analysis-filename'] = "analysis" + fname
-        dic['outputs'] = outputs
+        try:
+            build_file, analysis_file = generate_csv_data(surfs)
+        except InvalidJumpError as e:
+            logging.error('Failed to create csv download data:', exc_info=e)
+            dic = blank_graph('<br>'.join(textwrap.wrap(str(e), 30)))
+            dic['outputs'] = blank_outputs
+        else:
+            outputs['download'] = build_file
+            outputs['analysis-download'] = analysis_file
+            fname = ("-profile-sa{:.1f}-al{:.1f}-ta{:.1f}-"
+                     "efh{:.2f}.csv").format(*input_params)
+            outputs['filename'] = "build" + fname
+            outputs['analysis-filename'] = "analysis" + fname
+            dic['outputs'] = outputs
 
     if cmd_line_args.profile:
         profiler.stop()
@@ -1436,7 +1444,7 @@ def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
             _, approach, takeoff, landing, landing_trans, _, _ = \
                 make_jump(slope_angle, 0.0, approach_len, takeoff_angle,
                           fall_height)
-        except InvalidJumpError as e:
+        except InvalidJumpError:
             # NOTE : Should cause Surface to fail below.
             # TODO : Improve this, currently a poor workaround.
             x_vals = np.array([0.0, 1.0])
@@ -1471,8 +1479,10 @@ def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
 
     try:
         surface = Surface(x_vals, y_vals)
-        distance, efh, speed = surface.calculate_efh(takeoff_angle, takeoff_point,
-                                                 skier, increment=0.5)
+        distance, efh, speed = surface.calculate_efh(takeoff_angle,
+                                                     takeoff_point,
+                                                     skier,
+                                                     increment=0.5)
         update_graph = populated_efh_graph(takeoff_point, surface, distance,
                                            efh, speed)
         data = np.vstack((distance, efh)).T
