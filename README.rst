@@ -1,6 +1,6 @@
-=========================================================
-Ski Jump Design Tool For Specified Equivalent Fall Height
-=========================================================
+======================================================================
+Ski Jump Design and Analysis Tool For Specified Equivalent Fall Height
+======================================================================
 
 ================= ========
 Launch App        |heroku|
@@ -15,10 +15,11 @@ Automated Tests   |ci|
 Introduction
 ============
 
-A ski jump design tool for specified equivalent fall height based on the work
-presented in [1]_. Includes a library for 2D skiing simulations and a graphical
-web application for designing ski jumps. It is written in Python backed by
-NumPy, SciPy, SymPy, Cython, matplotlib, pycvodes, Plotly, and Dash.
+A ski jump design and analysis tool for specified equivalent fall height based
+on the work presented in [1]_. Includes a library for 2D skiing simulations and
+a graphical web application for designing and analyzing ski jumps. It is
+written in Python backed by NumPy, SciPy, SymPy, Cython, matplotlib, pycvodes,
+Plotly, and Dash.
 
 The design tool web application can be accessed at http://www.skijumpdesign.info.
 
