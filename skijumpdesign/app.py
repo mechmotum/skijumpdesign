@@ -1106,8 +1106,8 @@ inputs = [
 
 def blank_graph(msg):
     nan_line = [np.nan]
-    if layout['annotations']:
-        del layout['annotations']
+    if layout.annotations != ():
+        layout.annotations = ()
     data = {'data': [
                      {'x': [0.0, 0.0], 'y': [0.0, 0.0], 'name': 'Parent Slope',
                       'text': ['Invalid Parameters<br>Error: {}'.format(msg)],
