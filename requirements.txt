@@ -8,6 +8,7 @@ dash-table ==3.6.0
 flask ==1.0.2
 flask-compress ==1.4.0
 gunicorn ==19.9.0
+jinja <3.0.0
 jupyter_core ==4.4.0
 matplotlib ==2.2.3
 nbformat ==4.4.0
