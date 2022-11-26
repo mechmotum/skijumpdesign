@@ -7,8 +7,8 @@ from scipy.interpolate import interp1d
 # TODO : Might be better to use:
 # import matplotlib
 # matplotlib.use('Agg')
-# so that it doesn't try to use tk on heroku.
-if 'ONHEROKU' in os.environ:
+# so that it doesn't try to use tk on render.
+if 'ONRENDER' in os.environ:
     plt = None
 else:
     import matplotlib.pyplot as plt

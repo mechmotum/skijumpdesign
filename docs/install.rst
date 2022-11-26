@@ -128,14 +128,14 @@ be of use:
 
 .. [2] This environment will also show up in the Anaconda Navigator program.
 
-Heroku Installation
-===================
+Render.com Installation
+=======================
 
-When installing into a Heroku instance, the application will make use of the
+When installing into a Render web service, the application will make use of the
 ``requirements.txt`` file included in the source code which installs all of the
-dependencies needed to run the software on a live Heroku instance. You need to
-set some environment variables for the Heroku app:
+dependencies needed to run the software on a live onrender.com instance. You
+need to set some environment variables for the Render app:
 
-- ``ONHEROKU=true``: Lets the app know if it is running on Heroku.
+- ``ONRENDER=true``: Lets the app know if it is running on Render.com.
 - ``GATRACKINGID``: Set the value as a string with your Google Analytics
   tracking id.

@@ -12,7 +12,7 @@ from .utils import GRAV_ACC, EPS
 from .utils import compute_dist_from_flat, vel2speed
 
 
-if 'ONHEROKU' in os.environ:
+if 'ONRENDER' in os.environ:
     plt = None
 else:
     import matplotlib.pyplot as plt

@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 from scipy.interpolate import interp1d
-if 'ONHEROKU' in os.environ:
+if 'ONRENDER' in os.environ:
     plt = None
 else:
     import matplotlib.pyplot as plt

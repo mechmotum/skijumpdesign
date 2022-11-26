@@ -3,7 +3,7 @@ Ski Jump Design and Analysis Tool For Specified Equivalent Fall Height
 ======================================================================
 
 ================= ========
-Launch App        |heroku|
+Launch App        Launch_
 JOSS Paper        |joss|
 PyPi Download     |pypi|
 Anaconda Download |conda|
@@ -11,6 +11,8 @@ Documentation     |rtd|
 Conda Forge       |forge|
 Automated Tests   |ci|
 ================= ========
+
+.. _Launch: http://www.skijumpdesign.info
 
 Introduction
 ============
@@ -60,10 +62,6 @@ References
 
 .. |conda| image:: https://anaconda.org/conda-forge/skijumpdesign/badges/version.svg
    :target: https://anaconda.org/conda-forge/skijumpdesign
-
-.. |heroku| image:: http://heroku-badge.herokuapp.com/?app=skijumpdesign&svg=1
-   :target: http://www.skijumpdesign.info
-   :alt: Heroku Application
 
 .. |rtd| image:: https://readthedocs.org/projects/skijumpdesign/badge/?version=stable
    :target: http://skijumpdesign.readthedocs.io/en/stable/?badge=stable

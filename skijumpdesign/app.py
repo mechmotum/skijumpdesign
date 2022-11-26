@@ -56,15 +56,15 @@ BOOTSTRAP_JS_URL = 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap
 logger = logging.getLogger('skijumpdesign')
 logger.setLevel(logging.INFO)
 
-# NOTE : ONHEROKU is a custom env variable that needs to be set via the app
+# NOTE : ONRENDER is a custom env variable that needs to be set via the app
 # settings on heroku.com. This should be set as TRUE for the primary and
 # staging apps.
-if 'ONHEROKU' in os.environ:
+if 'ONRENDER' in os.environ:
     cmd_line_args = lambda x: None
     cmd_line_args.profile = False
 
     # NOTE : GATRACKINGID is a custom env variable that needs to be set via the
-    # app settings on heroku.com. This should be set to a string corresponding
+    # app settings on onrender.com. This should be set to a string corresponding
     # to the Google Analytics tracking id associated with the URL the app is
     # running on.
     if 'GATRACKINGID' in os.environ:
@@ -92,7 +92,7 @@ else:
         from pyinstrument import Profiler
 
 # NOTE : Serve the file locally if it exists. Works for development and on
-# heroku. It will not exist when installed via setuptools because the data file
+# render. It will not exist when installed via setuptools because the data file
 # is placed at sys.prefix instead of into the site-packages directory. The
 # backup is to serve from our git repo, but we must go through a third party to
 # ensure that the content-type headers are correct, in this case:
@@ -223,7 +223,7 @@ home_colophon_text = """\
 
 This website was designed by Jason K. Moore, Mont Hubbard, and Bryn Cloud based
 on theoretical and computational work detailed in [1]. A description of actual
-fabrication of a constant equivlanet fall height jump is contained in [2].
+fabrication of a constant equivalent fall height jump is contained in [2].
 
 The software that powers the website is open source and information on it can
 be found here:
