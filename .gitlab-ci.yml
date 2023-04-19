@@ -11,6 +11,8 @@ before_script:
   - apt-get update -q -y
   - apt install -y libgl1-mesa-glx build-essential
   - conda config --set always_yes yes
+  - conda config --add channels conda-forge
+  - conda config --set channel_priority strict
   - conda update -q conda
   - conda install mamba
   - mamba env create -f conda/skijumpdesign-lib.yml
