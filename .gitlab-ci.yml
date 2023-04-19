@@ -11,11 +11,14 @@ before_script:
   - apt-get update -q -y
   - apt install -y libgl1-mesa-glx build-essential
   - conda config --set always_yes yes
+  - conda config --add channels conda-forge
+  - conda config --set channel_priority strict
   - conda update -q conda
-  - conda env create -f conda/skijumpdesign-lib.yml
-  - conda env create -f conda/skijumpdesign-lib-dev.yml
-  - conda env create -f conda/skijumpdesign-lib-opt-dev.yml
-  - conda info
+  - conda install mamba
+  - mamba env create -f conda/skijumpdesign-lib.yml
+  - mamba env create -f conda/skijumpdesign-lib-dev.yml
+  - mamba env create -f conda/skijumpdesign-lib-opt-dev.yml
+  - mamba info
 
 install:
   script:
@@ -26,19 +29,19 @@ install:
 test:
   script:
     - source activate skijumpdesign-lib
-    - conda list
+    - mamba list
     - python -c "import skijumpdesign"
 
 test_dev:
   script:
     - source activate skijumpdesign-lib-dev
-    - conda list
+    - mamba list
     - py.test --cov=skijumpdesign
 
 test_dev_optional:
   script:
     - source activate skijumpdesign-lib-opt-dev
-    - conda list
+    - mamba list
     - py.test --cov=skijumpdesign
 
 docs:
