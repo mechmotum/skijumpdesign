@@ -1496,7 +1496,7 @@ def update_efh_graph(n_clicks, dummy, json_data, takeoff_angle):
     # https://stackoverflow.com/questions/22355026/numpy-savetxt-to-a-string
     buf = BytesIO()
     np.savetxt(buf, data, fmt='%.2f', delimiter=',', newline="\n")
-    header = 'Distance Along Slope [m],EFH [m]\n'
+    header = 'Horizontal Distance [m],EFH [m]\n'
     text = header + buf.getvalue().decode()
     csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(text)
     return update_graph, error_text, csv_string, ''
